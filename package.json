@@ -1,5 +1,5 @@
 {
-  "name": "bitcoin-address-analytics",
+  "name": "utxo-utils",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -48,5 +48,5 @@
     "vite": "^5.0.0",
     "vitest": "^0.34.6"
   },
-  "description": "An Ionic project"
+  "description": "Cross platform application to help analyzing bitcoin addresses"
 }

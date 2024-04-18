@@ -1,6 +1,6 @@
 {
-  "short_name": "Ionic App",
-  "name": "My Ionic App",
+  "short_name": "UTXO Utils",
+  "name": "Cross platform application to help analyzing UTXO's",
   "icons": [
     {
       "src": "assets/icon/favicon.png",
