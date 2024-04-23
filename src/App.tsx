@@ -1,6 +1,6 @@
 import { IonApp, IonContent, IonRouterOutlet, IonSplitPane, setupIonicReact } from '@ionic/react';
-import { Route } from 'react-router-dom';
-import Menu from './components/Menu';
+import { Route, Switch } from 'react-router-dom';
+import Menu from './components/menu/Menu';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -39,10 +39,12 @@ const App: React.FC = () => {
         <IonRouterOutlet id="main">
           <IonContent fullscreen>
             <Header />
-
-            {pages.map((page, index) =>
-              <Route key={index} path={page.url} exact render={page.component}></Route>
-            )}
+            <Switch>
+              {pages.map((page, index) =>
+                <Route key={index} path={page.url} exact render={page.component}></Route>
+              )}
+              <Route render={pages[0].component} />
+            </Switch>
           </IonContent>
         </IonRouterOutlet>
 

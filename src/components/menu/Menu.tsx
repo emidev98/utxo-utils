@@ -13,7 +13,7 @@ import {
 import { useLocation } from 'react-router-dom';
 import './Menu.scss';
 import { logoGithub } from 'ionicons/icons';
-import { usePages } from '../hooks/usePages';
+import { usePages } from '../../hooks/usePages';
 
 const Menu: React.FC = () => {
   const location = useLocation();
