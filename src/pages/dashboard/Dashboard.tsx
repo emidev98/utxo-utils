@@ -1,12 +1,12 @@
 import React from 'react';
 import './Dashboard.scss';
 
-const Dashboard: React.FC = () => {
+const DashboardPage: React.FC = () => {
   return (
     <div className='DashboardPage'>
-      Dashboard
+      DashboardPage
     </div>
   );
 };
 
-export default Dashboard;
+export default DashboardPage;

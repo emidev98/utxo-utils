@@ -1,0 +1,16 @@
+@import "../../theme/mixins.scss";
+
+.NewAddress {
+
+    .InputElement {
+        margin-bottom: 2em;
+    }
+
+    .ImportDataButton{
+        width: 100%;
+    }
+
+    .ModalFooter {
+        padding : 1em;
+    }
+}

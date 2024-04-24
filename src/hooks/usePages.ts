@@ -1,9 +1,11 @@
 
 import { listOutline, listSharp, archiveOutline, archiveSharp, cogOutline, cogSharp, pieChartOutline, pieChartSharp, alarmOutline, alarmSharp } from 'ionicons/icons';
-import Dashboard from '../pages/dashboard/Dashboard';
-import List from '../pages/list/List';
-import Settings from '../pages/settings/Settings';
 import { useLocation } from 'react-router';
+import ArchivePage from '../pages/archive/Archive';
+import AlertsPage from '../pages/alerts/Alerts';
+import DashboardPage from '../pages/dashboard/Dashboard';
+import ListPage from '../pages/list/List';
+import SettingsPage from '../pages/settings/Settings';
 
 export interface Page {
     url: string;
@@ -22,33 +24,35 @@ export const usePages = () => {
             url: '/dashboard',
             iosIcon: pieChartOutline,
             mdIcon: pieChartSharp,
-            component: Dashboard
+            component: DashboardPage
         },
         {
             title: 'List',
             url: '/list',
             iosIcon: listOutline,
             mdIcon: listSharp,
-            component: List
+            component: ListPage
         },
-        // {
-        //     title: 'Alerts',
-        //     url: '/alerts',
-        //     iosIcon: alarmOutline,
-        //     mdIcon: alarmSharp
-        // },
-        // {
-        //     title: 'Archived',
-        //     url: '/archived',
-        //     iosIcon: archiveOutline,
-        //     mdIcon: archiveSharp
-        // },
+        {
+            title: 'Alerts',
+            url: '/alerts',
+            iosIcon: alarmOutline,
+            mdIcon: alarmSharp,
+            component: AlertsPage
+        },
+        {
+            title: 'Archived',
+            url: '/archived',
+            iosIcon: archiveOutline,
+            mdIcon: archiveSharp,
+            component: ArchivePage,
+        },
         {
             title: 'Settings',
             url: '/settings',
             iosIcon: cogOutline,
             mdIcon: cogSharp,
-            component: Settings
+            component: SettingsPage
         }
     ];
 

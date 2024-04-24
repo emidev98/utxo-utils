@@ -1,13 +1,13 @@
 import React from 'react';
 import './List.scss';
 
-const List: React.FC = () => {
+const ListPage: React.FC = () => {
 
   return (
     <div className='ListPage'>
-      List
+      ListPage
     </div>
   );
 };
 
-export default List;
+export default ListPage;

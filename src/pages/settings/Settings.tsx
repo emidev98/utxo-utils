@@ -1,11 +1,11 @@
 import React from 'react';
 import './Settings.scss';
 
-const Settings: React.FC = () => {
+const SettingsPage: React.FC = () => {
 
   return (
-    <div className='SettingsPage'>Settings</div>
+    <div className='SettingsPage'>SettingsPage</div>
   );
 };
 
-export default Settings;
+export default SettingsPage;
