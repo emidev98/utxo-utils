@@ -6,11 +6,15 @@ import validate, { AddressInfo, getAddressInfo } from 'bitcoin-address-validatio
 import { addOutline, closeOutline, closeSharp } from 'ionicons/icons';
 import { useAddresses } from '../../hooks/useAddresses';
 import { useMempoolApi } from '../../hooks/useMempoolApi';
+import Loader from '../loader/Loader';
+import AppToast from '../toast/Toast';
 
 interface NewAddressProps {
     isOpen: boolean;
     onClose: () => void;
 }
+
+const TOAST_DURATION = 4000;
 
 const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
     const [isValidInputLabel, setValidInputLabel] = useState<boolean>();
@@ -22,34 +26,38 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
     const [addressDetails, setAddressDetails] = useState<AddressInfo>();
 
     const [indexInBackgroud, setIndexInBackgroud] = useState(false);
+    const [displayError, setDisplayError] = useState(false);
+    const [amountOfTxsToIndex, setAmountOfTxsToIndex] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const { putTransactions, queryAllTxsGivenAddrInfo, queryAddrInfo } = useMempoolApi();
 
-    const { putAddress, getAddress } = useAddresses();
-    const { getTxsByAddress } = useMempoolApi();
+    const { putAddress, getAddress, trimAddress} = useAddresses();
 
     const onImportAddress = async () => {
+        setIsLoading(true);
         if (addressDetails) {
             const isAlreadyDefined = await getAddress(addressDetails?.address);
+            const addrInfo = await queryAddrInfo(addressDetails?.address);
+            setAmountOfTxsToIndex(addrInfo.chain_stats.tx_count.toString())
 
             if (isAlreadyDefined) {
-                // TODO: toast with error
+                setDisplayError(true);
+                setValidInputAddress(false);
+                setTimeout(() => setDisplayError(false), TOAST_DURATION);
             }
             else {
-                putAddress({
-                    ...addressDetails,
-                    label: addressLabel
-                });
+                putAddress({ ...addressDetails, label: addressLabel });
 
                 if (indexInBackgroud) {
-                    // Index in background
+                    // TODO: Index in background
                 } else {
-                    let txs = getTxsByAddress(addressDetails.address);
-                    console.log(txs)
-
+                    const res = await queryAllTxsGivenAddrInfo(addrInfo);
+                    await putTransactions(addrInfo.address, res)
+                    console.log("res", res);
                 }
             }
         }
-
-
+        setIsLoading(false);
     }
 
     const validateLabel = (ev: Event) => {
@@ -105,12 +113,16 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
                     onIonInput={(event) => validateBitcoinAddress(event)}
                     onIonBlur={() => setTouchedInputAddress(true)} />
 
-                <IonCheckbox className="InputElement"
+                {
+                    /*
+                    <IonCheckbox className="InputElement"
                     labelPlacement="end"
                     value={indexInBackgroud}
                     onClick={() => setIndexInBackgroud(!indexInBackgroud)}>
                     Import data in background and notify when done
                 </IonCheckbox>
+                    */
+                }
             </IonContent>
 
             <IonFooter className='ModalFooter'>
@@ -123,6 +135,14 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
                     Import address
                 </IonButton>
             </IonFooter>
+
+            <Loader isOpen={isLoading}
+                message={`Indexing ${amountOfTxsToIndex} txs for address ${trimAddress(addressDetails?.address)}`} />
+
+            <AppToast isOpen={displayError}
+                onClick={() => setDisplayError(false)}
+                message={`Address ${trimAddress(addressDetails?.address)} already exists. Try providing a different address.`}
+                color="warning"/>
         </IonModal>
     );
 };

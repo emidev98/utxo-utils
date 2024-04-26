@@ -9,6 +9,8 @@ export interface AddressStateObject {
     [key: string]: AddressInfo;
 }
 
+const ADDRESS_STORAGE_KEY = 'addresses';
+
 export const useAddresses = () => {
     const store = new Storage();
 
@@ -17,7 +19,7 @@ export const useAddresses = () => {
 
         addresses[address.address] = address;
 
-        await store.set('addresses', addresses);
+        await store.set(ADDRESS_STORAGE_KEY, addresses);
         return addresses;
     }
 
@@ -28,9 +30,15 @@ export const useAddresses = () => {
 
     const getAddresses = async () => {
         await store.create();
-        const addresses = await store.get('addresses') as AddressStateObject;
+        const addresses = await store.get(ADDRESS_STORAGE_KEY) as AddressStateObject;
         return addresses ? addresses : {};
     }
 
-    return { putAddress, getAddress, getAddresses }
+    const trimAddress = (address?: string) => {
+        if (!address) return "";
+
+        return `${address.substring(0, 6)}...${address.substring(address.length - 4, address.length)}`;
+    }
+
+    return { putAddress, getAddress, getAddresses, trimAddress }
 } 

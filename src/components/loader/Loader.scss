@@ -1,0 +1,11 @@
+.AppLoader {
+
+    .loading-wrapper {
+        max-width: 100%;
+        flex-direction: column;
+
+        .loading-spinner {
+            margin-bottom: 2em;
+        }
+    }
+}
