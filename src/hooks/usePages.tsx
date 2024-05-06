@@ -12,7 +12,7 @@ export interface Page {
     iosIcon: string;
     mdIcon: string;
     title: string;
-    component: React.FC;
+    component: React.ReactNode;
 }
 
 export const usePages = () => {
@@ -24,35 +24,35 @@ export const usePages = () => {
             url: '/dashboard',
             iosIcon: pieChartOutline,
             mdIcon: pieChartSharp,
-            component: DashboardPage
+            component: <DashboardPage />
         },
         {
             title: 'List',
             url: '/list',
             iosIcon: listOutline,
             mdIcon: listSharp,
-            component: ListPage
+            component: <ListPage />
         },
         {
             title: 'Alerts',
             url: '/alerts',
             iosIcon: alarmOutline,
             mdIcon: alarmSharp,
-            component: AlertsPage
+            component: <AlertsPage/>
         },
         {
             title: 'Archived',
             url: '/archived',
             iosIcon: archiveOutline,
             mdIcon: archiveSharp,
-            component: ArchivePage,
+            component: <ArchivePage/>,
         },
         {
             title: 'Settings',
             url: '/settings',
             iosIcon: cogOutline,
             mdIcon: cogSharp,
-            component: SettingsPage
+            component: <SettingsPage/>
         }
     ];
 

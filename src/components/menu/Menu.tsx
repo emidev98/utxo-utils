@@ -1,7 +1,6 @@
 import {
   IonContent,
   IonIcon,
-  IonItem,
   IonLabel,
   IonList,
   IonListHeader,
@@ -10,32 +9,31 @@ import {
   IonNote,
 } from '@ionic/react';
 
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import './Menu.scss';
 import { logoGithub } from 'ionicons/icons';
 import { usePages } from '../../hooks/usePages';
+import { NavLink } from 'react-router-dom';
 
 const Menu: React.FC = () => {
   const location = useLocation();
   const { pages } = usePages();
 
   return (
-    <IonMenu contentId="main" type="overlay">
+    <IonMenu className="AppMenu" contentId="main" type="overlay">
       <IonContent>
         <IonList id="inbox-list">
           <IonListHeader>UTXO Utils</IonListHeader>
-          <IonNote className='github-info'>
+          <IonNote className="github-info">
             <IonIcon aria-hidden="true" md={logoGithub}></IonIcon>
             <span>emidev98/utxo-utils</span>
           </IonNote>
           {pages.map((page, index) => {
             return (
-              <IonMenuToggle key={index} autoHide={false}>
-                <IonItem className={location.pathname === page.url ? 'selected' : ''} routerLink={page.url} routerDirection="none" lines="none" detail={false}>
-                  <IonIcon aria-hidden="true" slot="start" ios={page.iosIcon} md={page.mdIcon} />
-                  <IonLabel>{page.title}</IonLabel>
-                </IonItem>
-              </IonMenuToggle>
+              <NavLink key={index} className="MenuEntry" to={page.url}>
+                <IonIcon ios={page.iosIcon} md={page.mdIcon} />
+                <IonLabel>{page.title}</IonLabel>
+              </NavLink>
             );
           })}
         </IonList>

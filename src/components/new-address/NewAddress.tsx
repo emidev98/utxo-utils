@@ -8,6 +8,7 @@ import { useAddresses } from '../../hooks/useAddresses';
 import { useMempoolApi } from '../../hooks/useMempoolApi';
 import Loader from '../loader/Loader';
 import AppToast from '../toast/Toast';
+import { useTxs } from '../../hooks/useTxs';
 
 interface NewAddressProps {
     isOpen: boolean;
@@ -25,13 +26,19 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
     const [isTouchedInputAddress, setTouchedInputAddress] = useState(false);
     const [addressDetails, setAddressDetails] = useState<AddressInfo>();
 
+    // TODO: Index in background 
     const [indexInBackgroud, setIndexInBackgroud] = useState(false);
-    const [displayError, setDisplayError] = useState(false);
+    const [toast, setToastData] = useState({
+        isOpen: false,
+        message: "",
+        color: "",
+    });
     const [amountOfTxsToIndex, setAmountOfTxsToIndex] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const { putTransactions, queryAllTxsGivenAddrInfo, queryAddrInfo } = useMempoolApi();
+    const { queryAllTxsGivenAddrInfo, queryAddrInfo } = useMempoolApi();
+    const { insertTxs } = useTxs();
 
-    const { putAddress, getAddress, trimAddress} = useAddresses();
+    const { putAddress, getAddress, trimAddress } = useAddresses();
 
     const onImportAddress = async () => {
         setIsLoading(true);
@@ -41,9 +48,12 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
             setAmountOfTxsToIndex(addrInfo.chain_stats.tx_count.toString())
 
             if (isAlreadyDefined) {
-                setDisplayError(true);
+                setToastData({
+                    isOpen: true,
+                    message: `Address ${trimAddress(addressDetails?.address)} already exists! Try providing a different address.`,
+                    color: "warning"
+                });
                 setValidInputAddress(false);
-                setTimeout(() => setDisplayError(false), TOAST_DURATION);
             }
             else {
                 putAddress({ ...addressDetails, label: addressLabel });
@@ -52,11 +62,24 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
                     // TODO: Index in background
                 } else {
                     const res = await queryAllTxsGivenAddrInfo(addrInfo);
-                    await putTransactions(addrInfo.address, res)
-                    console.log("res", res);
+                    await insertTxs(addrInfo.address, res)
+
+                    setAddressLabel("")
+                    setAddressDetails({ ...addressDetails, address: "" })
+                    setToastData({
+                        isOpen: true,
+                        message: `${res.length} txs indexed for address ${trimAddress(addressDetails?.address)} successfully!`,
+                        color: "success"
+                    });
                 }
             }
         }
+
+        setTimeout(() => setToastData({
+            isOpen: false,
+            message: "",
+            color: "",
+        }), TOAST_DURATION);
         setIsLoading(false);
     }
 
@@ -98,6 +121,7 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
                     label="* Address label"
                     labelPlacement="floating"
                     type="text"
+                    value={addressLabel}
                     helperText="Human redeable text to identify the address"
                     errorText='Label must have between 1 and 27 characters'
                     onIonInput={(event) => validateLabel(event)}
@@ -108,6 +132,7 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
                     label="* Address"
                     labelPlacement="floating"
                     type="text"
+                    value={addressDetails?.address}
                     helperText="Required a valid Bitcoin adddres to analyze its UTXO"
                     errorText='Invalid Bitcoin address'
                     onIonInput={(event) => validateBitcoinAddress(event)}
@@ -139,10 +164,10 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
             <Loader isOpen={isLoading}
                 message={`Indexing ${amountOfTxsToIndex} txs for address ${trimAddress(addressDetails?.address)}`} />
 
-            <AppToast isOpen={displayError}
-                onClick={() => setDisplayError(false)}
-                message={`Address ${trimAddress(addressDetails?.address)} already exists. Try providing a different address.`}
-                color="warning"/>
+            <AppToast isOpen={toast.isOpen}
+                onClick={() => setToastData({ isOpen: false, message: "", color: "" })}
+                message={toast.message}
+                color={toast.color} />
         </IonModal>
     );
 };

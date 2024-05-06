@@ -1,16 +1,9 @@
-import { Storage } from '@ionic/storage';
 import { AddressInfo } from "../models/MempoolAddress";
 import { Transaction } from "../models/MempoolAddressTxs";
 
-export interface TransactionsStorage {
-    [key: string]: Array<Transaction>;
-}
 
-const TXS_STORAGE_KEY = 'transactions';
 export const useMempoolApi = () => {
-    const store = new Storage();
-
-
+    
     // Get the address details from the mempool API
     const queryAddrInfo = async (address: string) => {
         const res: AddressInfo = await fetch(`https://mempool.space/api/address/${address}`)
@@ -78,26 +71,10 @@ export const useMempoolApi = () => {
         return allTransactions;
     }
 
-    // Query all transactions for a given address and save them in the store
-    // under the key TXS_STORAGE_KEY to be used later.
-    const putTransactions = async (address: string, transactions: Array<Transaction>) => {
-        await store.create();
-        await store.set(TXS_STORAGE_KEY, { [address]: transactions });
-    }
-
-    // Get all transactions for a given address from the store.
-    const getStoredTxs = async (address: string) => {
-        await store.create();
-        const transactions = await store.get(TXS_STORAGE_KEY) as TransactionsStorage;
-        return transactions[address];
-    }
-
     return {
         queryAddrInfo,
         queryTxsByAddr,
         queryAllTxs,
-        putTransactions,
         queryAllTxsGivenAddrInfo,
-        getStoredTxs
     };
 } 

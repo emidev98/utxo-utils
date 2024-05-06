@@ -1,5 +1,6 @@
 import { Storage } from '@ionic/storage';
 import { AddressInfo } from 'bitcoin-address-validation';
+import { useEffect, useState } from 'react';
 
 interface AddressInfoExtended extends AddressInfo {
     label: string;
@@ -12,7 +13,14 @@ export interface AddressStateObject {
 const ADDRESS_STORAGE_KEY = 'addresses';
 
 export const useAddresses = () => {
-    const store = new Storage();
+    const [store] = useState(new Storage());
+
+    useEffect(() => {
+        const initializeStorage = async () => {
+            await store.create();
+        };
+        initializeStorage();
+    }, [store]);
 
     const putAddress = async (address: AddressInfoExtended) => {
         const addresses = await getAddresses();
@@ -29,7 +37,6 @@ export const useAddresses = () => {
     }
 
     const getAddresses = async () => {
-        await store.create();
         const addresses = await store.get(ADDRESS_STORAGE_KEY) as AddressStateObject;
         return addresses ? addresses : {};
     }

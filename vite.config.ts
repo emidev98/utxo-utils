@@ -12,13 +12,6 @@ export default defineConfig({
             }
         },
     },
-    resolve: {
-        alias: {
-            process: "process/browser",
-            stream: "stream-browserify",
-            util: "util",
-        },
-    },
     test: {
       globals: true,
       environment: 'jsdom',

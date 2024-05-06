@@ -1,5 +1,4 @@
-import { IonApp, IonContent, IonFab, IonFabButton, IonFabList, IonIcon, IonRouterOutlet, IonSplitPane, setupIonicReact, useIonRouter } from '@ionic/react';
-import { Route, Switch } from 'react-router-dom';
+import { IonApp, IonContent, IonFab, IonFabButton, IonIcon, IonSplitPane, setupIonicReact } from '@ionic/react';
 import Menu from './components/menu/Menu';
 
 /* Core CSS required for Ionic components to work properly */
@@ -27,20 +26,21 @@ import React, { useEffect, useState } from 'react';
 import Header from './components/header/Header';
 import { addOutline, addSharp } from 'ionicons/icons';
 import NewAddress from './components/new-address/NewAddress';
+import { Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 
 setupIonicReact();
 
 const App: React.FC = () => {
   const { pages, getCurrentPage } = usePages();
   const [isOpen, setOpen] = useState(false);
-  const router = useIonRouter();
+  const navigate = useNavigate();
 
   // Load the first page in the app 
   // when user tries to access a page
   // that is not defined in the router
   useEffect(() => {
     const currentPage = getCurrentPage();
-    router.push(currentPage.url);
+    navigate(currentPage.url);
   }, [])
 
   return (
@@ -48,16 +48,15 @@ const App: React.FC = () => {
       <IonSplitPane contentId="main" >
         <Menu />
 
-        <IonRouterOutlet id="main">
-          <IonContent fullscreen>
-            <Header />
-            <Switch>
-              {pages.map((page, index) =>
-                <Route key={index} path={page.url} exact render={page.component}></Route>
-              )}
-            </Switch>
-          </IonContent>
-        </IonRouterOutlet>
+        <IonContent id="main" fullscreen>
+          <Header />
+          <div id="PageContent">
+            <Routes>
+              {pages.map((page, index) => <Route key={index} path={page.url} element={page.component} />)}
+            </Routes>
+            <Outlet />
+          </div>
+        </IonContent>
 
       </IonSplitPane>
 
