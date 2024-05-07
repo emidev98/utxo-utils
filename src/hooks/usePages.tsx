@@ -1,11 +1,12 @@
 
-import { listOutline, listSharp, archiveOutline, archiveSharp, cogOutline, cogSharp, pieChartOutline, pieChartSharp, alarmOutline, alarmSharp } from 'ionicons/icons';
+import { listOutline, listSharp, archiveOutline, archiveSharp, cogOutline, cogSharp, pieChartOutline, pieChartSharp, alarmOutline, alarmSharp, walletOutline, walletSharp } from 'ionicons/icons';
 import { useLocation } from 'react-router';
 import ArchivePage from '../pages/archive/Archive';
 import AlertsPage from '../pages/alerts/Alerts';
 import DashboardPage from '../pages/dashboard/Dashboard';
 import ListPage from '../pages/list/List';
 import SettingsPage from '../pages/settings/Settings';
+import WalletsPage from '../pages/wallets/Wallets';
 
 export interface Page {
     url: string;
@@ -25,6 +26,13 @@ export const usePages = () => {
             iosIcon: pieChartOutline,
             mdIcon: pieChartSharp,
             component: <DashboardPage />
+        },
+        {
+            title: 'Wallets',
+            url: '/wallets',
+            iosIcon: walletOutline,
+            mdIcon: walletSharp,
+            component: <WalletsPage />
         },
         {
             title: 'List',

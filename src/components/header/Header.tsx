@@ -45,7 +45,7 @@ const Header: React.FC = () => {
                     <IonButtons slot="start"><IonMenuButton /></IonButtons>
                     <IonIcon className='PageIcon' slot="start" ios={currentPage?.iosIcon} md={currentPage?.mdIcon} />
                     <IonTitle>{currentPage?.title}</IonTitle>
-                    {price !== "0" && <IonTitle size="small" slot="end">1BTC = {price} $</IonTitle>}
+                    {price !== "0" && <IonTitle size="small" slot="end">1 ₿ = {price} $</IonTitle>}
                 </IonToolbar>
             </IonHeader>
         </div>

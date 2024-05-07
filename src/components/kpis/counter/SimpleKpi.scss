@@ -1,0 +1,19 @@
+.SimpleKpi {
+    text-wrap: nowrap;
+    text-align: center;
+    overflow: auto;
+
+    .SkeletonTitle {
+        margin-right: auto;
+        margin-left: auto;
+        width: 60px;
+        height: 21px;
+    }
+    
+    .SkeletonSubTitle {
+        margin-right: auto;
+        margin-left: auto;
+        width: 140px;
+        height: 12px;
+    }
+}

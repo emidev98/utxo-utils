@@ -1,7 +1,14 @@
+@import './theme/tables.scss';
+
 .menu-pane-visible {
     max-width: 304px;
 }
 
 #PageContent {
     padding: 2em;
+    height: calc(100% - 56px);
+
+    >:first-child {
+        height: 100%;
+    }
 }

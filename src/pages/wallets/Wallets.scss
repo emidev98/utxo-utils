@@ -1,0 +1,14 @@
+.WalletsPage{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 1em;
+
+    .TableData {
+        grid-column-start: 1;
+        grid-column-end: 5;
+        margin: 10px;
+        background-color: var(--ion-card-background, var(--ion-item-background, var(--ion-background-color, #fff)));
+        
+    }
+}
