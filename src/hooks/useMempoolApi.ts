@@ -1,12 +1,11 @@
 import { AddressInfo } from "../models/MempoolAddress";
 import { Transaction } from "../models/MempoolAddressTxs";
 
-
 export const useMempoolApi = () => {
     
     // Get the address details from the mempool API
     const queryAddrInfo = async (address: string) => {
-        const res: AddressInfo = await fetch(`https://mempool.space/api/address/${address}`)
+        const res: AddressInfo = await fetch(`http://192.168.1.100:3006/api/address/${address}`)
             .then(response => response.json())
             .catch(error => console.error('Error fetching data:', error));
 
@@ -19,8 +18,8 @@ export const useMempoolApi = () => {
     // no more transactions are available. 
     const queryTxsByAddr = async (address: string, txId?: string) => {
         const url = txId ?
-            `https://mempool.space/api/address/${address}/txs/chain/${txId}` :
-            `https://mempool.space/api/address/${address}/txs`;
+            `http://192.168.1.100:3006/api/address/${address}/txs/chain/${txId}` :
+            `http://192.168.1.100:3006/api/address/${address}/txs`;
 
         const res: Array<Transaction> = await fetch(url)
             .then(response => response.json())

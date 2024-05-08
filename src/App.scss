@@ -1,14 +1,16 @@
 @import './theme/tables.scss';
+@import './theme/card.scss';
+@import './theme/charts.scss';
 
 .menu-pane-visible {
     max-width: 304px;
 }
 
 #PageContent {
-    padding: 2em;
-    height: calc(100% - 56px);
+    margin: 2em 2em 0 2em;
+    height: calc(100vh - 120px);
 
     >:first-child {
-        height: 100%;
+        height: inherit;
     }
 }

@@ -1,22 +1,21 @@
 import { Storage } from '@ionic/storage';
-import { AddressInfo } from 'bitcoin-address-validation';
+import { AddressInfo as AddressInfoComputed } from 'bitcoin-address-validation';
 import { useEffect, useState } from 'react';
-import { TransactionsStorage, useTxs } from './useTxs';
 import _ from 'lodash';
+import { AddressInfo } from '../models/MempoolAddress';
 
-interface AddressInfoExtended extends AddressInfo {
+export interface AddressInfoExtended extends AddressInfoComputed, AddressInfo {
     label: string;
 }
 
 export interface AddressStateObject {
-    [key: string]: AddressInfo;
+    [key: string]: AddressInfoExtended;
 }
 
 const ADDRESS_STORAGE_KEY = 'addresses';
 
 export const useAddresses = () => {
     const [store] = useState(new Storage());
-    const { splitSTXOandUTXO } = useTxs();
 
     useEffect(() => {
         const initializeStorage = async () => {
@@ -44,38 +43,15 @@ export const useAddresses = () => {
         return addresses ? addresses : {};
     }
 
-    const trimAddress = (address?: string) => {
-        if (!address) return "";
+    const sumBalances = (addrStore: AddressStateObject) => {
+        let _totalHoldings = 0;
 
-        return `${address.substring(0, 6)}...${address.substring(address.length - 4, address.length)}`;
-    }
-
-    const countAddresses = (addresses: AddressStateObject) => {
-        return Object.keys(addresses).length;
-    }
-
-    const sumUTXO = (txStore: TransactionsStorage, addrStore: AddressStateObject) => {
-        const splitted = splitSTXOandUTXO(txStore, addrStore);
-        const _totalHoldings = _.chain(splitted)
-            .flatMap(tx => tx.utxo)
-            .filter(tx => {
-                // Check if any of the vout addresses are in the address list
-                const isInputToExistingAddress = !!_.find(tx.vout, (vout) => addrStore[vout.scriptpubkey_address] !== undefined);
-
-                return isInputToExistingAddress;
-            })
-            .sumBy(tx => {
-                return _.sumBy(tx.vout, (vout) => {
-                    if (addrStore[vout.scriptpubkey_address] !== undefined) {
-                        return vout.value;
-                    }
-                    return 0;
-                });
-            })
-            .value();
+        _.forEach(addrStore, (addr) => {
+            _totalHoldings += (addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_count)
+        })
 
         return _totalHoldings;
     };
 
-    return { putAddress, getAddress, getAddresses, trimAddress, countAddresses, sumUTXO }
+    return { putAddress, getAddress, getAddresses, sumBalances }
 } 

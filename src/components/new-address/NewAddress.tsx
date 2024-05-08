@@ -9,6 +9,7 @@ import { useMempoolApi } from '../../hooks/useMempoolApi';
 import Loader from '../loader/Loader';
 import AppToast from '../toast/Toast';
 import { useTxs } from '../../hooks/useTxs';
+import useFormatter from '../../hooks/useFormatter';
 
 interface NewAddressProps {
     isOpen: boolean;
@@ -38,10 +39,12 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
     const { queryAllTxsGivenAddrInfo, queryAddrInfo } = useMempoolApi();
     const { insertTxs } = useTxs();
 
-    const { putAddress, getAddress, trimAddress } = useAddresses();
+    const { putAddress, getAddress } = useAddresses();
+    const { addressFormatter } = useFormatter();
 
     const onImportAddress = async () => {
         setIsLoading(true);
+        setAmountOfTxsToIndex("")
         if (addressDetails) {
             const isAlreadyDefined = await getAddress(addressDetails?.address);
             const addrInfo = await queryAddrInfo(addressDetails?.address);
@@ -50,25 +53,25 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
             if (isAlreadyDefined) {
                 setToastData({
                     isOpen: true,
-                    message: `Address ${trimAddress(addressDetails?.address)} already exists! Try providing a different address.`,
+                    message: `Address ${addressFormatter(addressDetails?.address)} already exists! Try providing a different address.`,
                     color: "warning"
                 });
                 setValidInputAddress(false);
             }
             else {
-                putAddress({ ...addressDetails, label: addressLabel });
 
                 if (indexInBackgroud) {
                     // TODO: Index in background
                 } else {
                     const res = await queryAllTxsGivenAddrInfo(addrInfo);
-                    await insertTxs(addrInfo.address, res)
+                    await insertTxs(addrInfo, res)
 
+                    putAddress({ ...addressDetails, ...addrInfo, label: addressLabel });
                     setAddressLabel("")
                     setAddressDetails({ ...addressDetails, address: "" })
                     setToastData({
                         isOpen: true,
-                        message: `${res.length} txs indexed for address ${trimAddress(addressDetails?.address)} successfully!`,
+                        message: `${res.length} txs indexed for address ${addressFormatter(addressDetails?.address)} successfully!`,
                         color: "success"
                     });
                 }
@@ -162,7 +165,7 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
             </IonFooter>
 
             <Loader isOpen={isLoading}
-                message={`Indexing ${amountOfTxsToIndex} txs for address ${trimAddress(addressDetails?.address)}`} />
+                message={`Indexing ${amountOfTxsToIndex} txs for address ${addressFormatter(addressDetails?.address)}`} />
 
             <AppToast isOpen={toast.isOpen}
                 onClick={() => setToastData({ isOpen: false, message: "", color: "" })}

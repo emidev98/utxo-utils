@@ -7,8 +7,15 @@ const useFormatter = () => {
         return (value / 100000000) + " ₿"
     }
 
+    const addressFormatter = (address?: string) => {
+        if (!address) return "";
+
+        return `${address.substring(0, 6)}...${address.substring(address.length - 4, address.length)}`;
+    }
+    
     return {
-        BTCFormatter
+        BTCFormatter,
+        addressFormatter
     }
 }
 

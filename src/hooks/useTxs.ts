@@ -3,6 +3,7 @@ import { Transaction } from '../models/MempoolAddressTxs';
 import { useEffect, useState } from 'react';
 import { AddressStateObject } from './useAddresses';
 import * as _ from 'lodash';
+import { AddressInfo } from '../models/MempoolAddress';
 
 export interface TransactionsStorage {
     [key: string]: Array<Transaction>;
@@ -28,14 +29,14 @@ export const useTxs = () => {
     }, [store]);
 
 
-    const insertTxs = async (address: string, transactions: Array<Transaction>) => {
+    const insertTxs = async (addrInfo: AddressInfo, transactions: Array<Transaction>) => {
         let storedTxs = await getAllTxs();
-        let addrEntry = storedTxs[address];
+        let addrEntry = storedTxs[addrInfo.address];
 
         if (addrEntry) {
-            storedTxs[address] = addrEntry.concat(transactions);
+            storedTxs[addrInfo.address] = addrEntry.concat(transactions);
         } else {
-            storedTxs[address] = transactions;
+            storedTxs[addrInfo.address] = transactions;
         }
 
         await store.set(TXS_STORAGE_KEY, storedTxs);
@@ -58,43 +59,28 @@ export const useTxs = () => {
         return res ? res : {};
     }
 
-    // Given the stores of transactions and addresses, calculate the total fees paid
-    // by the user for all their addresses splitting the txs in Input and Output transactions.
-    const calculatePaidTxsFees = (txStore: TransactionsStorage, addrStore: AddressStateObject) => {
-        const splitted = splitSTXOandUTXO(txStore, addrStore);
+
+    const calculatePaidTxsFees = (txStore: TransactionsStorage) => {
         let feesPaid = 0;
 
-        _.forEach(splitted, (txs, addr) => {
-            feesPaid += _.sumBy(txs.stxo, 'fee');
+        _.forEach(txStore, (txs, addr) => {
+            _.forEach(txs, (tx) => {
+                feesPaid += tx.fee;
+            });
         });
 
         return feesPaid;
     }
-    
-    // The function's purpose is to split the transactions for each address into two categories: 
-    // spent transaction outputs (STXO) and unspent transaction outputs (UTXO). 
-    const splitSTXOandUTXO = (txStore: TransactionsStorage, addrStore: AddressStateObject): STXOandUTXO => {
-        let data: STXOandUTXO = {};
 
-        _.forEach(txStore, (txs, addr) => {
-            data[addr] = {
-                stxo: new Array<Transaction>(),
-                utxo: new Array<Transaction>()
-            }
+    // Returns the first transaction in and the last transaction out
+    const getFirstInAndLastOut = (txStore: TransactionsStorage, address: string) => {
+        const sorted = _.sortBy(txStore[address], "status.block_time");
 
-            _.forEach(txs, (tx) => {
-                const isInputExistingAddress = !!_.find(tx.vout, (vout) =>  addrStore[vout.scriptpubkey_address] !== undefined);
-
-                if (isInputExistingAddress) {
-                    data[addr].utxo.push(tx);
-                } else {
-                    data[addr].stxo.push(tx);
-                }
-            });
-        });
-
-        return data;
+        return {
+            firstIn: sorted[0],
+            lastOut: sorted[sorted.length - 1]
+        }
     }
 
-    return { insertTxs, getAllTxs, getTxsByAddress, calculatePaidTxsFees, splitSTXOandUTXO}
+    return { insertTxs, getAllTxs, getTxsByAddress, calculatePaidTxsFees, getFirstInAndLastOut }
 } 
