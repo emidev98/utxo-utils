@@ -1,5 +1,12 @@
 /* screen */
 $breakpoint: 992px;
+$wide-breakpoint: 1800px;
+
+@mixin desktop-wide {
+    @media (min-width: $wide-breakpoint) {
+        @content;
+    }
+}
 
 @mixin desktop {
     @media (min-width: $breakpoint) {

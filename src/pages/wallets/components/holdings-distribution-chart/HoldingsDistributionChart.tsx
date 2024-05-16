@@ -9,6 +9,7 @@ import { IonCard, IonCardContent, IonSkeletonText } from '@ionic/react';
 
 interface HoldingsDistributionChartProps {
   addrStore?: AddressStateObject,
+  spendableBalance: number,
   loading?: boolean,
 }
 
@@ -17,7 +18,7 @@ interface ChartSeries extends Array<{
   y: any;
 }> { };
 
-const HoldingsDistributionChart = ({addrStore, loading}: HoldingsDistributionChartProps) => {
+const HoldingsDistributionChart = ({addrStore, spendableBalance, loading}: HoldingsDistributionChartProps) => {
   const { addressFormatter, BTCFormatter } = useFormatter();
   const [options] = useState<ApexOptions>({
     chart: {
@@ -69,7 +70,10 @@ const HoldingsDistributionChart = ({addrStore, loading}: HoldingsDistributionCha
     },
     yaxis: {
       labels: {
-        formatter: (val) => BTCFormatter(val)
+        formatter: (val) => {
+          const avg = (val / spendableBalance * 100).toFixed(2);
+          return BTCFormatter(val) + ` (${avg}%)`;
+        }
       }
     },
     xaxis: {

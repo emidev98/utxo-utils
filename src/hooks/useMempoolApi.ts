@@ -1,11 +1,31 @@
+import { useEffect, useState } from "react";
 import { AddressInfo } from "../models/MempoolAddress";
 import { Transaction } from "../models/MempoolAddressTxs";
+import { Storage } from "@ionic/storage";
 
+export interface MempoolStore {
+    mempoolAPIUrl: string;
+}
+const STORE_KEY = 'mempool_store';
 export const useMempoolApi = () => {
-    
+    const [store] = useState(new Storage());
+
+    useEffect(() => {
+        const initializeStorage = async () => {
+            await store.create();
+            if (!await store.get(STORE_KEY)){
+                await store.set(STORE_KEY, {
+                    mempoolAPIUrl: 'http://192.168.1.100:3006'
+                });
+            }
+        };
+        initializeStorage();
+    }, [store]);
+
     // Get the address details from the mempool API
     const queryAddrInfo = async (address: string) => {
-        const res: AddressInfo = await fetch(`http://192.168.1.100:3006/api/address/${address}`)
+        const data: MempoolStore = await store.get(STORE_KEY);
+        const res: AddressInfo = await fetch(`${data.mempoolAPIUrl}/api/address/${address}`)
             .then(response => response.json())
             .catch(error => console.error('Error fetching data:', error));
 
@@ -17,14 +37,14 @@ export const useMempoolApi = () => {
     // from that transaction and fetch the next 10 transactions and so on until
     // no more transactions are available. 
     const queryTxsByAddr = async (address: string, txId?: string) => {
+        const data: MempoolStore = await store.get(STORE_KEY);
         const url = txId ?
-            `http://192.168.1.100:3006/api/address/${address}/txs/chain/${txId}` :
-            `http://192.168.1.100:3006/api/address/${address}/txs`;
+            `${data.mempoolAPIUrl}/api/address/${address}/txs/chain/${txId}` :
+            `${data.mempoolAPIUrl}/api/address/${address}/txs`;
 
         const res: Array<Transaction> = await fetch(url)
             .then(response => response.json())
             .catch(error => console.error('Error fetching data:', error));
-
 
         return res;
     }
@@ -70,10 +90,29 @@ export const useMempoolApi = () => {
         return allTransactions;
     }
 
+    const getStoredData = () => {
+        return store.get(STORE_KEY) as Promise<MempoolStore>;
+    }
+
+    const updateMempoolAPIUrl = async (url: string) => {
+        let data: MempoolStore = await store.get(STORE_KEY);
+        data.mempoolAPIUrl = url;
+        await store.set(STORE_KEY, data);
+    }
+
+    const resetMempoolData = async () => {
+        await store.set(STORE_KEY, {
+            mempoolAPIUrl: 'http://192.168.1.100:3006',
+        });
+    }
+
     return {
         queryAddrInfo,
         queryTxsByAddr,
         queryAllTxs,
         queryAllTxsGivenAddrInfo,
+        getStoredData,
+        updateMempoolAPIUrl,
+        resetMempoolData,
     };
 } 

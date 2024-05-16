@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Wallets.scss';
 import { TransactionsStorage, useTxs } from '../../hooks/useTxs';
 import { AddressStateObject, useAddresses } from '../../hooks/useAddresses';
@@ -9,8 +9,8 @@ import WalletsTable from './components/wallets-table/WalletsTable';
 import HoldingsDistributionChart from './components/holdings-distribution-chart/HoldingsDistributionChart';
 
 const WalletsPage = ({ }) => {
-  const { getAllTxs, calculatePaidTxsFees } = useTxs();
-  const { getAddresses, sumBalances } = useAddresses();
+  const { getAllTxs } = useTxs();
+  const { getAddresses, sumBalances, sumTxsFeesPaid} = useAddresses();
   const { BTCFormatter } = useFormatter();
 
   const [isLoading, setLoading] = useState(true);
@@ -30,7 +30,7 @@ const WalletsPage = ({ }) => {
 
       setAddrCount( Object.keys(_addrStore).length);
       setTxsCount(flattenTxs.filter((tx) => tx.status.confirmed).length);
-      setFeesPaid(0);
+      setFeesPaid(sumTxsFeesPaid(_txStore, _addrStore));
       setSpendableBalance(sumBalances(_addrStore));
 
       setTxStore(_txStore);
@@ -44,10 +44,10 @@ const WalletsPage = ({ }) => {
   return (
     <div className='WalletsPage'>
       <SimpleKpi loading={isLoading} amount={addrCount} message='Addresses' />
-      <SimpleKpi loading={isLoading} amount={txsCount} message='Total Tx ' />
+      <SimpleKpi loading={isLoading} amount={txsCount} message='Confirmed Tx ' />
       <SimpleKpi loading={isLoading} amount={BTCFormatter(spendableBalance)} message='Spendable balance' />
       <SimpleKpi loading={isLoading} amount={BTCFormatter(feesPaid)} message='Fees paid' />
-      <HoldingsDistributionChart loading={isLoading} addrStore={addrStore}  />
+      <HoldingsDistributionChart spendableBalance={spendableBalance} loading={isLoading} addrStore={addrStore}  />
       <WalletsTable loading={isLoading} addrStore={addrStore} txStore={txStore} />
     </div>
   );

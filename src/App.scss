@@ -1,6 +1,7 @@
 @import './theme/tables.scss';
 @import './theme/card.scss';
 @import './theme/charts.scss';
+@import './theme/mixins.scss';
 
 .menu-pane-visible {
     max-width: 304px;
@@ -9,6 +10,11 @@
 #PageContent {
     margin: 2em 2em 0 2em;
     height: calc(100vh - 120px);
+
+    @include desktop-wide {
+        max-width: 1400px;
+        margin: 2em auto 0 auto;
+    }
 
     >:first-child {
         height: inherit;

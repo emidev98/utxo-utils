@@ -1,7 +1,6 @@
 import { Storage } from '@ionic/storage';
 import { Transaction } from '../models/MempoolAddressTxs';
 import { useEffect, useState } from 'react';
-import { AddressStateObject } from './useAddresses';
 import * as _ from 'lodash';
 import { AddressInfo } from '../models/MempoolAddress';
 
@@ -9,15 +8,8 @@ export interface TransactionsStorage {
     [key: string]: Array<Transaction>;
 }
 
-// Key being address
-export interface STXOandUTXO {
-    [key: string]: {
-        stxo: Array<Transaction>;
-        utxo: Array<Transaction>;
-    }
-}
 
-const TXS_STORAGE_KEY = 'transactions';
+const STORE_KEY = 'transactions';
 export const useTxs = () => {
     const [store] = useState(new Storage());
 
@@ -39,13 +31,13 @@ export const useTxs = () => {
             storedTxs[addrInfo.address] = transactions;
         }
 
-        await store.set(TXS_STORAGE_KEY, storedTxs);
+        await store.set(STORE_KEY, storedTxs);
 
         return storedTxs;
     }
 
     const getTxsByAddress = async (address: string) => {
-        const res = await store.get(TXS_STORAGE_KEY) as TransactionsStorage;
+        const res = await store.get(STORE_KEY) as TransactionsStorage;
 
         if (res && res[address]) {
             return res[address];
@@ -55,21 +47,8 @@ export const useTxs = () => {
     }
 
     const getAllTxs = async (): Promise<TransactionsStorage> => {
-        const res = await store.get(TXS_STORAGE_KEY) as TransactionsStorage;
+        const res = await store.get(STORE_KEY) as TransactionsStorage;
         return res ? res : {};
-    }
-
-
-    const calculatePaidTxsFees = (txStore: TransactionsStorage) => {
-        let feesPaid = 0;
-
-        _.forEach(txStore, (txs, addr) => {
-            _.forEach(txs, (tx) => {
-                feesPaid += tx.fee;
-            });
-        });
-
-        return feesPaid;
     }
 
     // Returns the first transaction in and the last transaction out
@@ -78,9 +57,25 @@ export const useTxs = () => {
 
         return {
             firstIn: sorted[0],
-            lastOut: sorted[sorted.length - 1]
+            lastOut: sorted.reverse().find((tx) => tx.vin.find((vin) => vin.prevout.scriptpubkey_address === address))
         }
     }
+    // Returns the first transaction in and the last transaction out
+    const getFeesPaid = (txStore: TransactionsStorage, address: string) => {
+        const feesPaid = txStore[address].reduce((acc, tx) => { 
+          if (tx.vout.find(vout => vout.scriptpubkey_address === address)) {
+            acc += tx.fee;
+          }
+  
+          return acc
+        }, 0);
+        
+        return feesPaid;
+    }
 
-    return { insertTxs, getAllTxs, getTxsByAddress, calculatePaidTxsFees, getFirstInAndLastOut }
+    const resetTransactionsData = async () => {
+        await store.set(STORE_KEY, {});
+    }
+
+    return { insertTxs, getAllTxs, getTxsByAddress, getFeesPaid, getFirstInAndLastOut, resetTransactionsData }
 } 

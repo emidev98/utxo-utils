@@ -3,6 +3,7 @@ import { AddressInfo as AddressInfoComputed } from 'bitcoin-address-validation';
 import { useEffect, useState } from 'react';
 import _ from 'lodash';
 import { AddressInfo } from '../models/MempoolAddress';
+import { TransactionsStorage } from './useTxs';
 
 export interface AddressInfoExtended extends AddressInfoComputed, AddressInfo {
     label: string;
@@ -12,7 +13,7 @@ export interface AddressStateObject {
     [key: string]: AddressInfoExtended;
 }
 
-const ADDRESS_STORAGE_KEY = 'addresses';
+const STORE_KEY = 'addresses';
 
 export const useAddresses = () => {
     const [store] = useState(new Storage());
@@ -29,7 +30,7 @@ export const useAddresses = () => {
 
         addresses[address.address] = address;
 
-        await store.set(ADDRESS_STORAGE_KEY, addresses);
+        await store.set(STORE_KEY, addresses);
         return addresses;
     }
 
@@ -39,7 +40,7 @@ export const useAddresses = () => {
     }
 
     const getAddresses = async () => {
-        const addresses = await store.get(ADDRESS_STORAGE_KEY) as AddressStateObject;
+        const addresses = await store.get(STORE_KEY) as AddressStateObject;
         return addresses ? addresses : {};
     }
 
@@ -53,5 +54,26 @@ export const useAddresses = () => {
         return _totalHoldings;
     };
 
-    return { putAddress, getAddress, getAddresses, sumBalances }
+    const sumTxsFeesPaid = (txStore: TransactionsStorage, addrStore: AddressStateObject) => {
+        const addresses = Object.keys(addrStore);
+        let feesPaid = 0;
+
+        addresses.forEach((addr) => {
+            txStore[addr].forEach(tx => {
+                tx.vin.forEach((vin) => {
+                    if (vin.prevout.scriptpubkey_address.includes(addr)) {
+                        feesPaid += tx.fee;
+                    }
+                })
+            })
+        })
+    
+        return feesPaid;
+    }
+
+    const resetAddressesData = async () => {
+        await store.set(STORE_KEY, {});
+    }
+
+    return { putAddress, getAddress, getAddresses, sumBalances, sumTxsFeesPaid, resetAddressesData}
 } 
