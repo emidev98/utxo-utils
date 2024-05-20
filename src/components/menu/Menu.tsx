@@ -5,28 +5,30 @@ import {
   IonList,
   IonListHeader,
   IonMenu,
-  IonMenuToggle,
   IonNote,
 } from '@ionic/react';
 
-import { useLocation } from 'react-router';
 import './Menu.scss';
 import { logoGithub } from 'ionicons/icons';
 import { usePages } from '../../hooks/usePages';
 import { NavLink } from 'react-router-dom';
 
 const Menu: React.FC = () => {
-  const location = useLocation();
   const { pages } = usePages();
 
   return (
     <IonMenu className="AppMenu" contentId="main" type="overlay">
       <IonContent>
         <IonList id="inbox-list">
-          <IonListHeader>UTXO Utils</IonListHeader>
+          <IonListHeader>
+            <img src="/public/logo-x256.png" alt="logo" className='AppLogo'/>
+            <span>UTXO Utils</span>
+          </IonListHeader>
           <IonNote className="github-info">
-            <IonIcon aria-hidden="true" md={logoGithub}></IonIcon>
-            <span>emidev98/utxo-utils</span>
+            <a onClick={()=>window.open('https://github.com/emidev98/utxo-utils/', '_blank')}>
+              <IonIcon aria-hidden="true" md={logoGithub}></IonIcon>
+              <span>emidev98/utxo-utils</span>
+            </a>
           </IonNote>
           {pages.map((page, index) => {
             return (

@@ -7,19 +7,32 @@
 
   ion-list-header {
     padding-left: 10px;
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 600;
     min-height: 20px;
+    margin-bottom: 10px;
+
+    .AppLogo {
+      max-width: 28px;
+      margin-right: 10px;
+    }
   }
 
-  ion-note {
+  .github-info {
     padding-left: 10px;
     font-size: 16px;
-    color: var(--ion-color-medium-shade);
     margin-bottom: 32px;
+    margin-left: 6px;
+    cursor: pointer;
 
-    ion-icon {
-      margin-right: 0.4em;
+    a {
+      display: flex;
+      align-items: center;
+      color: var(--ion-color-medium-shade);
+
+      ion-icon {
+        margin-right: 0.4em;
+      }
     }
   }
 

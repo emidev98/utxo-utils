@@ -21,14 +21,14 @@ export const useTxs = () => {
     }, [store]);
 
 
-    const insertTxs = async (addrInfo: AddressInfo, transactions: Array<Transaction>) => {
+    const appendTxs = async (addr: string, transactions: Array<Transaction>) => {
         let storedTxs = await getAllTxs();
-        let addrEntry = storedTxs[addrInfo.address];
+        let addrEntry = storedTxs[addr];
 
         if (addrEntry) {
-            storedTxs[addrInfo.address] = addrEntry.concat(transactions);
+            storedTxs[addr] = addrEntry.concat(transactions);
         } else {
-            storedTxs[addrInfo.address] = transactions;
+            storedTxs[addr] = transactions;
         }
 
         await store.set(STORE_KEY, storedTxs);
@@ -77,5 +77,5 @@ export const useTxs = () => {
         await store.set(STORE_KEY, {});
     }
 
-    return { insertTxs, getAllTxs, getTxsByAddress, getFeesPaid, getFirstInAndLastOut, resetTransactionsData }
+    return { appendTxs, getAllTxs, getTxsByAddress, getFeesPaid, getFirstInAndLastOut, resetTransactionsData }
 } 

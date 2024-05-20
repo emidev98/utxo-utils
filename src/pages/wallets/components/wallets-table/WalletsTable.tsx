@@ -59,13 +59,8 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
         size: 0,
       },
       {
-        accessorKey : 'feesPaid',
-        header: 'Fees Paid',
-        size: 0,
-      },
-      {
-        accessorKey: 'txCount',
-        header: 'Confirmed Txs',
+        accessorKey: 'lastTxOut',
+        header: 'Last tx sent',
         size: 0,
       },
       {
@@ -74,8 +69,13 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
         size: 0,
       },
       {
-        accessorKey: 'lastTxOut',
-        header: 'Last tx sent',
+        accessorKey : 'feesPaid',
+        header: 'Fees Paid',
+        size: 0,
+      },
+      {
+        accessorKey: 'txCount',
+        header: 'Confirmed Txs',
         size: 0,
       },
       {
@@ -104,12 +104,12 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
       const _filo = getFirstInAndLastOut(txStore, addr.address);
       const txCount = txStore[addr.address].filter((tx) => tx.status.confirmed).length;
       const feesPaid = getFeesPaid(txStore, addr.address)
-      
+      console.log(addr)
       _tableData.push({
         label: addr.label,
         address: addr.address,
         feesPaid: BTCFormatter(feesPaid),
-        balance: BTCFormatter(addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_count),
+        balance: BTCFormatter(addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum),
         txCount: txCount,
         type: addr.type,
         firstTxIn: _filo.firstIn.status.block_time ? moment.unix(_filo.firstIn.status.block_time).format('YYYY-MM-DD HH:mm:ss') : "-",

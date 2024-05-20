@@ -1,6 +1,6 @@
 
 import { listOutline, listSharp, archiveOutline, archiveSharp, cogOutline, cogSharp, pieChartOutline, pieChartSharp, alarmOutline, alarmSharp, walletOutline, walletSharp } from 'ionicons/icons';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import ArchivePage from '../pages/archive/Archive';
 import AlertsPage from '../pages/alerts/Alerts';
 import DashboardPage from '../pages/dashboard/Dashboard';
@@ -18,6 +18,7 @@ export interface Page {
 
 export const usePages = () => {
     const { pathname } = useLocation();
+    const navigate = useNavigate();
 
     const pages: Page[] = [
         {
@@ -74,6 +75,12 @@ export const usePages = () => {
         return page;
     }
 
-    return { pages, getCurrentPage }
+    const navigateToFirstPage = () => {
+        const url = pages[0].url;
+        navigate(url);
+        
+    }
+
+    return { pages, getCurrentPage, navigateToFirstPage }
 }
 

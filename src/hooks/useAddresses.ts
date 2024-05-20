@@ -48,7 +48,7 @@ export const useAddresses = () => {
         let _totalHoldings = 0;
 
         _.forEach(addrStore, (addr) => {
-            _totalHoldings += (addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_count)
+            _totalHoldings += (addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum)
         })
 
         return _totalHoldings;

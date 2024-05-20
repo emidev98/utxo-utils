@@ -15,7 +15,7 @@ export const useMempoolApi = () => {
             await store.create();
             if (!await store.get(STORE_KEY)){
                 await store.set(STORE_KEY, {
-                    mempoolAPIUrl: 'http://192.168.1.100:3006'
+                    mempoolAPIUrl: 'http://192.168.1.100:3006/api/'
                 });
             }
         };
@@ -25,7 +25,7 @@ export const useMempoolApi = () => {
     // Get the address details from the mempool API
     const queryAddrInfo = async (address: string) => {
         const data: MempoolStore = await store.get(STORE_KEY);
-        const res: AddressInfo = await fetch(`${data.mempoolAPIUrl}/api/address/${address}`)
+        const res: AddressInfo = await fetch(`${data.mempoolAPIUrl}/address/${address}`)
             .then(response => response.json())
             .catch(error => console.error('Error fetching data:', error));
 
@@ -39,8 +39,8 @@ export const useMempoolApi = () => {
     const queryTxsByAddr = async (address: string, txId?: string) => {
         const data: MempoolStore = await store.get(STORE_KEY);
         const url = txId ?
-            `${data.mempoolAPIUrl}/api/address/${address}/txs/chain/${txId}` :
-            `${data.mempoolAPIUrl}/api/address/${address}/txs`;
+            `${data.mempoolAPIUrl}/address/${address}/txs/chain/${txId}` :
+            `${data.mempoolAPIUrl}/address/${address}/txs`;
 
         const res: Array<Transaction> = await fetch(url)
             .then(response => response.json())
@@ -102,7 +102,7 @@ export const useMempoolApi = () => {
 
     const resetMempoolData = async () => {
         await store.set(STORE_KEY, {
-            mempoolAPIUrl: 'http://192.168.1.100:3006',
+            mempoolAPIUrl: 'http://192.168.1.100:3006/api/',
         });
     }
 

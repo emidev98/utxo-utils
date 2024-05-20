@@ -37,7 +37,7 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
     const [amountOfTxsToIndex, setAmountOfTxsToIndex] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const { queryAllTxsGivenAddrInfo, queryAddrInfo } = useMempoolApi();
-    const { insertTxs } = useTxs();
+    const { appendTxs } = useTxs();
 
     const { putAddress, getAddress } = useAddresses();
     const { addressFormatter } = useFormatter();
@@ -64,7 +64,7 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
                     // TODO: Index in background
                 } else {
                     const res = await queryAllTxsGivenAddrInfo(addrInfo);
-                    await insertTxs(addrInfo, res)
+                    await appendTxs(addrInfo.address, res)
 
                     putAddress({ ...addressDetails, ...addrInfo, label: addressLabel });
                     setAddressLabel("")
