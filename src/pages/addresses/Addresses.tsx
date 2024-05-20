@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import './Wallets.scss';
+import './Addresses.scss';
 import { TransactionsStorage, useTxs } from '../../hooks/useTxs';
 import { AddressStateObject, useAddresses } from '../../hooks/useAddresses';
 import SimpleKpi from '../../components/kpis/counter/SimpleKpi';
 import * as _ from 'lodash';
 import useFormatter from '../../hooks/useFormatter';
-import WalletsTable from './components/wallets-table/WalletsTable';
 import HoldingsDistributionChart from './components/holdings-distribution-chart/HoldingsDistributionChart';
+import AddressesTable from './components/addresses-table/AddressesTable';
 
-const WalletsPage = ({ }) => {
+const AddressesPage = ({ }) => {
   const { getAllTxs } = useTxs();
   const { getAddresses, sumBalances, sumTxsFeesPaid} = useAddresses();
   const { BTCFormatter } = useFormatter();
@@ -42,15 +42,15 @@ const WalletsPage = ({ }) => {
   }, [addrCount])
 
   return (
-    <div className='WalletsPage'>
+    <div className='AddressesPage'>
       <SimpleKpi loading={isLoading} amount={addrCount} message='Addresses' />
       <SimpleKpi loading={isLoading} amount={txsCount} message='Confirmed Tx ' />
       <SimpleKpi loading={isLoading} amount={BTCFormatter(spendableBalance)} message='Spendable balance' />
       <SimpleKpi loading={isLoading} amount={BTCFormatter(feesPaid)} message='Fees paid' />
       <HoldingsDistributionChart loading={isLoading} addrStore={addrStore}  />
-      <WalletsTable loading={isLoading} addrStore={addrStore} txStore={txStore} />
+      <AddressesTable loading={isLoading} addrStore={addrStore} txStore={txStore} />
     </div>
   );
 };
 
-export default WalletsPage;
+export default AddressesPage;

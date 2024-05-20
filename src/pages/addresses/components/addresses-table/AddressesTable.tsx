@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import './WalletsTable.scss';
+import './AddressesTable.scss';
 import { TransactionsStorage, useTxs } from '../../../../hooks/useTxs';
 import { AddressStateObject } from '../../../../hooks/useAddresses';
 import * as _ from 'lodash';
@@ -26,13 +26,13 @@ interface TableColumn {
   lastTxOut: string;
 }
 
-interface WalletsTableProps {
+interface AddressesTableProps {
   addrStore?: AddressStateObject,
   txStore?: TransactionsStorage,
   loading?: boolean,
 }
 
-const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
+const AddressesTable = ({ addrStore, txStore, loading }: AddressesTableProps) => {
   const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
     () => [
       {
@@ -59,6 +59,11 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
         size: 0,
       },
       {
+        accessorKey : 'feesPaid',
+        header: 'Fees Paid',
+        size: 0,
+      },
+      {
         accessorKey: 'lastTxOut',
         header: 'Last tx sent',
         size: 162,
@@ -69,13 +74,8 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
         size: 162,
       },
       {
-        accessorKey : 'feesPaid',
-        header: 'Fees Paid',
-        size: 0,
-      },
-      {
         accessorKey: 'txCount',
-        header: 'Confirmed Txs',
+        header: 'Txs',
         size: 0,
       },
       {
@@ -140,17 +140,17 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
   }
 
   return (
-    <IonCard className="WalletsTable TableData">
+    <IonCard className="AddressesTable TableData">
     {loading 
-      ? <div className='WalletsTableLoading'>
-        <IonSkeletonText animated={true} className='WalletsTableSkeleton'></IonSkeletonText>
-        <IonSkeletonText animated={true} className='WalletsTableSkeleton'></IonSkeletonText>
-        <IonSkeletonText animated={true} className='WalletsTableSkeleton'></IonSkeletonText>
-        <IonSkeletonText animated={true} className='WalletsTableSkeleton'></IonSkeletonText>
-        <IonSkeletonText animated={true} className='WalletsTableSkeleton'></IonSkeletonText>
-        <IonSkeletonText animated={true} className='WalletsTableSkeleton'></IonSkeletonText>
-        <IonSkeletonText animated={true} className='WalletsTableSkeleton'></IonSkeletonText>
-        <IonSkeletonText animated={true} className='WalletsTableSkeleton'></IonSkeletonText>
+      ? <div className='AddressesTableLoading'>
+        <IonSkeletonText animated={true} className='AddressesTableSkeleton'></IonSkeletonText>
+        <IonSkeletonText animated={true} className='AddressesTableSkeleton'></IonSkeletonText>
+        <IonSkeletonText animated={true} className='AddressesTableSkeleton'></IonSkeletonText>
+        <IonSkeletonText animated={true} className='AddressesTableSkeleton'></IonSkeletonText>
+        <IonSkeletonText animated={true} className='AddressesTableSkeleton'></IonSkeletonText>
+        <IonSkeletonText animated={true} className='AddressesTableSkeleton'></IonSkeletonText>
+        <IonSkeletonText animated={true} className='AddressesTableSkeleton'></IonSkeletonText>
+        <IonSkeletonText animated={true} className='AddressesTableSkeleton'></IonSkeletonText>
       </div>
       : <MaterialReactTable table={table} /> }
 
@@ -162,4 +162,4 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
   );
 };
 
-export default WalletsTable;
+export default AddressesTable;

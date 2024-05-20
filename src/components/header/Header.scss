@@ -6,6 +6,10 @@
         font-size: 1.2em;
         padding: 0 0 0 1em;
 
+        &.utxos-menu-entry {
+            transform: rotate(90deg);
+        }
+
         @include mobile {
             display: none;   
         }

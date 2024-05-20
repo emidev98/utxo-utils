@@ -1,16 +1,17 @@
 
-import { listOutline, listSharp, archiveOutline, archiveSharp, cogOutline, cogSharp, pieChartOutline, pieChartSharp, alarmOutline, alarmSharp, walletOutline, walletSharp } from 'ionicons/icons';
+import { listOutline, listSharp, archiveOutline, archiveSharp, cogOutline, cogSharp, pieChartOutline, pieChartSharp, alarmOutline, alarmSharp, atCircleOutline, atCircleSharp, gitNetworkOutline, gitNetworkSharp } from 'ionicons/icons';
 import { useLocation, useNavigate } from 'react-router';
 import ArchivePage from '../pages/archive/Archive';
 import AlertsPage from '../pages/alerts/Alerts';
 import DashboardPage from '../pages/dashboard/Dashboard';
-import ListPage from '../pages/list/List';
+import UTXOsPage from '../pages/utxos/UTXOs';
 import SettingsPage from '../pages/settings/Settings';
-import WalletsPage from '../pages/wallets/Wallets';
+import AddressesPage from '../pages/addresses/Addresses';
 
 export interface Page {
     url: string;
     iosIcon: string;
+    className?: string;
     mdIcon: string;
     title: string;
     component: React.ReactNode;
@@ -29,18 +30,19 @@ export const usePages = () => {
             component: <DashboardPage />
         },
         {
-            title: 'Wallets',
-            url: '/wallets',
-            iosIcon: walletOutline,
-            mdIcon: walletSharp,
-            component: <WalletsPage />
+            title: 'Addresses',
+            url: '/addresses',
+            iosIcon: atCircleOutline,
+            mdIcon: atCircleSharp,
+            component: <AddressesPage />
         },
         {
-            title: 'List',
-            url: '/list',
-            iosIcon: listOutline,
-            mdIcon: listSharp,
-            component: <ListPage />
+            title: 'UTXOs',
+            url: '/utxos',
+            className: 'utxos-menu-entry',
+            iosIcon: gitNetworkOutline,
+            mdIcon: gitNetworkSharp,
+            component: <UTXOsPage />
         },
         {
             title: 'Alerts',

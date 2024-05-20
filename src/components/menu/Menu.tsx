@@ -21,7 +21,7 @@ const Menu: React.FC = () => {
       <IonContent>
         <IonList id="inbox-list">
           <IonListHeader>
-            <img src="/public/logo-x256.png" alt="logo" className='AppLogo'/>
+            <img src="/logo-x256.png" alt="logo" className='AppLogo'/>
             <span>UTXO Utils</span>
           </IonListHeader>
           <IonNote className="github-info">
@@ -32,7 +32,7 @@ const Menu: React.FC = () => {
           </IonNote>
           {pages.map((page, index) => {
             return (
-              <NavLink key={index} className="MenuEntry" to={page.url}>
+              <NavLink key={index} className={`MenuEntry ` + (page.className ? page.className : "")} to={page.url}>
                 <IonIcon ios={page.iosIcon} md={page.mdIcon} />
                 <IonLabel>{page.title}</IonLabel>
               </NavLink>

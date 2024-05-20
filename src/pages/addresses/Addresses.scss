@@ -1,4 +1,4 @@
-.WalletsPage{
+.AddressesPage{
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: min-content min-content auto;
@@ -14,7 +14,7 @@
         margin: 10px;
     }
 
-    .WalletsTable {
+    .AddressesTable {
         grid-column-start: 1;
         grid-column-end: 5;
 

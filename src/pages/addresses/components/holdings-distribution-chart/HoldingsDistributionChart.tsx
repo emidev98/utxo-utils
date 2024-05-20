@@ -50,7 +50,7 @@ const HoldingsDistributionChart = ({ addrStore, loading }: HoldingsDistributionC
         }
       },
       title: {
-        text: 'Aggregated coins by wallets',
+        text: 'Aggregated coins by address',
         align: 'center',
         style: {// TODO: when theming move this to a variable 
           fontSize: '20px',

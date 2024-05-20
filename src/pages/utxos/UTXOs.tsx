@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import './List.scss';
+import './UTXOs.scss';
 import { useTxs } from '../../hooks/useTxs';
 import { useAddresses } from '../../hooks/useAddresses';
 
-const ListPage = ({ }) => {
+const UTXOsPage = ({ }) => {
   const { getAllTxs } = useTxs();
   const { getAddresses } = useAddresses();
 
@@ -19,10 +19,10 @@ const ListPage = ({ }) => {
   }, [])
 
   return (
-    <div className='ListPage'>
-      ListPage
+    <div className='UTXOsPage'>
+      UTXOsPage
     </div>
   );
 };
 
-export default ListPage;
+export default UTXOsPage;
