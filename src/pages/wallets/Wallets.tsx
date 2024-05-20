@@ -47,7 +47,7 @@ const WalletsPage = ({ }) => {
       <SimpleKpi loading={isLoading} amount={txsCount} message='Confirmed Tx ' />
       <SimpleKpi loading={isLoading} amount={BTCFormatter(spendableBalance)} message='Spendable balance' />
       <SimpleKpi loading={isLoading} amount={BTCFormatter(feesPaid)} message='Fees paid' />
-      <HoldingsDistributionChart spendableBalance={spendableBalance} loading={isLoading} addrStore={addrStore}  />
+      <HoldingsDistributionChart loading={isLoading} addrStore={addrStore}  />
       <WalletsTable loading={isLoading} addrStore={addrStore} txStore={txStore} />
     </div>
   );

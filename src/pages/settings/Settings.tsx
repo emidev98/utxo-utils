@@ -50,7 +50,6 @@ const SettingsPage: React.FC = () => {
       setMempoolUrlValid(true);
     }
     catch (e) {
-      console.log(e)
       setMempoolUrlValid(false);
     }
     setMempoolAPIUrl(url);
@@ -62,7 +61,6 @@ const SettingsPage: React.FC = () => {
       new URL(url);
     }
     catch (e) {
-      console.log(e)
       setCoingeckoUrlValid(false);
     }
     setCoingeckoApiUrl(url);
@@ -104,7 +102,6 @@ const SettingsPage: React.FC = () => {
       }
     }
     catch (e) {
-      console.log(e);
       setToastData({
         isOpen: true,
         message: `Error syncing data for address ${addressFormatter(currentAddr)}. Please try again later.`,

@@ -61,12 +61,12 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
       {
         accessorKey: 'lastTxOut',
         header: 'Last tx sent',
-        size: 0,
+        size: 162,
       },
       {
         accessorKey: 'firstTxIn',
         header: 'First tx received',
-        size: 0,
+        size: 162,
       },
       {
         accessorKey : 'feesPaid',
@@ -104,7 +104,7 @@ const WalletsTable = ({ addrStore, txStore, loading }: WalletsTableProps) => {
       const _filo = getFirstInAndLastOut(txStore, addr.address);
       const txCount = txStore[addr.address].filter((tx) => tx.status.confirmed).length;
       const feesPaid = getFeesPaid(txStore, addr.address)
-      console.log(addr)
+
       _tableData.push({
         label: addr.label,
         address: addr.address,
