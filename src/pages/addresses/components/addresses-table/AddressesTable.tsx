@@ -14,6 +14,7 @@ import { copy } from 'ionicons/icons';
 import { Button } from '@mui/material';
 import { IonCard, IonIcon, IonSkeletonText } from '@ionic/react';
 import AppToast from '../../../../components/toast/Toast';
+import { sortFirstNumericElement } from '../../../../utils/tables';
 
 interface TableColumn {
   label: string;
@@ -51,17 +52,19 @@ const AddressesTable = ({ addrStore, txStore, loading }: AddressesTableProps) =>
             </Button>
             <span>{addressFormatter(props.renderedCellValue as string)}</span>
           </div>
-        }
+        },
       },
       {
         accessorKey: 'balance',
         header: 'Spendable Balance',
         size: 0,
+        sortingFn: sortFirstNumericElement
       },
       {
         accessorKey : 'feesPaid',
         header: 'Fees Paid',
         size: 0,
+        sortingFn: sortFirstNumericElement
       },
       {
         accessorKey: 'lastTxOut',
@@ -88,7 +91,7 @@ const AddressesTable = ({ addrStore, txStore, loading }: AddressesTableProps) =>
   );
   const { BTCFormatter, addressFormatter } = useFormatter();
   const [tableData, setTableData] = useState(new Array<TableColumn>());
-  const { getFirstInAndLastOut, getFeesPaid} = useTxs();
+  const { getFirstInAndLastOut, getIncomingTxFees} = useTxs();
   const [toast, setToastData] = useState({
     isOpen: false,
     message: "",
@@ -103,7 +106,7 @@ const AddressesTable = ({ addrStore, txStore, loading }: AddressesTableProps) =>
     _.forEach(addrStore, (addr) => {
       const _filo = getFirstInAndLastOut(txStore, addr.address);
       const txCount = txStore[addr.address].filter((tx) => tx.status.confirmed).length;
-      const feesPaid = getFeesPaid(txStore, addr.address)
+      const feesPaid = getIncomingTxFees(txStore, addr.address)
 
       _tableData.push({
         label: addr.label,
@@ -117,7 +120,7 @@ const AddressesTable = ({ addrStore, txStore, loading }: AddressesTableProps) =>
       });
     });
 
-    setTableData(_tableData.sort((a, b) => a.balance > b.balance ? -1 : 1));
+    setTableData(_tableData.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance)));
   }, [addrStore, txStore, loading])
   const table = useMaterialReactTable({
     columns: (columns as any),

@@ -60,8 +60,7 @@ export const useTxs = () => {
             lastOut: sorted.reverse().find((tx) => tx.vin.find((vin) => vin.prevout.scriptpubkey_address === address))
         }
     }
-    // Returns the first transaction in and the last transaction out
-    const getFeesPaid = (txStore: TransactionsStorage, address: string) => {
+    const getIncomingTxFees = (txStore: TransactionsStorage, address: string) => {
         const feesPaid = txStore[address].reduce((acc, tx) => { 
           if (tx.vout.find(vout => vout.scriptpubkey_address === address)) {
             acc += tx.fee;
@@ -77,5 +76,5 @@ export const useTxs = () => {
         await store.set(STORE_KEY, {});
     }
 
-    return { appendTxs, getAllTxs, getTxsByAddress, getFeesPaid, getFirstInAndLastOut, resetTransactionsData }
+    return { appendTxs, getAllTxs, getTxsByAddress, getIncomingTxFees, getFirstInAndLastOut, resetTransactionsData }
 } 
