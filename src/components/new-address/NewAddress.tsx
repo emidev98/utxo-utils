@@ -48,6 +48,14 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
         if (addressDetails) {
             const isAlreadyDefined = await getAddress(addressDetails?.address);
             const addrInfo = await queryAddrInfo(addressDetails?.address);
+            if (addrInfo instanceof Error) {
+                return setToastData({
+                    isOpen: true,
+                    message: `Something went wrong indexing the data ${JSON.stringify(addrInfo)}.`,
+                    color: "warning"
+                });
+            }
+
             setAmountOfTxsToIndex(addrInfo.chain_stats.tx_count.toString())
 
             if (isAlreadyDefined) {
@@ -59,11 +67,17 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
                 setValidInputAddress(false);
             }
             else {
-
                 if (indexInBackgroud) {
                     // TODO: Index in background
                 } else {
                     const res = await queryAllTxsGivenAddrInfo(addrInfo);
+                    if (res instanceof Error) {
+                        return setToastData({
+                            isOpen: true,
+                            message: `Something went wrong indexing the data ${JSON.stringify(addrInfo)}.`,
+                            color: "warning"
+                        });
+                    }
                     await appendTxs(addrInfo.address, res)
 
                     putAddress({ ...addressDetails, ...addrInfo, label: addressLabel });

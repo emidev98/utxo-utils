@@ -15,7 +15,7 @@ export const useMempoolApi = () => {
             await store.create();
             if (!await store.get(STORE_KEY)){
                 await store.set(STORE_KEY, {
-                    mempoolAPIUrl: 'http://192.168.1.100:3006/api/'
+                    mempoolAPIUrl: 'http://192.168.178.168:3006/api'
                 });
             }
         };
@@ -23,36 +23,44 @@ export const useMempoolApi = () => {
     }, [store]);
 
     // Get the address details from the mempool API
-    const queryAddrInfo = async (address: string) => {
+    const queryAddrInfo = async (address: string) : Promise<AddressInfo | Error> => {
         const data: MempoolStore = await store.get(STORE_KEY);
-        const res: AddressInfo = await fetch(`${data.mempoolAPIUrl}/address/${address}`)
-            .then(response => response.json())
-            .catch(error => console.error('Error fetching data:', error));
-
-        return res;
+        return await fetch(`${data.mempoolAPIUrl}/address/${address}`)
+            .then(response => {
+                return response.json()
+            })
+            .catch(error => {
+                return error
+            });
     }
 
     // Index the first 10 transactions by block height in descending order
     // for a given address. When the txId is provided, the index will start
     // from that transaction and fetch the next 10 transactions and so on until
     // no more transactions are available. 
-    const queryTxsByAddr = async (address: string, txId?: string) => {
+    const queryTxsByAddr = async (address: string, txId?: string): Promise<Array<Transaction> | Error> => {
         const data: MempoolStore = await store.get(STORE_KEY);
         const url = txId ?
             `${data.mempoolAPIUrl}/address/${address}/txs/chain/${txId}` :
             `${data.mempoolAPIUrl}/address/${address}/txs`;
 
-        const res: Array<Transaction> = await fetch(url)
-            .then(response => response.json())
-            .catch(error => console.error('Error fetching data:', error));
+        return await fetch(url)
+            .then(response => {
+                return response.json()
+            })
+            .catch(error => {
+                return error
+            });
 
-        return res;
-    }
+}
 
     /// Get all transactions for a given address by fetching the first 10 transactions
     /// and then fetching the next 10 transactions until all transactions are fetched.
-    const queryAllTxs = async (address: string) => {
+    const queryAllTxs = async (address: string): Promise<Array<Transaction> | Error> => {
         const addressInfo = await queryAddrInfo(address);
+        if (addressInfo instanceof Error) {
+            return addressInfo
+        }
         const totalTransactions = addressInfo.chain_stats.tx_count;
 
         let allTransactions: Transaction[] = [];
@@ -60,6 +68,9 @@ export const useMempoolApi = () => {
 
         while (allTransactions.length < totalTransactions) {
             const transactions = await queryTxsByAddr(address, lastTxId);
+            if (transactions instanceof Error) {
+                return transactions
+            }
 
             if (transactions.length == 0) break;
 
@@ -67,12 +78,12 @@ export const useMempoolApi = () => {
             lastTxId = allTransactions[allTransactions.length - 1].txid;
         }
 
-        return allTransactions;
+        return allTransactions
     }
 
 
     // Get all transactions given the address details.
-    const queryAllTxsGivenAddrInfo = async (addrInfo: AddressInfo) => {
+    const queryAllTxsGivenAddrInfo = async (addrInfo: AddressInfo): Promise<Array<Transaction>| Error> => {
         const totalTransactions = addrInfo.chain_stats.tx_count;
 
         let allTransactions: Transaction[] = [];
@@ -80,7 +91,9 @@ export const useMempoolApi = () => {
 
         while (allTransactions.length < totalTransactions) {
             const transactions = await queryTxsByAddr(addrInfo.address, lastTxId);
-
+            if (transactions instanceof Error) {
+                return transactions
+            }
             if (transactions.length == 0) break;
 
             allTransactions = [...allTransactions, ...transactions];
@@ -102,7 +115,7 @@ export const useMempoolApi = () => {
 
     const resetMempoolData = async () => {
         await store.set(STORE_KEY, {
-            mempoolAPIUrl: 'http://192.168.1.100:3006/api/',
+            mempoolAPIUrl: 'http://192.168.178.168:3006/api',
         });
     }
 

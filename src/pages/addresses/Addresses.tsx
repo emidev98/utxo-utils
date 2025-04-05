@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import useFormatter from '../../hooks/useFormatter';
 import HoldingsDistributionChart from './components/holdings-distribution-chart/HoldingsDistributionChart';
 import AddressesTable from './components/addresses-table/AddressesTable';
+import { useModalContext } from '../../context/ModalContext';
 
 const AddressesPage = ({ }) => {
   const { getAllTxs } = useTxs();
@@ -23,23 +24,32 @@ const AddressesPage = ({ }) => {
   const [spendableBalance, setSpendableBalance] = useState(0);
   const [feesPaid, setFeesPaid] = useState(0);
 
+  const { isOpen } = useModalContext();
+
+  const init = async () => {
+    const [_txStore, _addrStore] = await Promise.all([getAllTxs(), getAddresses()]);
+    const flattenTxs = _.flatMap(_txStore);
+
+    setAddrCount( Object.keys(_addrStore).length);
+    setTxsCount(flattenTxs.filter((tx) => tx.status.confirmed).length);
+    setFeesPaid(sumTxsFeesPaid(_txStore, _addrStore));
+    setSpendableBalance(sumBalances(_addrStore));
+
+    setTxStore(_txStore);
+    setAddrStore(_addrStore);
+
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const init = async () => {
-      const [_txStore, _addrStore] = await Promise.all([getAllTxs(), getAddresses()]);
-      const flattenTxs = _.flatMap(_txStore);
-
-      setAddrCount( Object.keys(_addrStore).length);
-      setTxsCount(flattenTxs.filter((tx) => tx.status.confirmed).length);
-      setFeesPaid(sumTxsFeesPaid(_txStore, _addrStore));
-      setSpendableBalance(sumBalances(_addrStore));
-
-      setTxStore(_txStore);
-      setAddrStore(_addrStore);
-
-      setLoading(false);
-    };
     init();
   }, [addrCount])
+
+  useEffect(() => {
+    if (!isOpen) {
+      init();
+    }
+  }, [isOpen]);
 
   return (
     <div className='AddressesPage'>

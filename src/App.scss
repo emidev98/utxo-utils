@@ -1,7 +1,7 @@
-@import './theme/tables.scss';
-@import './theme/card.scss';
-@import './theme/charts.scss';
-@import './theme/mixins.scss';
+@use 'theme/tables.scss';
+@use 'theme/card.scss';
+@use 'theme/charts.scss';
+@use 'theme/mixins.scss';
 
 .menu-pane-visible {
     max-width: 304px;
@@ -11,7 +11,7 @@
     margin: 2em 2em 0 2em;
     height: calc(100vh - 120px);
 
-    @include desktop-wide {
+    @include mixins.desktop-wide {
         max-width: 1400px;
         margin: 2em auto 0 auto;
     }

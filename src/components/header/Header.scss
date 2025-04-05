@@ -1,16 +1,16 @@
-@import "../../theme/mixins.scss";
+@use "../../theme/mixins.scss";
 
 .Header {
     
     .PageIcon{
         font-size: 1.2em;
-        padding: 0 0 0 1em;
+        margin-left: 1em;
 
         &.utxos-menu-entry {
             transform: rotate(90deg);
         }
 
-        @include mobile {
+        @include mixins.mobile {
             display: none;   
         }
     }

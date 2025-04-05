@@ -24,15 +24,13 @@ import './App.scss'
 import { usePages } from './hooks/usePages';
 import React, { useEffect, useState } from 'react';
 import Header from './components/header/Header';
-import { addOutline, addSharp } from 'ionicons/icons';
-import NewAddress from './components/new-address/NewAddress';
 import { Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import { ModalProvider } from './context/ModalContext';
 
 setupIonicReact();
 
 const App: React.FC = () => {
   const { pages, getCurrentPage } = usePages();
-  const [isOpen, setOpen] = useState(false);
   const navigate = useNavigate();
 
   // Load the first page in the app 
@@ -45,29 +43,20 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      <IonSplitPane contentId="main" >
-        <Menu />
-
-        <IonContent id="main" fullscreen>
-          <Header />
-          <div id="PageContent">
-            <Routes>
-              {pages.map((page, index) => <Route key={index} path={page.url} element={page.component} />)}
-            </Routes>
-            <Outlet />
-          </div>
-        </IonContent>
-
-      </IonSplitPane>
-
-      <IonFab slot="fixed" vertical="bottom" horizontal="end">
-        <IonFabButton onClick={() => setOpen(true)}>
-          <IonIcon ios={addOutline} md={addSharp} />
-        </IonFabButton>
-      </IonFab>
-
-      <NewAddress isOpen={isOpen} onClose={() => setOpen(false)} />
-
+      <ModalProvider>
+        <IonSplitPane contentId="main" >
+          <Menu />
+          <IonContent id="main" fullscreen>
+            <Header />
+            <div id="PageContent">
+              <Routes>
+                {pages.map((page, index) => <Route key={index} path={page.url} element={page.component} />)}
+              </Routes>
+              <Outlet />
+            </div>
+          </IonContent>
+        </IonSplitPane>
+      </ModalProvider>
     </IonApp >
   );
 };
