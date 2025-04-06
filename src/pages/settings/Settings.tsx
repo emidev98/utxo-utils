@@ -89,7 +89,10 @@ const SettingsPage: React.FC = () => {
           if (currAddrTxs.length > 0) {
             const lastTxId = currAddrTxs[currAddrTxs.length - 1].txid;
             const newTxs = await queryTxsByAddr(addr, lastTxId);
-
+            if (newTxs instanceof Error) {
+              return newTxs
+            }
+            
             if (newTxs.length == 0) {
               break;
             }
