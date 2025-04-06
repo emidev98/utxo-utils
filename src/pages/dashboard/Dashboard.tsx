@@ -1,12 +1,8 @@
-import React from 'react';
-import './Dashboard.scss';
+import React from "react";
+import "./Dashboard.scss";
 
 const DashboardPage: React.FC = () => {
-  return (
-    <div className='DashboardPage'>
-      DashboardPage
-    </div>
-  );
+  return <div className="DashboardPage">DashboardPage</div>;
 };
 
 export default DashboardPage;

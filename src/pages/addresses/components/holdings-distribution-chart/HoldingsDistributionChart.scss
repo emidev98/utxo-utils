@@ -1,10 +1,9 @@
 .HoldingsDistributionChart {
+  .ChartSkeletonHeader {
+    height: 40px;
+  }
 
-    .ChartSkeletonHeader {
-        height: 40px;
-    }
-
-    .ChartSkeletonBody {
-        height: 150px;
-    }
+  .ChartSkeletonBody {
+    height: 150px;
+  }
 }

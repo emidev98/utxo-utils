@@ -1,76 +1,97 @@
 .TableData {
-    padding: 0 !important;
+  padding: 0 !important;
 
-    .MuiPaper-root {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        background-color: var(--ion-card-background, var(--ion-item-background, var(--ion-background-color, #fff))) !important;
-        color: var(--ion-color-step-850, #262626) !important;
-    
-    
-        .MuiBox-root,
-        .MuiIconButton-root,
-        .MuiSvgIcon-root,
-        .MuiTableContainer-root .MuiTableSortLabel-icon,
-        .MuiFormLabel-root,
-        .MuiSelect-select,
-        .MuiInputBase-input,
-        .MuiTableContainer-root th,
-        .MuiTableContainer-root td {
-            background-color: var(--ion-card-background, var(--ion-item-background, var(--ion-background-color, #fff))) !important;
-            color: var(--ion-color-step-850, #262626) !important;
-        }
-    
-        .MuiInputBase-root:focus-visible {
-            border-color: rgba(var(--ion-color-primary-rgb), 0.14);
-        }
-    
-    
-        .MuiTableContainer-root {
-            flex-grow: 1;
-            
-            th {
-                border-bottom: 4px solid var(--ion-item-border-color, var(--ion-border-color, var(--ion-color-step-150, rgba(0, 0, 0, 0.20)))) !important;
-            }
-    
-            td {
-                border-bottom: 1px solid var(--ion-item-border-color, var(--ion-border-color, var(--ion-color-step-150, rgba(0, 0, 0, 0.13)))) !important;
-            }
-        }
-    
-        .CopyCell {
-            display: flex;
-            align-items: center;
-    
-            .CopyCellButton {
-                margin: 0 0.5em 0 0;
-                padding: 0;
-                min-width: auto;
-                width: 28px;
-                height: 28px;
-    
-                svg {
-                    color: var(--ion-color-step-850, #262626) !important;
-                }
-            }
-        }
+  .MuiPaper-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(
+      --ion-card-background,
+      var(--ion-item-background, var(--ion-background-color, #fff))
+    ) !important;
+    color: var(--ion-color-step-850, #262626) !important;
+
+    .MuiBox-root,
+    .MuiIconButton-root,
+    .MuiSvgIcon-root,
+    .MuiTableContainer-root .MuiTableSortLabel-icon,
+    .MuiFormLabel-root,
+    .MuiSelect-select,
+    .MuiInputBase-input,
+    .MuiTableContainer-root th,
+    .MuiTableContainer-root td {
+      background-color: var(
+        --ion-card-background,
+        var(--ion-item-background, var(--ion-background-color, #fff))
+      ) !important;
+      color: var(--ion-color-step-850, #262626) !important;
     }
+
+    .MuiInputBase-root:focus-visible {
+      border-color: rgba(var(--ion-color-primary-rgb), 0.14);
+    }
+
+    .MuiTableContainer-root {
+      flex-grow: 1;
+
+      th {
+        border-bottom: 4px solid
+          var(
+            --ion-item-border-color,
+            var(
+              --ion-border-color,
+              var(--ion-color-step-150, rgba(0, 0, 0, 0.2))
+            )
+          ) !important;
+      }
+
+      td {
+        border-bottom: 1px solid
+          var(
+            --ion-item-border-color,
+            var(
+              --ion-border-color,
+              var(--ion-color-step-150, rgba(0, 0, 0, 0.13))
+            )
+          ) !important;
+      }
+    }
+
+    .CopyCell {
+      display: flex;
+      align-items: center;
+
+      .CopyCellButton {
+        margin: 0 0.5em 0 0;
+        padding: 0;
+        min-width: auto;
+        width: 28px;
+        height: 28px;
+
+        svg {
+          color: var(--ion-color-step-850, #262626) !important;
+        }
+      }
+    }
+  }
 }
 
 .MuiPaper-root {
-    background-color: var(--ion-card-background, var(--ion-item-background, var(--ion-background-color, #fff))) !important;
+  background-color: var(
+    --ion-card-background,
+    var(--ion-item-background, var(--ion-background-color, #fff))
+  ) !important;
+  color: var(--ion-color-step-850, #262626) !important;
+  flex-grow: 1;
+  .MuiTypography-root {
     color: var(--ion-color-step-850, #262626) !important;
-flex-grow: 1;
-    .MuiTypography-root {
-        color: var(--ion-color-step-850, #262626) !important;
-    }
+  }
 
-    >.MuiList-root {
-        background: transparent;
-    }
+  > .MuiList-root {
+    background: transparent;
+  }
 
-    .MuiTablePagination-root {
-        margin-right: 2em;
-    }
+  .MuiTablePagination-root {
+    margin-right: 2em;
+  }
 }

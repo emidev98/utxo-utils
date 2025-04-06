@@ -1,80 +1,92 @@
-import { Storage } from '@ionic/storage';
-import { Transaction } from '../models/MempoolAddressTxs';
-import { useEffect, useState } from 'react';
-import * as _ from 'lodash';
-import { AddressInfo } from '../models/MempoolAddress';
+import { Storage } from "@ionic/storage";
+import { Transaction } from "../models/MempoolAddressTxs";
+import { useEffect, useState } from "react";
+import * as _ from "lodash";
+import { AddressInfo } from "../models/MempoolAddress";
 
 export interface TransactionsStorage {
-    [key: string]: Array<Transaction>;
+  [key: string]: Array<Transaction>;
 }
 
-
-const STORE_KEY = 'transactions';
+const STORE_KEY = "transactions";
 export const useTxs = () => {
-    const [store] = useState(new Storage());
+  const [store] = useState(new Storage());
 
-    useEffect(() => {
-        const initializeStorage = async () => {
-            await store.create();
-        };
-        initializeStorage();
-    }, [store]);
+  useEffect(() => {
+    const initializeStorage = async () => {
+      await store.create();
+    };
+    initializeStorage();
+  }, [store]);
 
+  const appendTxs = async (addr: string, transactions: Array<Transaction>) => {
+    let storedTxs = await getAllTxs();
+    let addrEntry = storedTxs[addr];
 
-    const appendTxs = async (addr: string, transactions: Array<Transaction>) => {
-        let storedTxs = await getAllTxs();
-        let addrEntry = storedTxs[addr];
-
-        if (addrEntry) {
-            storedTxs[addr] = addrEntry.concat(transactions);
-        } else {
-            storedTxs[addr] = transactions;
-        }
-
-        await store.set(STORE_KEY, storedTxs);
-
-        return storedTxs;
+    if (addrEntry) {
+      storedTxs[addr] = addrEntry.concat(transactions);
+    } else {
+      storedTxs[addr] = transactions;
     }
 
-    const getTxsByAddress = async (address: string) => {
-        const res = await store.get(STORE_KEY) as TransactionsStorage;
+    await store.set(STORE_KEY, storedTxs);
 
-        if (res && res[address]) {
-            return res[address];
-        }
+    return storedTxs;
+  };
 
-        return new Array<Transaction>();
+  const getTxsByAddress = async (address: string) => {
+    const res = (await store.get(STORE_KEY)) as TransactionsStorage;
+
+    if (res && res[address]) {
+      return res[address];
     }
 
-    const getAllTxs = async (): Promise<TransactionsStorage> => {
-        const res = await store.get(STORE_KEY) as TransactionsStorage;
-        return res ? res : {};
-    }
+    return new Array<Transaction>();
+  };
 
-    // Returns the first transaction in and the last transaction out
-    const getFirstInAndLastOut = (txStore: TransactionsStorage, address: string) => {
-        const sorted = _.sortBy(txStore[address], "status.block_time");
+  const getAllTxs = async (): Promise<TransactionsStorage> => {
+    const res = (await store.get(STORE_KEY)) as TransactionsStorage;
+    return res ? res : {};
+  };
 
-        return {
-            firstIn: sorted[0],
-            lastOut: sorted.reverse().find((tx) => tx.vin.find((vin) => vin.prevout.scriptpubkey_address === address))
-        }
-    }
-    const getIncomingTxFees = (txStore: TransactionsStorage, address: string) => {
-        const feesPaid = txStore[address].reduce((acc, tx) => { 
-          if (tx.vout.find(vout => vout.scriptpubkey_address === address)) {
-            acc += tx.fee;
-          }
-  
-          return acc
-        }, 0);
-        
-        return feesPaid;
-    }
+  // Returns the first transaction in and the last transaction out
+  const getFirstInAndLastOut = (
+    txStore: TransactionsStorage,
+    address: string,
+  ) => {
+    const sorted = _.sortBy(txStore[address], "status.block_time");
 
-    const resetTransactionsData = async () => {
-        await store.set(STORE_KEY, {});
-    }
+    return {
+      firstIn: sorted[0],
+      lastOut: sorted
+        .reverse()
+        .find((tx) =>
+          tx.vin.find((vin) => vin.prevout.scriptpubkey_address === address),
+        ),
+    };
+  };
+  const getIncomingTxFees = (txStore: TransactionsStorage, address: string) => {
+    const feesPaid = txStore[address].reduce((acc, tx) => {
+      if (tx.vout.find((vout) => vout.scriptpubkey_address === address)) {
+        acc += tx.fee;
+      }
 
-    return { appendTxs, getAllTxs, getTxsByAddress, getIncomingTxFees, getFirstInAndLastOut, resetTransactionsData }
-} 
+      return acc;
+    }, 0);
+
+    return feesPaid;
+  };
+
+  const resetTransactionsData = async () => {
+    await store.set(STORE_KEY, {});
+  };
+
+  return {
+    appendTxs,
+    getAllTxs,
+    getTxsByAddress,
+    getIncomingTxFees,
+    getFirstInAndLastOut,
+    resetTransactionsData,
+  };
+};

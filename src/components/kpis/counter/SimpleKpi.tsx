@@ -1,5 +1,11 @@
-import './SimpleKpi.scss';
-import { IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonSkeletonText } from '@ionic/react';
+import "./SimpleKpi.scss";
+import {
+  IonCard,
+  IonCardContent,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonSkeletonText,
+} from "@ionic/react";
 
 interface SimpleKpiProps {
   amount: number | string;
@@ -9,16 +15,24 @@ interface SimpleKpiProps {
 
 const SimpleKpi = ({ amount, message, loading }: SimpleKpiProps) => {
   return (
-    <IonCard className='SimpleKpi'>
-      {loading
-        ? <IonCardContent>
-          <IonSkeletonText animated={true} className='SkeletonTitle'></IonSkeletonText>
-          <IonSkeletonText animated={true} className='SkeletonSubTitle'></IonSkeletonText>
+    <IonCard className="SimpleKpi">
+      {loading ? (
+        <IonCardContent>
+          <IonSkeletonText
+            animated={true}
+            className="SkeletonTitle"
+          ></IonSkeletonText>
+          <IonSkeletonText
+            animated={true}
+            className="SkeletonSubTitle"
+          ></IonSkeletonText>
         </IonCardContent>
-        : <IonCardContent>
+      ) : (
+        <IonCardContent>
           <IonCardTitle>{amount}</IonCardTitle>
           <IonCardSubtitle>{message}</IonCardSubtitle>
-        </IonCardContent>}
+        </IonCardContent>
+      )}
     </IonCard>
   );
 };

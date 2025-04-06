@@ -1,8 +1,10 @@
 .AppMenu {
-
   ion-content {
     --background: var(--ion-item-background, var(--ion-background-color, #fff));
+  }
 
+  .LogoNavigation {
+    text-decoration: none;
   }
 
   ion-list-header {
@@ -52,7 +54,7 @@
       border-radius: 4px;
       display: flex;
       align-items: center;
-      text-decoration: none; 
+      text-decoration: none;
       color: var(--ion-color-medium-shade);
 
       &.utxos-menu-entry {
@@ -60,7 +62,7 @@
           transform: rotate(90deg);
         }
       }
-       
+
       ion-icon {
         font-size: 1.4rem;
         margin-right: 20px;
@@ -76,7 +78,7 @@
       }
     }
 
-    >:last-child {
+    > :last-child {
       margin-top: auto;
       border-top: 1px solid var(--ion-color-step-150, #d7d8da);
     }

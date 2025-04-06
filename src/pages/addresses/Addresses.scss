@@ -1,26 +1,26 @@
-.AddressesPage{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: min-content min-content auto;
-    gap: 1rem;
+.AddressesPage {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: min-content min-content auto;
+  gap: 1rem;
 
-    .HoldingsDistributionChart {
-        height: 252px;
-        grid-row-start: 2;
-        grid-row-end: 3;
+  .HoldingsDistributionChart {
+    height: 252px;
+    grid-row-start: 2;
+    grid-row-end: 3;
 
-        grid-column-start: 1;
-        grid-column-end: 5;
-        margin: 10px;
-    }
+    grid-column-start: 1;
+    grid-column-end: 5;
+    margin: 10px;
+  }
 
-    .AddressesTable {
-        grid-column-start: 1;
-        grid-column-end: 5;
+  .AddressesTable {
+    grid-column-start: 1;
+    grid-column-end: 5;
 
-        grid-row-start: 3;
-        grid-row-end: 4;
+    grid-row-start: 3;
+    grid-row-end: 4;
 
-        margin: 10px;
-    }
+    margin: 10px;
+  }
 }

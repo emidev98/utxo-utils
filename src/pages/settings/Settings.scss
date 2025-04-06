@@ -1,21 +1,21 @@
-.SettingsPage{
-    display: grid;
-    grid-template-rows: min-content min-content min-content;
-    gap: 1rem;
+.SettingsPage {
+  display: grid;
+  grid-template-rows: min-content min-content min-content;
+  gap: 1rem;
 
-    .SettingsCardContent {
-        display: flex;
-        justify-content: space-between;
-    }
+  .SettingsCardContent {
+    display: flex;
+    justify-content: space-between;
+  }
 
-    .InputElement {
-        margin-bottom: 2em;
-    }
+  .InputElement {
+    margin-bottom: 2em;
+  }
 
-    .AlignFooterEnd {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        padding: 0 0 0 2em;
-    }
+  .AlignFooterEnd {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 0 0 2em;
+  }
 }

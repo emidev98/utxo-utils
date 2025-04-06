@@ -1,7 +1,7 @@
-import { IonFab, IonFabButton, IonIcon } from '@ionic/react';
-import React, { createContext, useState, useContext } from 'react';
-import { addOutline, addSharp } from 'ionicons/icons';
-import NewAddress from '../components/new-address/NewAddress';
+import { IonFab, IonFabButton, IonIcon } from "@ionic/react";
+import React, { createContext, useState, useContext } from "react";
+import { addOutline, addSharp } from "ionicons/icons";
+import NewAddress from "../components/new-address/NewAddress";
 
 interface IModalContext {
   isOpen: boolean;
@@ -17,7 +17,9 @@ const ModalContext = createContext<IModalContext>({
 });
 
 // Define the Provider component
-export const ModalProvider: React.FC<{children: JSX.Element}> = ({ children }) => {
+export const ModalProvider: React.FC<{ children: JSX.Element }> = ({
+  children,
+}) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const openModal = () => setIsOpen(true);
@@ -42,7 +44,7 @@ export const ModalProvider: React.FC<{children: JSX.Element}> = ({ children }) =
 export const useModalContext = (): IModalContext => {
   const context = useContext(ModalContext);
   if (!context) {
-    throw new Error('useModalContext must be used within a ModalProvider');
+    throw new Error("useModalContext must be used within a ModalProvider");
   }
   return context;
 };

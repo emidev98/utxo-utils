@@ -3,19 +3,19 @@ $breakpoint: 992px;
 $wide-breakpoint: 1800px;
 
 @mixin desktop-wide {
-    @media (min-width: $wide-breakpoint) {
-        @content;
-    }
+  @media (min-width: $wide-breakpoint) {
+    @content;
+  }
 }
 
 @mixin desktop {
-    @media (min-width: $breakpoint) {
-        @content;
-    }
+  @media (min-width: $breakpoint) {
+    @content;
+  }
 }
 
 @mixin mobile {
-    @media (max-width: ($breakpoint)) {
-        @content;
-    }
+  @media (max-width: ($breakpoint)) {
+    @content;
+  }
 }
