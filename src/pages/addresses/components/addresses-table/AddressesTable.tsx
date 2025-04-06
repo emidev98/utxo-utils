@@ -21,7 +21,7 @@ interface TableColumn {
   type: string;
   address: string;
   balance: string;
-  feesPaid: string;
+  incomingTxFees: string;
   txCount: number;
   firstTxIn: string;
   lastTxOut: string;
@@ -72,8 +72,8 @@ const AddressesTable = ({
         sortingFn: sortFirstNumericElement,
       },
       {
-        accessorKey: "feesPaid",
-        header: "Fees Paid",
+        accessorKey: "incomingTxFees",
+        header: "Incoming Tx Fees",
         size: 0,
         sortingFn: sortFirstNumericElement,
       },
@@ -119,12 +119,11 @@ const AddressesTable = ({
       const txCount = txStore[addr.address].filter(
         (tx) => tx.status.confirmed,
       ).length;
-      const feesPaid = getIncomingTxFees(txStore, addr.address);
-
+      const incomingTxFees = getIncomingTxFees(txStore, addr.address);
       _tableData.push({
         label: addr.label,
         address: addr.address,
-        feesPaid: BTCFormatter(feesPaid),
+        incomingTxFees: BTCFormatter(incomingTxFees),
         balance: BTCFormatter(
           addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum,
         ),
@@ -171,38 +170,14 @@ const AddressesTable = ({
     <IonCard className="AddressesTable TableData">
       {loading ? (
         <div className="AddressesTableLoading">
-          <IonSkeletonText
-            animated={true}
-            className="AddressesTableSkeleton"
-          ></IonSkeletonText>
-          <IonSkeletonText
-            animated={true}
-            className="AddressesTableSkeleton"
-          ></IonSkeletonText>
-          <IonSkeletonText
-            animated={true}
-            className="AddressesTableSkeleton"
-          ></IonSkeletonText>
-          <IonSkeletonText
-            animated={true}
-            className="AddressesTableSkeleton"
-          ></IonSkeletonText>
-          <IonSkeletonText
-            animated={true}
-            className="AddressesTableSkeleton"
-          ></IonSkeletonText>
-          <IonSkeletonText
-            animated={true}
-            className="AddressesTableSkeleton"
-          ></IonSkeletonText>
-          <IonSkeletonText
-            animated={true}
-            className="AddressesTableSkeleton"
-          ></IonSkeletonText>
-          <IonSkeletonText
-            animated={true}
-            className="AddressesTableSkeleton"
-          ></IonSkeletonText>
+          <IonSkeletonText animated={true} className="AddressesTableSkeleton" />
+          <IonSkeletonText animated={true} className="AddressesTableSkeleton" />
+          <IonSkeletonText animated={true} className="AddressesTableSkeleton" />
+          <IonSkeletonText animated={true} className="AddressesTableSkeleton" />
+          <IonSkeletonText animated={true} className="AddressesTableSkeleton" />
+          <IonSkeletonText animated={true} className="AddressesTableSkeleton" />
+          <IonSkeletonText animated={true} className="AddressesTableSkeleton" />
+          <IonSkeletonText animated={true} className="AddressesTableSkeleton" />
         </div>
       ) : (
         <MaterialReactTable table={table} />

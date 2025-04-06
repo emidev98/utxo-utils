@@ -67,14 +67,16 @@ export const useTxs = () => {
   };
   const getIncomingTxFees = (txStore: TransactionsStorage, address: string) => {
     const feesPaid = txStore[address].reduce((acc, tx) => {
-      if (tx.vout.find((vout) => vout.scriptpubkey_address === address)) {
-        acc += tx.fee;
+      const vout = tx.vout.find(
+        (vout) => vout.scriptpubkey_address === address,
+      );
+      if (vout !== undefined) {
+        acc += tx.fee / tx.vout.length;
       }
 
       return acc;
     }, 0);
-
-    return feesPaid;
+    return Number(feesPaid.toFixed(0));
   };
 
   const resetTransactionsData = async () => {

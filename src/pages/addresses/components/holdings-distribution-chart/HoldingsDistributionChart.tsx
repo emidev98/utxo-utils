@@ -45,8 +45,7 @@ const HoldingsDistributionChart = ({
       }
     });
     setTotalSpendableBalance(_totalSpendableBalance);
-    seriesData = seriesData.sort((a, b) => b.y - a.y);
-    setSeries([{ data: seriesData }]);
+    setSeries([{ data: seriesData.sort((a, b) => b.y - a.y) }]);
     setOptions({
       chart: {
         animations: {
@@ -126,14 +125,8 @@ const HoldingsDistributionChart = ({
       <IonCardContent>
         {loading ? (
           <>
-            <IonSkeletonText
-              animated={true}
-              className="ChartSkeletonHeader"
-            ></IonSkeletonText>
-            <IonSkeletonText
-              animated={true}
-              className="ChartSkeletonBody"
-            ></IonSkeletonText>
+            <IonSkeletonText animated={true} className="ChartSkeletonHeader" />
+            <IonSkeletonText animated={true} className="ChartSkeletonBody" />
           </>
         ) : (
           <ReactApexChart

@@ -61,7 +61,6 @@ export const useAddresses = () => {
   ) => {
     const addresses = Object.keys(addrStore);
     let feesPaid = 0;
-
     addresses.forEach((addr) => {
       txStore[addr].forEach((tx) => {
         tx.vin.forEach((vin) => {
