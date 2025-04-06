@@ -26,6 +26,7 @@
     "@mui/material": "^7.0.1",
     "@mui/x-date-pickers": "^7.3.1",
     "@types/node": "^20.12.7",
+    "@vercel/speed-insights": "^1.2.0",
     "apexcharts": "^4.5.0",
     "bitcoin-address-validation": "^2.2.3",
     "buffer": "^6.0.3",
