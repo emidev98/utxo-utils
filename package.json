@@ -1,5 +1,5 @@
 {
-  "name": "utxo-utils",
+  "name": "@emidev98/utxo-utils",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -7,19 +7,17 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test.e2e": "cypress run",
-    "test.unit": "vitest",
     "lint": "eslint --fix",
     "prettier": "prettier . --write",
     "prepare": "husky"
   },
   "dependencies": {
-    "@capacitor/android": "^6.0.0",
     "@capacitor/app": "6.0.0",
-    "@capacitor/core": "^6.0.0",
     "@capacitor/haptics": "6.0.0",
     "@capacitor/keyboard": "6.0.0",
     "@capacitor/status-bar": "6.0.0",
+    "@capacitor/android": "6.0.0",
+    "@capacitor/core": "6.0.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@ionic/react": "^7.0.0",
@@ -44,6 +42,10 @@
     "sass": "^1.75.0"
   },
   "devDependencies": {
+    "vite": "6.2.5",
+    "eslint-plugin-react": "7.37.5",
+    "@vitejs/plugin-legacy": "6.0.2",
+    "@vitejs/plugin-react": "4.3.4",
     "@capacitor/cli": "^6.0.0",
     "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^5.16.5",
@@ -52,19 +54,13 @@
     "@types/lodash": "^4.17.1",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
-    "@vitejs/plugin-legacy": "^5.0.0",
-    "@vitejs/plugin-react": "^4.0.1",
     "cypress": "^13.5.0",
-    "eslint": "^8.35.0",
-    "eslint-plugin-react": "^7.32.2",
+    "eslint": "9.24.0",
     "husky": "^9.1.7",
-    "jsdom": "^22.1.0",
     "prettier": "3.5.3",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "terser": "^5.4.0",
-    "typescript": "^5.1.6",
-    "vite": "^5.0.0",
-    "vitest": "^0.34.6"
+    "typescript": "^5.1.6"
   },
   "description": "Cross platform application to help analyzing bitcoin UTXOS"
 }
