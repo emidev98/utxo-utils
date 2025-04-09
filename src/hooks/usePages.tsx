@@ -50,14 +50,14 @@ export const usePages = () => {
       mdIcon: atCircleSharp,
       component: <AddressesPage />,
     },
-    // {
-    //     title: 'UTXOs',
-    //     url: '/utxos',
-    //     className: 'utxos-menu-entry',
-    //     iosIcon: gitNetworkOutline,
-    //     mdIcon: gitNetworkSharp,
-    //     component: <UTXOsPage />
-    // },
+    {
+      title: "UTXOs",
+      url: "/utxos",
+      className: "utxos-menu-entry",
+      iosIcon: gitNetworkOutline,
+      mdIcon: gitNetworkSharp,
+      component: <UTXOsPage />,
+    },
     // {
     //     title: 'Alerts',
     //     url: '/alerts',

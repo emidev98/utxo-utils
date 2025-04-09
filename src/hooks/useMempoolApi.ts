@@ -15,7 +15,7 @@ export const useMempoolApi = () => {
       await store.create();
       if (!(await store.get(STORE_KEY))) {
         await store.set(STORE_KEY, {
-          mempoolAPIUrl: "http://192.168.178.168:3006/api",
+          mempoolAPIUrl: "https://mempool.space/api",
         });
       }
     };
@@ -122,7 +122,7 @@ export const useMempoolApi = () => {
 
   const resetMempoolData = async () => {
     await store.set(STORE_KEY, {
-      mempoolAPIUrl: "http://192.168.178.168:3006/api",
+      mempoolAPIUrl: "https://mempool.space/api",
     });
   };
 
