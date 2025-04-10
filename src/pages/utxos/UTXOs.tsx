@@ -1,18 +1,24 @@
 import { useEffect } from "react";
 import "./UTXOs.scss";
 import { useTxs } from "../../hooks/useTxs";
-import { useAddresses } from "../../hooks/useAddresses";
+import { usePricing } from "../../hooks/usePricing";
 
 const UTXOsPage = ({}) => {
   const { getAllTxs } = useTxs();
-  const { getAddresses } = useAddresses();
-
+  const { getBitcoinHistoricalData } = usePricing();
   useEffect(() => {
     const init = async () => {
-      let [txsRes, addrRes] = await Promise.all([getAllTxs(), getAddresses()]);
+      let [txsRes, historicalPrices] = await Promise.all([
+        getAllTxs(),
+        getBitcoinHistoricalData(),
+      ]);
+
+      if (historicalPrices instanceof Error) {
+        throw historicalPrices;
+      }
 
       console.log("txsRes", txsRes);
-      console.log("addrRes", addrRes);
+      console.log("historicalPrices", historicalPrices);
     };
     init();
   }, []);

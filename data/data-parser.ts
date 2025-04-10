@@ -56,7 +56,7 @@ const storeCompresed = async (data: Data[]) => {
 
     buffer = Buffer.concat([buffer, entry]);
   }
-  fs.writeFileSync(dayjs().format("YYYY-MM-DD") + ".bin", buffer);
+  fs.writeFileSync("btc-1-day-avg-historical.bin", buffer);
 };
 
 parseCsv("btc_1d_data_2018_to_2025.csv")

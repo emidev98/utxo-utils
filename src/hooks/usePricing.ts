@@ -1,5 +1,9 @@
 import { Storage } from "@ionic/storage";
 import { useEffect, useState } from "react";
+import btc1DayAvgHistoricalDataUrl from "/btc-1-day-avg-historical.txt";
+// TODO: consider another way to import the file
+// if we're penalized on speed
+import { BitcoinHistoricalData } from "../models/BitcoinHistoricalData";
 
 export interface PricingStore {
   coingeckoApiUrl: string;
@@ -61,11 +65,25 @@ export const usePricing = () => {
     });
   };
 
+  const getBitcoinHistoricalData = async (): Promise<
+    BitcoinHistoricalData[] | Error
+  > => {
+    return fetch(btc1DayAvgHistoricalDataUrl)
+      .then(async (res) => {
+        let buffer = await res.text();
+        return buffer.split(",").map(BitcoinHistoricalData.fromEntryFileValue);
+      })
+      .catch((e) => {
+        return e;
+      });
+  };
+
   return {
     loadLatestPrice,
     loadLatestPriceFromStoreOrZero,
     updatePricingAPIUrl,
     getPricingApiUrl,
     resetPricingData,
+    getBitcoinHistoricalData,
   };
 };
