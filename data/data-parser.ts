@@ -38,15 +38,22 @@ const parseCsv = (filePath: string): Promise<Data[]> => {
 const storeCompresed = async (data: Data[]) => {
   const parsedDataset: { OpenTime: string; AvgHL: string }[] = data.map(
     (item) => ({
-      OpenTime: dayjs(item.CloseTime).format("YYYY.MM.DD"),
-      AvgHL: ((item.High + item.Low) / 2).toFixed(2),
+      OpenTime: dayjs(item.CloseTime).format("YYYYMMDD"),
+      AvgHL: ((item.High + item.Low) / 2).toFixed(2).replace(".", ""),
     }),
   );
+  const parsedDatasetLength = parsedDataset.length;
 
   // Write the new CSV to a file
   let buffer = Buffer.from([]);
-  for (const row of parsedDataset) {
-    const entry = Buffer.from(`${row.OpenTime},${row.AvgHL},`, "utf-8");
+  for (let i = 0; i < parsedDatasetLength; i++) {
+    const row = parsedDataset[i];
+    let entry = Buffer.from(`${row.OpenTime}${row.AvgHL}`, "utf-8");
+
+    if (i != parsedDatasetLength - 1) {
+      entry = Buffer.concat([entry, Buffer.from(",")]);
+    }
+
     buffer = Buffer.concat([buffer, entry]);
   }
   fs.writeFileSync(dayjs().format("YYYY-MM-DD") + ".bin", buffer);
