@@ -3,7 +3,7 @@ import dayjs, { Dayjs } from "dayjs";
 export class BitcoinHistoricalData {
   constructor(
     public date: Dayjs,
-    public price: Number,
+    public price: number,
   ) {}
 
   static fromEntryFileValue(val: string) {
@@ -11,13 +11,11 @@ export class BitcoinHistoricalData {
 
     const dateString = val.substring(0, DATE_INDEX_LENGTH);
     const integer = val.substring(DATE_INDEX_LENGTH, val.length - 2);
-    const decimal = val.substring(
-      DATE_INDEX_LENGTH + dateString.length + integer.length,
-    );
+    const decimal = val.substring(DATE_INDEX_LENGTH + integer.length);
 
     return new BitcoinHistoricalData(
       dayjs(dateString, "YYYYMMDD"),
-      Number(integer + "." + decimal),
+      parseFloat(integer + "." + decimal),
     );
   }
 }

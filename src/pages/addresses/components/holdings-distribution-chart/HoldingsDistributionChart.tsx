@@ -6,6 +6,7 @@ import { ApexOptions } from "apexcharts";
 import _ from "lodash";
 import useFormatter from "../../../../hooks/useFormatter";
 import { IonCard, IonCardContent, IonSkeletonText } from "@ionic/react";
+import { DEFAULT_CHART_TITLE } from "../../../../charts.global.options";
 
 interface HoldingsDistributionChartProps {
   addrStore?: AddressStateObject;
@@ -54,15 +55,8 @@ const HoldingsDistributionChart = ({
         },
       },
       title: {
+        ...DEFAULT_CHART_TITLE,
         text: "Aggregated coins by address",
-        align: "center",
-        style: {
-          // TODO: when theming move this to a variable
-          fontSize: "20px",
-          fontWeight: 500,
-          fontFamily: 'Roboto, "Helvetica Neue", sans-serif',
-          color: "#dbdbdb",
-        },
       },
       plotOptions: {
         treemap: {
@@ -109,9 +103,6 @@ const HoldingsDistributionChart = ({
             return addressFormatter(val);
           },
         },
-      },
-      tooltip: {
-        cssClass: "AppChartTooltip",
       },
     });
   }, [addrStore]);

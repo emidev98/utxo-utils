@@ -2,8 +2,6 @@ import { Storage } from "@ionic/storage";
 import { Transaction } from "../models/MempoolAddressTxs";
 import { useEffect, useState } from "react";
 import * as _ from "lodash";
-import { AddressInfo } from "../models/MempoolAddress";
-
 export interface TransactionsStorage {
   [key: string]: Array<Transaction>;
 }

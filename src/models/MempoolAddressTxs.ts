@@ -1,3 +1,5 @@
+import dayjs, { Dayjs } from "dayjs";
+
 export interface Transaction {
   txid: string;
   version: number;
@@ -37,6 +39,10 @@ export interface Vout {
   scriptpubkey_address: string;
   scriptpubkey_asm: string;
   scriptpubkey_type: string;
+}
+
+export interface VoutWithBlockTime extends Vout {
+  block_time: Dayjs;
 }
 
 export interface Status {
