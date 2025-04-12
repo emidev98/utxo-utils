@@ -4,15 +4,14 @@ import { TransactionsStorage, useTxs } from "../../hooks/useTxs";
 import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
 import SimpleKpi from "../../components/kpis/counter/SimpleKpi";
 import * as _ from "lodash";
-import useFormatter from "../../hooks/useFormatter";
 import HoldingsDistributionChart from "./components/holdings-distribution-chart/HoldingsDistributionChart";
 import AddressesTable from "./components/addresses-table/AddressesTable";
 import { useModalContext } from "../../context/ModalContext";
+import { BTCFormatter } from "../../hooks/useFormatter";
 
 const AddressesPage = ({}) => {
   const { getAllTxs } = useTxs();
   const { getAddresses, sumBalances, sumTxsFeesPaid } = useAddresses();
-  const { BTCFormatter } = useFormatter();
 
   const [isLoading, setLoading] = useState(true);
 

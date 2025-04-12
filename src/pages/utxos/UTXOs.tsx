@@ -10,25 +10,27 @@ import { VoutWithBlockTime } from "../../models/MempoolAddressTxs";
 const UTXOsPage = ({}) => {
   const { getAllUTXOs } = useUTXOs();
   const { getBitcoinHistoricalData } = usePricing();
-  const [historicalPrices, setHistoricalPrices] = useState<
-    BitcoinHistoricalData[]
-  >([]);
-  const [utxos, setUTXOs] = useState<VoutWithBlockTime[]>([]);
+  const [chartData, setChartData] = useState<{
+    historicalPrices: BitcoinHistoricalData[];
+    utxos: VoutWithBlockTime[];
+  }>({ historicalPrices: [], utxos: [] });
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
-      const [_utxos, _historicalPrices] = await Promise.all([
+      const [utxos, historicalPrices] = await Promise.all([
         getAllUTXOs(),
         getBitcoinHistoricalData(),
       ]);
 
-      if (_historicalPrices instanceof Error) {
-        throw _historicalPrices;
+      if (historicalPrices instanceof Error) {
+        throw historicalPrices;
       }
 
-      setHistoricalPrices(_historicalPrices);
-      setUTXOs(_utxos);
+      setChartData({
+        utxos,
+        historicalPrices,
+      });
       setLoading(false);
     };
     init();
@@ -36,7 +38,7 @@ const UTXOsPage = ({}) => {
 
   return (
     <div className="UTXOsPage">
-      <UTXOTimelineChart historicalPrices={historicalPrices} utxos={utxos} />
+      <UTXOTimelineChart data={chartData} loading={isLoading} />
     </div>
   );
 };

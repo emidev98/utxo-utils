@@ -9,12 +9,12 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from "material-react-table";
-import useFormatter from "../../../../hooks/useFormatter";
 import { copy } from "ionicons/icons";
 import { Button } from "@mui/material";
 import { IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
 import AppToast from "../../../../components/toast/Toast";
 import { sortFirstNumericElement } from "../../../../utils/tables";
+import { addressFormatter, BTCFormatter } from "../../../../hooks/useFormatter";
 
 interface TableColumn {
   label: string;
@@ -100,7 +100,6 @@ const AddressesTable = ({
     ],
     new Array<MRT_ColumnDef<TableColumn>>(),
   );
-  const { BTCFormatter, addressFormatter } = useFormatter();
   const [tableData, setTableData] = useState(new Array<TableColumn>());
   const { getFirstInAndLastOut, getIncomingTxFees } = useTxs();
   const [toast, setToastData] = useState({

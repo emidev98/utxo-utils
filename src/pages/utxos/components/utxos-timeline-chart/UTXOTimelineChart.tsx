@@ -1,49 +1,95 @@
 import { useEffect, useState } from "react";
 import "./UTXOTimelineChart.scss";
-import { AddressStateObject } from "../../../../hooks/useAddresses";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import _ from "lodash";
-import useFormatter from "../../../../hooks/useFormatter";
 import { IonCard, IonCardContent, IonSkeletonText } from "@ionic/react";
 import { BitcoinHistoricalData } from "../../../../models/BitcoinHistoricalData";
 import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
-import baseChartOptions from "./UTXOTimelineChart.options";
+import utxoTimelineChartOptions, {
+  ChartSeries,
+  UTXOSPrices,
+} from "./UTXOTimelineChart.options";
 
 interface UTXOTimelineChartProps {
-  historicalPrices: BitcoinHistoricalData[];
-  utxos: VoutWithBlockTime[];
-  loading?: boolean;
+  data: {
+    historicalPrices: BitcoinHistoricalData[];
+    utxos: VoutWithBlockTime[];
+  };
+  loading: boolean;
 }
 
-interface ChartSeries
-  extends Array<{
-    x: any;
-    y: any;
-  }> {}
-
-const UTXOTimelineChart = ({
-  historicalPrices,
-  utxos,
-  loading,
-}: UTXOTimelineChartProps) => {
-  const { addressFormatter, BTCFormatter } = useFormatter();
-  const [options, setOptions] = useState<ApexOptions | undefined>({});
-  const [series, setSeries] = useState<ApexOptions["series"]>([]);
+const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
+  const [isLoading, setLoading] = useState(props.loading ? true : false);
+  const [chartData, setchartData] = useState<{
+    options: ApexOptions;
+    series: ApexOptions["series"];
+  }>({
+    options: utxoTimelineChartOptions,
+    series: [],
+  });
 
   useEffect(() => {
-    console.log(utxos);
-    baseChartOptions.annotations!.points = generatePointsInChart();
-    setSeries([{ data: getChartSeriesData() }]);
-    setOptions(baseChartOptions);
-  }, [historicalPrices, utxos]);
+    setLoading(true);
+    const [_seriesData, _pricesPoints] = parseData();
+    const points = getPointsAnnotations(_pricesPoints);
+    setchartData({
+      options: {
+        ...utxoTimelineChartOptions,
+        annotations: {
+          ...utxoTimelineChartOptions.annotations,
+          points,
+        },
+      },
+      series: [{ data: _seriesData, name: "Price" }],
+    });
+    setLoading(false);
+  }, [props.data.historicalPrices]);
 
-  const generatePointsInChart = (): PointAnnotations[] => {
+  const parseData = (): [ChartSeries, Record<number, UTXOSPrices>] => {
+    const {
+      data: { utxos, historicalPrices },
+    } = props;
+
+    const _series: ChartSeries = [];
+    const _pricesPoints: Record<number, UTXOSPrices> = {};
+
+    const allUtoxs = _.groupBy(utxos, (value) => {
+      return value.block_time
+        .set("hour", 0)
+        .set("minute", 0)
+        .set("second", 0)
+        .set("millisecond", 0)
+        .toDate()
+        .getTime();
+    });
+    for (const { date, price } of historicalPrices) {
+      _series.push([date.toDate().getTime(), price]);
+
+      const formattedDate = date.toDate().getTime();
+      const utxos = allUtoxs[formattedDate];
+      if (utxos !== undefined) {
+        _pricesPoints[formattedDate] = {
+          price,
+          utxos,
+        };
+      }
+    }
+
+    return [_series, _pricesPoints];
+  };
+
+  const getPointsAnnotations = (
+    _pricesPoints: Record<number, UTXOSPrices>,
+  ): PointAnnotations[] => {
     const points: PointAnnotations[] = [];
+    console.log(_pricesPoints);
+    for (const date in _pricesPoints) {
+      const utxosPrice = _pricesPoints[date];
 
-    for (const utxo of utxos) {
       points.push({
-        x: utxo.block_time.format("YYYY-MM-DD"),
+        x: date,
+        y: utxosPrice.price,
         marker: {
           size: 8,
           fillColor: "#fff",
@@ -57,7 +103,6 @@ const UTXOTimelineChart = ({
             color: "#fff",
             background: "#FF4560",
           },
-
           text: "Point Annotation",
         },
       });
@@ -66,61 +111,20 @@ const UTXOTimelineChart = ({
     return points;
   };
 
-  const getChartSeriesData = (): ChartSeries => {
-    const seriesData: ChartSeries = [];
-    const firstUtxo = utxos[0];
-    const lastUtxo = utxos[utxos.length - 1];
-
-    const firstDateToConsiderInChart = firstUtxo
-      ? firstUtxo.block_time.add(-7, "day")
-      : null;
-    const lastDateToConsiderInChart = lastUtxo
-      ? lastUtxo.block_time.add(7, "day")
-      : null;
-
-    for (const { date, price } of historicalPrices) {
-      if (
-        firstDateToConsiderInChart === null &&
-        lastDateToConsiderInChart === null
-      ) {
-        seriesData.push({
-          x: date.format("YYYY-MM-DD"),
-          y: price,
-        });
-      }
-
-      if (
-        date.isAfter(firstDateToConsiderInChart) &&
-        date.isBefore(lastDateToConsiderInChart)
-      ) {
-        seriesData.push({
-          x: date.format("YYYY-MM-DD"),
-          y: price,
-        });
-      }
-
-      if (date.isAfter(lastDateToConsiderInChart)) {
-        break;
-      }
-    }
-
-    return seriesData;
-  };
-
   return (
     <IonCard className="UTXOTimelineChart">
       <IonCardContent>
-        {loading ? (
+        {isLoading ? (
           <>
             <IonSkeletonText animated={true} className="ChartSkeletonHeader" />
             <IonSkeletonText animated={true} className="ChartSkeletonBody" />
           </>
         ) : (
           <ReactApexChart
-            options={options}
-            series={series}
-            height={500}
             type="line"
+            height={336}
+            options={chartData.options}
+            series={chartData.series}
           />
         )}
       </IonCardContent>

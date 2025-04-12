@@ -23,7 +23,7 @@ import { useMempoolApi } from "../../hooks/useMempoolApi";
 import Loader from "../loader/Loader";
 import AppToast from "../toast/Toast";
 import { useTxs } from "../../hooks/useTxs";
-import useFormatter from "../../hooks/useFormatter";
+import { addressFormatter } from "../../hooks/useFormatter";
 
 interface NewAddressProps {
   isOpen: boolean;
@@ -54,7 +54,6 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
   const { appendTxs } = useTxs();
 
   const { putAddress, getAddress } = useAddresses();
-  const { addressFormatter } = useFormatter();
 
   const onImportAddress = async () => {
     setIsLoading(true);

@@ -13,10 +13,9 @@ import { useTxs } from "../../hooks/useTxs";
 import { useAddresses } from "../../hooks/useAddresses";
 import AppToast from "../../components/toast/Toast";
 import Loader from "../../components/loader/Loader";
-import useFormatter from "../../hooks/useFormatter";
+import { addressFormatter } from "../../hooks/useFormatter";
 
 const SettingsPage: React.FC = () => {
-  const { addressFormatter } = useFormatter();
   const [mempoolAPIUrl, setMempoolAPIUrl] = useState<string>("");
   const [mempoolUrlValid, setMempoolUrlValid] = useState<boolean>(true);
   const [mempoolTouched, setMempoolTouched] = useState<boolean>(true);
