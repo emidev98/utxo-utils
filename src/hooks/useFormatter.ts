@@ -1,8 +1,8 @@
-export const BTCFormatter = (value: number) => {
-  return value / 100000000 + " ₿";
+export const BTCFormatter = (value: number | string) => {
+  return Number(value) / 100000000 + " ₿";
 };
 
-export const USDFormatter = (value: number) => {
+export const USDFormatter = (value: number | string) => {
   return value.toLocaleString("us-US") + " $";
 };
 

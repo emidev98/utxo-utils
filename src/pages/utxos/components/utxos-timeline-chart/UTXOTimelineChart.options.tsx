@@ -17,7 +17,7 @@ const utxoTimelineChartOptions: ApexOptions = _.merge(
     stroke: {
       curve: "smooth",
       lineCap: "square",
-      width: 2,
+      width: 3,
       colors: ["#428cff"],
     },
     title: {
@@ -30,7 +30,7 @@ const utxoTimelineChartOptions: ApexOptions = _.merge(
         enabled: false,
       },
       labels: {
-        formatter: (value: string, timestamp?: number, opts?: any) => {
+        formatter: (value: string) => {
           return dayjs(value).format("DD MMM, YYYY");
         },
         hideOverlappingLabels: true,
@@ -49,5 +49,27 @@ const utxoTimelineChartOptions: ApexOptions = _.merge(
   } satisfies ApexOptions,
   DEFAULT_OPTIONS,
 );
+
+export const utxoTimelineChartAnnotation: PointAnnotations = {
+  marker: {
+    size: 8,
+    fillColor: "#fff",
+  },
+  label: {
+    borderColor: "#fff",
+    borderRadius: 1,
+    offsetY: -14,
+    style: {
+      padding: {
+        left: 4,
+        right: 4,
+        top: 4,
+        bottom: 4,
+      },
+      color: "#fff",
+      background: "##1e1e1e",
+    },
+  },
+};
 
 export default utxoTimelineChartOptions;

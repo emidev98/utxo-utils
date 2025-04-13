@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./Addresses.scss";
+import "./AddressesPage.scss";
 import { TransactionsStorage, useTxs } from "../../hooks/useTxs";
 import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
 import SimpleKpi from "../../components/kpis/counter/SimpleKpi";
@@ -55,21 +55,19 @@ const AddressesPage = ({}) => {
 
   return (
     <div className="AddressesPage">
-      <SimpleKpi loading={isLoading} amount={addrCount} message="Addresses" />
+      <SimpleKpi loading={isLoading} value={addrCount} title="Addresses" />
+      <SimpleKpi loading={isLoading} value={txsCount} title="Confirmed Tx" />
       <SimpleKpi
         loading={isLoading}
-        amount={txsCount}
-        message="Confirmed Tx "
+        value={spendableBalance}
+        formatter={BTCFormatter}
+        title="Spendable balance"
       />
       <SimpleKpi
         loading={isLoading}
-        amount={BTCFormatter(spendableBalance)}
-        message="Spendable balance"
-      />
-      <SimpleKpi
-        loading={isLoading}
-        amount={BTCFormatter(feesPaid)}
-        message="Fees paid"
+        value={feesPaid}
+        formatter={BTCFormatter}
+        title="Fees paid"
       />
       <HoldingsDistributionChart loading={isLoading} addrStore={addrStore} />
       <AddressesTable

@@ -8,15 +8,21 @@ import { BitcoinHistoricalData } from "../../../../models/BitcoinHistoricalData"
 import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
 import utxoTimelineChartOptions, {
   ChartSeries,
+  utxoTimelineChartAnnotation,
   UTXOSPrices,
 } from "./UTXOTimelineChart.options";
+import { BTCFormatter } from "../../../../hooks/useFormatter";
+import dayjs from "dayjs";
 
 interface UTXOTimelineChartProps {
-  data: {
-    historicalPrices: BitcoinHistoricalData[];
-    utxos: VoutWithBlockTime[];
-  };
+  historicalPrices: BitcoinHistoricalData[];
+  utxos: VoutWithBlockTime[];
   loading: boolean;
+  onClickChartAnnotation: (
+    pointAnnotations: PointAnnotations,
+    event: Event,
+    utxos: VoutWithBlockTime[],
+  ) => void;
 }
 
 const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
@@ -33,6 +39,14 @@ const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
     setLoading(true);
     const [_seriesData, _pricesPoints] = parseData();
     const points = getPointsAnnotations(_pricesPoints);
+
+    const startFocus = points.length
+      ? dayjs(Number(points[0].x)).add(10, "days")
+      : undefined;
+    const endFocus = points.length
+      ? dayjs(Number(points[points.length - 1].x)).add(10, "days")
+      : undefined;
+
     setchartData({
       options: {
         ...utxoTimelineChartOptions,
@@ -40,16 +54,19 @@ const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
           ...utxoTimelineChartOptions.annotations,
           points,
         },
+        xaxis: {
+          ...utxoTimelineChartOptions.xaxis,
+          min: startFocus?.toDate().getTime(),
+          max: endFocus?.toDate().getTime(),
+        },
       },
       series: [{ data: _seriesData, name: "Price" }],
     });
     setLoading(false);
-  }, [props.data.historicalPrices]);
+  }, [props.historicalPrices]);
 
   const parseData = (): [ChartSeries, Record<number, UTXOSPrices>] => {
-    const {
-      data: { utxos, historicalPrices },
-    } = props;
+    const { utxos, historicalPrices } = props;
 
     const _series: ChartSeries = [];
     const _pricesPoints: Record<number, UTXOSPrices> = {};
@@ -83,27 +100,22 @@ const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
     _pricesPoints: Record<number, UTXOSPrices>,
   ): PointAnnotations[] => {
     const points: PointAnnotations[] = [];
-    console.log(_pricesPoints);
+
     for (const date in _pricesPoints) {
       const utxosPrice = _pricesPoints[date];
+      const utxosValue = utxosPrice.utxos.reduce((acc, utxo) => {
+        return acc + utxo.value;
+      }, 0);
 
       points.push({
         x: date,
         y: utxosPrice.price,
-        marker: {
-          size: 8,
-          fillColor: "#fff",
-          strokeColor: "red",
-          cssClass: "apexcharts-custom-class",
-        },
+        click: (point: PointAnnotations, event: Event) =>
+          props.onClickChartAnnotation(point, event, utxosPrice.utxos),
+        ...utxoTimelineChartAnnotation,
         label: {
-          borderColor: "#FF4560",
-          offsetY: 0,
-          style: {
-            color: "#fff",
-            background: "#FF4560",
-          },
-          text: "Point Annotation",
+          text: BTCFormatter(utxosValue),
+          ...utxoTimelineChartAnnotation.label,
         },
       });
     }

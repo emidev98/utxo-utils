@@ -1,0 +1,24 @@
+.UTXOsPage {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: min-content min-content auto;
+  gap: 1rem;
+
+  .UTXOTimelineChart {
+    grid-row-start: 2;
+    grid-row-end: 3;
+
+    grid-column-start: 1;
+    grid-column-end: 5;
+  }
+
+  .AddressesTable {
+    grid-column-start: 1;
+    grid-column-end: 5;
+
+    grid-row-start: 3;
+    grid-row-end: 4;
+
+    margin: 10px;
+  }
+}

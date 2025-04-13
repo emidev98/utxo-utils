@@ -18,9 +18,9 @@ import { useLocation, useNavigate } from "react-router";
 import ArchivePage from "../pages/archive/Archive";
 import AlertsPage from "../pages/alerts/Alerts";
 import DashboardPage from "../pages/dashboard/Dashboard";
-import UTXOsPage from "../pages/utxos/UTXOs";
+import UTXOsPage from "../pages/utxos/UTXOsPage";
 import SettingsPage from "../pages/settings/Settings";
-import AddressesPage from "../pages/addresses/Addresses";
+import AddressesPage from "../pages/addresses/AddressesPage";
 
 export interface Page {
   url: string;
