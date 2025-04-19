@@ -1,5 +1,5 @@
 {
-  "name": "BitcoinAddressAnalytics",
+  "name": "UTXOUtils",
   "integrations": {
     "capacitor": {}
   },

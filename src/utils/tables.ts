@@ -5,8 +5,15 @@ export function sortFirstNumericElement<T extends RowData>(
   rowB: Row<T>,
   columnId: string,
 ): number {
-  let rowValue: string = (rowA.getValue(columnId) as string).split(" ")[0];
-  let row2Value: string = (rowB.getValue(columnId) as string).split(" ")[0];
-
+  let rowValue = rowA.getValue(columnId)?.toString();
+  if (rowValue === undefined) {
+    return 0;
+  }
+  let row2Value = rowB.getValue(columnId)?.toString();
+  if (row2Value === undefined) {
+    return 0;
+  }
+  rowValue = rowValue.split(" ")[0];
+  row2Value = row2Value.split(" ")[0];
   return parseFloat(rowValue) - parseFloat(row2Value);
 }

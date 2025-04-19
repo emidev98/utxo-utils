@@ -34,6 +34,7 @@ import React, { useEffect, useState } from "react";
 import Header from "./components/header/Header";
 import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
 import { ModalProvider } from "./context/ModalContext";
+import { ToastProvider } from "./context/ToastContext";
 
 setupIonicReact();
 
@@ -51,22 +52,28 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      <ModalProvider>
-        <IonSplitPane contentId="main">
-          <Menu />
-          <IonContent id="main" fullscreen>
-            <Header />
-            <div id="PageContent">
-              <Routes>
-                {pages.map((page, index) => (
-                  <Route key={index} path={page.url} element={page.component} />
-                ))}
-              </Routes>
-              <Outlet />
-            </div>
-          </IonContent>
-        </IonSplitPane>
-      </ModalProvider>
+      <ToastProvider>
+        <ModalProvider>
+          <IonSplitPane contentId="main">
+            <Menu />
+            <IonContent id="main" fullscreen>
+              <Header />
+              <div id="PageContent">
+                <Routes>
+                  {pages.map((page, index) => (
+                    <Route
+                      key={index}
+                      path={page.url}
+                      element={page.component}
+                    />
+                  ))}
+                </Routes>
+                <Outlet />
+              </div>
+            </IonContent>
+          </IonSplitPane>
+        </ModalProvider>
+      </ToastProvider>
     </IonApp>
   );
 };

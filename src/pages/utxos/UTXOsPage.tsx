@@ -1,30 +1,35 @@
 import { useEffect, useState } from "react";
 import "./UTXOsPage.scss";
 import { usePricing } from "../../hooks/usePricing";
-import UTXOTimelineChart from "./components/utxos-timeline-chart/UTXOTimelineChart";
+import UTXOsTimelineChart from "./components/utxos-timeline-chart/UTXOsTimelineChart";
 import { BitcoinHistoricalData } from "../../models/BitcoinHistoricalData";
 import * as _ from "lodash";
 import { useUTXOs } from "../../hooks/useUTXOs";
 import { VoutWithBlockTime } from "../../models/MempoolAddressTxs";
 import SimpleKpi from "../../components/kpis/counter/SimpleKpi";
+import UTXOsTable from "./components/utxos-table/UTXOsTable";
+import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
 
 const UTXOsPage = ({}) => {
   const { getAllUTXOs } = useUTXOs();
   const { getBitcoinHistoricalData } = usePricing();
   const [firstUtxo, setFirstUtxo] = useState<VoutWithBlockTime>();
   const [lastUtxo, setLastUtxo] = useState<VoutWithBlockTime>();
+  const [addresses, setAddresses] = useState<AddressStateObject>({});
   const [utxos, setUtxos] = useState<VoutWithBlockTime[]>([]);
   const [historicalPrices, setHistoricalPrices] = useState<
     BitcoinHistoricalData[]
   >([]);
   const [isLoading, setLoading] = useState(true);
   const [utxosCount, setUtxosCount] = useState(0);
+  const { getAddresses } = useAddresses();
 
   useEffect(() => {
     const init = async () => {
-      const [_utxos, _historicalPrices] = await Promise.all([
+      const [_utxos, _historicalPrices, _addresses] = await Promise.all([
         getAllUTXOs(),
         getBitcoinHistoricalData(),
+        getAddresses(),
       ]);
 
       if (_historicalPrices instanceof Error) {
@@ -35,6 +40,7 @@ const UTXOsPage = ({}) => {
       setFirstUtxo(_.first(_utxos));
       setLastUtxo(_.last(_utxos));
 
+      setAddresses(_addresses);
       setUtxos(_utxos);
       setHistoricalPrices(_historicalPrices);
       setLoading(false);
@@ -65,11 +71,22 @@ const UTXOsPage = ({}) => {
         value={lastUtxo?.block_time.format("DD MMM YYYY H:m:s")}
         title="Last UTXO date"
       />
-      <UTXOTimelineChart
+      <UTXOsTimelineChart
+        firstUtxo={firstUtxo}
+        lastUtxo={lastUtxo}
         utxos={utxos}
         historicalPrices={historicalPrices}
         loading={isLoading}
         onClickChartAnnotation={onClickChartAnnotation}
+      />
+
+      <UTXOsTable
+        loading={isLoading}
+        firstUtxo={firstUtxo}
+        lastUtxo={lastUtxo}
+        utxos={utxos}
+        addresses={addresses}
+        historicalPrices={historicalPrices}
       />
     </div>
   );

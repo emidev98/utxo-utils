@@ -3,7 +3,7 @@ import { ApexOptions } from "apexcharts";
 import DEFAULT_OPTIONS from "../../../../charts.global.options";
 import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
 import { USDFormatter } from "../../../../hooks/useFormatter";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 export interface UTXOSPrices {
   price: number;
@@ -44,7 +44,21 @@ const utxoTimelineChartOptions: ApexOptions = _.merge(
       },
     },
     annotations: {
-      images: [],
+      xaxis: [
+        {
+          x: dayjs().subtract(1, "year").toDate().getTime(),
+          label: {
+            text: "1 year old",
+            position: "bottom",
+            orientation: "horizontal",
+            borderRadius: 2,
+            style: {
+              color: "#fff",
+              background: "#428cff",
+            },
+          },
+        },
+      ],
     },
   } satisfies ApexOptions,
   DEFAULT_OPTIONS,

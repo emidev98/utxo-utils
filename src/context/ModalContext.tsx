@@ -9,14 +9,12 @@ interface IModalContext {
   closeModal: () => void;
 }
 
-// Create a context with default values
 const ModalContext = createContext<IModalContext>({
   isOpen: false,
   openModal: () => {},
   closeModal: () => {},
 });
 
-// Define the Provider component
 export const ModalProvider: React.FC<{ children: JSX.Element }> = ({
   children,
 }) => {

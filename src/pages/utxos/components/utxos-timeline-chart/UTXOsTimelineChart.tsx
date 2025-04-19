@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./UTXOTimelineChart.scss";
+import "./UTXOsTimelineChart.scss";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import _ from "lodash";
@@ -10,14 +10,16 @@ import utxoTimelineChartOptions, {
   ChartSeries,
   utxoTimelineChartAnnotation,
   UTXOSPrices,
-} from "./UTXOTimelineChart.options";
+} from "./UTXOsTimelineChart.options";
 import { BTCFormatter } from "../../../../hooks/useFormatter";
-import dayjs from "dayjs";
 
 interface UTXOTimelineChartProps {
   historicalPrices: BitcoinHistoricalData[];
   utxos: VoutWithBlockTime[];
+  firstUtxo?: VoutWithBlockTime;
+  lastUtxo?: VoutWithBlockTime;
   loading: boolean;
+
   onClickChartAnnotation: (
     pointAnnotations: PointAnnotations,
     event: Event,
@@ -25,7 +27,7 @@ interface UTXOTimelineChartProps {
   ) => void;
 }
 
-const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
+const UTXOsTimelineChart = (props: UTXOTimelineChartProps) => {
   const [isLoading, setLoading] = useState(props.loading ? true : false);
   const [chartData, setchartData] = useState<{
     options: ApexOptions;
@@ -40,12 +42,8 @@ const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
     const [_seriesData, _pricesPoints] = parseData();
     const points = getPointsAnnotations(_pricesPoints);
 
-    const startFocus = points.length
-      ? dayjs(Number(points[0].x)).add(10, "days")
-      : undefined;
-    const endFocus = points.length
-      ? dayjs(Number(points[points.length - 1].x)).add(10, "days")
-      : undefined;
+    const startFocus = props.firstUtxo?.block_time.add(-10, "days");
+    const endFocus = props.lastUtxo?.block_time.add(10, "days");
 
     setchartData({
       options: {
@@ -124,7 +122,7 @@ const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
   };
 
   return (
-    <IonCard className="UTXOTimelineChart">
+    <IonCard className="UTXOsTimelineChart">
       <IonCardContent>
         {isLoading ? (
           <>
@@ -144,4 +142,4 @@ const UTXOTimelineChart = (props: UTXOTimelineChartProps) => {
   );
 };
 
-export default UTXOTimelineChart;
+export default UTXOsTimelineChart;

@@ -3,7 +3,6 @@ import "./AddressesTable.scss";
 import { TransactionsStorage, useTxs } from "../../../../hooks/useTxs";
 import { AddressStateObject } from "../../../../hooks/useAddresses";
 import * as _ from "lodash";
-import moment from "moment";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -12,9 +11,10 @@ import {
 import { copy } from "ionicons/icons";
 import { Button } from "@mui/material";
 import { IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
-import AppToast from "../../../../components/toast/Toast";
 import { sortFirstNumericElement } from "../../../../utils/tables";
 import { addressFormatter, BTCFormatter } from "../../../../hooks/useFormatter";
+import { useToastContext } from "../../../../context/ToastContext";
+import dayjs from "dayjs";
 
 interface TableColumn {
   label: string;
@@ -102,11 +102,7 @@ const AddressesTable = ({
   );
   const [tableData, setTableData] = useState(new Array<TableColumn>());
   const { getFirstInAndLastOut, getIncomingTxFees } = useTxs();
-  const [toast, setToastData] = useState({
-    isOpen: false,
-    message: "",
-    color: "",
-  });
+  const { setOpenToast } = useToastContext();
   useEffect(() => {
     if (addrStore === undefined) return;
     if (txStore === undefined) return;
@@ -129,12 +125,12 @@ const AddressesTable = ({
         txCount: txCount,
         type: addr.type,
         firstTxIn: _filo.firstIn.status.block_time
-          ? moment
+          ? dayjs
               .unix(_filo.firstIn.status.block_time)
               .format("YYYY-MM-DD HH:mm:ss")
           : "-",
         lastTxOut: _filo.lastOut?.status.block_time
-          ? moment
+          ? dayjs
               .unix(_filo.lastOut.status.block_time)
               .format("YYYY-MM-DD HH:mm:ss")
           : "-",
@@ -155,14 +151,10 @@ const AddressesTable = ({
 
   const onCopyValueFromCell = (value: string) => {
     navigator.clipboard.writeText(value);
-    setToastData({
-      isOpen: true,
+    setOpenToast({
       message: `Address ${value} copied to clipboard!`,
       color: "success",
     });
-    setTimeout(() => {
-      setToastData({ isOpen: false, message: "", color: "" });
-    }, 3000);
   };
 
   return (
@@ -181,13 +173,6 @@ const AddressesTable = ({
       ) : (
         <MaterialReactTable table={table} />
       )}
-
-      <AppToast
-        isOpen={toast.isOpen}
-        onClick={() => setToastData({ isOpen: false, message: "", color: "" })}
-        message={toast.message}
-        color={toast.color}
-      />
     </IonCard>
   );
 };

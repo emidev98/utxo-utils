@@ -2,6 +2,10 @@ export const BTCFormatter = (value: number | string) => {
   return Number(value) / 100000000 + " ₿";
 };
 
+export const SATSFormatter = (value: number | string) => {
+  return value.toLocaleString() + " SAT";
+};
+
 export const USDFormatter = (value: number | string) => {
   return value.toLocaleString("us-US") + " $";
 };
