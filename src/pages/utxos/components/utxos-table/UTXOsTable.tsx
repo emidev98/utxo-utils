@@ -6,19 +6,28 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from "material-react-table";
-import { IonCard, IonSkeletonText } from "@ionic/react";
+import { IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
 import { sortFirstNumericElement } from "../../../../utils/tables";
 import { USDFormatter, SATSFormatter } from "../../../../hooks/useFormatter";
 import { BitcoinHistoricalData } from "../../../../models/BitcoinHistoricalData";
 import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
 import { AddressStateObject } from "../../../../hooks/useAddresses";
 import dayjs from "dayjs";
+import { usePricing } from "../../../../hooks/usePricing";
+import {
+  arrowUp,
+  arrowDown,
+  arrowUpOutline,
+  arrowDownOutline,
+} from "ionicons/icons";
 
 interface TableColumn {
   addressLabel?: string;
   value: number;
   blockTime: number;
-  historicalPrice?: number;
+  receivingPrice: number;
+  currentPrice: number;
+  profitAndLoss: number;
   script: string;
 }
 
@@ -39,6 +48,8 @@ const UTXOsTable = ({
   firstUtxo,
   lastUtxo,
 }: UTXOsTableProps) => {
+  const { pollLatestPrice } = usePricing();
+  const [latestPrice, setLatestPrice] = useState<number>(0);
   const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
     () => [
       {
@@ -49,16 +60,16 @@ const UTXOsTable = ({
         accessorKey: "value",
         header: "Value",
         sortingFn: sortFirstNumericElement,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<number>();
+        Cell: (props) => {
+          const value = props.cell.getValue<number>();
           return <span>{SATSFormatter(value)}</span>;
         },
       },
       {
-        accessorKey: "historicalPrice",
-        header: "Historical Price",
-        Cell: ({ cell }) => {
-          const historicalPrice = cell.getValue<number>();
+        accessorKey: "receivingPrice",
+        header: "Reciving Price",
+        Cell: (props) => {
+          const historicalPrice = props.cell.getValue<number>();
           return (
             <span>
               {historicalPrice !== undefined
@@ -69,10 +80,37 @@ const UTXOsTable = ({
         },
       },
       {
+        accessorKey: "currentPrice",
+        header: "Current Price",
+        sortingFn: sortFirstNumericElement,
+        Cell: (props) => {
+          const value = props.cell.getValue<number>();
+          return <span>{USDFormatter(value)}</span>;
+        },
+      },
+      {
+        accessorKey: "profitAndLoss",
+        header: "P&L",
+        sortingFn: sortFirstNumericElement,
+        Cell: (props) => {
+          const value = props.cell.getValue<number>();
+          return (
+            <span>
+              {value > 0 ? (
+                <IonIcon ios={arrowUpOutline} md={arrowUp} />
+              ) : (
+                <IonIcon ios={arrowDownOutline} md={arrowDown} />
+              )}
+              {USDFormatter(value)}
+            </span>
+          );
+        },
+      },
+      {
         accessorKey: "blockTime",
-        header: "Block Time",
-        Cell: ({ cell }) => {
-          const blockTime = cell.getValue<number>();
+        header: "Receiving Time",
+        Cell: (props) => {
+          const blockTime = props.cell.getValue<number>();
           return <span>{dayjs(blockTime).format("YYYY-MM-DD HH:mm:ss")}</span>;
         },
       },
@@ -80,6 +118,8 @@ const UTXOsTable = ({
     new Array<MRT_ColumnDef<TableColumn>>(),
   );
   const [tableData, setTableData] = useState(new Array<TableColumn>());
+
+  useEffect(pollLatestPrice(setLatestPrice), []);
 
   useEffect(() => {
     if (firstUtxo === undefined || lastUtxo === undefined) return;
@@ -102,24 +142,25 @@ const UTXOsTable = ({
       const historicalPrice =
         priceIndex < historicalPrices.length &&
         historicalPrices[priceIndex].date.isSame(utxo.block_time, "day")
-          ? historicalPrices[priceIndex]
-          : undefined;
+          ? historicalPrices[priceIndex].price
+          : 0;
+
+      const receivingPrice = (utxo.value / 1e8) * historicalPrice;
+      const currentPrice = (utxo.value / 1e8) * latestPrice;
 
       _tableData.push({
         addressLabel: addresses[utxo.scriptpubkey_address].label,
         value: utxo.value,
-        historicalPrice: historicalPrice?.price,
+        receivingPrice: receivingPrice,
+        currentPrice: currentPrice,
+        profitAndLoss: currentPrice - receivingPrice,
         blockTime: utxo.block_time.toDate().getTime(),
         script: utxo.scriptpubkey_asm,
       });
     });
 
-    setTableData(
-      _tableData.sort((a, b) => {
-        return a.blockTime - b.blockTime;
-      }),
-    );
-  }, [historicalPrices, utxos]);
+    setTableData(_tableData.sort((a, b) => b.blockTime - a.blockTime));
+  }, [historicalPrices, utxos, addresses, latestPrice]);
 
   const table = useMaterialReactTable({
     columns: columns,
@@ -127,6 +168,10 @@ const UTXOsTable = ({
     enableFullScreenToggle: false,
     filterFromLeafRows: true,
     paginateExpandedRows: false,
+    initialState: { pagination: { pageSize: 25, pageIndex: 0 } },
+    muiPaginationProps: {
+      rowsPerPageOptions: [25, 50, 100],
+    },
     renderDetailPanel: ({ row }) => {
       return (
         <div className="UTXOsTableDetailPanel">

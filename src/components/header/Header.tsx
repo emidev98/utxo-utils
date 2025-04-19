@@ -11,11 +11,12 @@ import {
 import { Page, usePages } from "../../hooks/usePages";
 import { useEffect, useState } from "react";
 import { usePricing } from "../../hooks/usePricing";
+import { USDFormatter } from "../../hooks/useFormatter";
 
 const Header: React.FC = () => {
-  const INTERVAL = 30_000;
   const { getCurrentPage } = usePages();
-  const { loadLatestPrice, loadLatestPriceFromStoreOrZero } = usePricing();
+  const { pollLatestPrice } = usePricing();
+  const [latestPrice, setLatestPrice] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<Page>(getCurrentPage());
   const { pathname } = useLocation();
   const [price, setPrice] = useState("");
@@ -26,23 +27,7 @@ const Header: React.FC = () => {
     setCurrentPage(_currentPage);
   }, [pathname]);
 
-  useEffect(() => {
-    // get the data from store so we don't
-    // spam the API on every app refresh
-    (async () => {
-      const latestPrice = await loadLatestPriceFromStoreOrZero();
-      setPrice(latestPrice.toLocaleString());
-    })();
-
-    // Setup interval to fetch data periodically from API
-    const interval = setInterval(async () => {
-      const latestPrice = await loadLatestPrice();
-      setPrice(latestPrice.toLocaleString());
-    }, INTERVAL);
-
-    // Cleanup function to clear interval when component unmounts
-    return () => clearInterval(interval);
-  }, []); // Empty dependency array ensures that effect runs only once when component mounts
+  useEffect(pollLatestPrice(setLatestPrice), []);
 
   return (
     <div className="Header">
@@ -62,7 +47,7 @@ const Header: React.FC = () => {
           <IonTitle>{currentPage?.title}</IonTitle>
           {price !== "0" && (
             <IonTitle size="small" slot="end">
-              1 ₿ = {price} $
+              1 ₿ = {USDFormatter(latestPrice)} $
             </IonTitle>
           )}
         </IonToolbar>

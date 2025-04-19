@@ -1,6 +1,9 @@
 import { ApexOptions } from "apexcharts";
 
 const DEFAULT_OPTIONS: ApexOptions = {
+  grid: {
+    borderColor: "#2a2a2a",
+  },
   title: {
     align: "center",
     style: {
@@ -25,6 +28,9 @@ const DEFAULT_OPTIONS: ApexOptions = {
         fontWeight: 500,
         fontFamily: 'Roboto, "Helvetica Neue", sans-serif',
       },
+    },
+    axisBorder: {
+      color: "2a2a2a",
     },
   },
   yaxis: {

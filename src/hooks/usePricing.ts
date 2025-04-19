@@ -1,68 +1,66 @@
-import { Storage } from "@ionic/storage";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import btc1DayAvgHistoricalDataUrl from "/btc-1-day-avg-historical.txt";
-// TODO: consider another way to import the file
-// if we're penalized on speed
 import { BitcoinHistoricalData } from "../models/BitcoinHistoricalData";
+import { PRICING_STORE_KEY, useStorage } from "../context/StorageContext";
 
 export interface PricingStore {
   coingeckoApiUrl: string;
+  lastUpdateTime: number;
   price: number;
 }
-const STORE_KEY = "pricing_store";
 export const usePricing = () => {
-  const [store] = useState(new Storage());
+  const { storage } = useStorage();
 
-  useEffect(() => {
-    const initializeStorage = async () => {
-      await store.create();
-      if (!(await store.get(STORE_KEY))) {
-        await store.set(STORE_KEY, {
-          coingeckoApiUrl: "https://api.coingecko.com/api/v3",
-          price: 0,
-        });
-      }
-    };
-    initializeStorage();
-  }, [store]);
+  const PRICE_CACHE_TIME = 30_000;
+  const PRICE_FETCH_INTERVAL = 60_000;
 
-  const loadLatestPrice = async () => {
-    let data: PricingStore = await store.get(STORE_KEY);
+  const pollLatestPrice = (setter: Dispatch<SetStateAction<number>>) => {
+    // fetch inital price
+    (async () => {
+      const latestPrice = await getLatestPrice();
+      setter(latestPrice);
+    })();
+
+    // fetch price interval
+    const interval = setInterval(async () => {
+      const latestPrice = await getLatestPrice();
+      setter(latestPrice);
+    }, PRICE_FETCH_INTERVAL);
+
+    return () => clearInterval(interval);
+  };
+
+  const getLatestPrice = async () => {
+    const data: PricingStore = await storage.get(PRICING_STORE_KEY);
+    const TIME_SINCE_LAST_UPDATE = Date.now() - data.lastUpdateTime;
+    if (TIME_SINCE_LAST_UPDATE < PRICE_CACHE_TIME) {
+      return data.price;
+    }
+
     const latestPriceRes = await fetch(
       `${data.coingeckoApiUrl}/simple/price?ids=bitcoin&vs_currencies=usd`,
     )
       .then((response) => response.json())
       .catch((error) => console.error("Error fetching data:", error));
 
-    const price = (latestPriceRes?.bitcoin?.usd as number)
+    const price: number = latestPriceRes?.bitcoin?.usd
       ? latestPriceRes.bitcoin.usd
       : 0;
     data.price = price;
-    await store.set(STORE_KEY, data);
+    data.lastUpdateTime = Date.now();
+    await storage.set(PRICING_STORE_KEY, data);
     return price;
   };
 
-  const loadLatestPriceFromStoreOrZero = async () => {
-    const data: PricingStore = await store.get(STORE_KEY);
-    return data.price ? data.price : 0;
-  };
-
   const updatePricingAPIUrl = async (url: string) => {
-    let data: PricingStore = await store.get(STORE_KEY);
+    let data: PricingStore = await storage.get(PRICING_STORE_KEY);
     data.coingeckoApiUrl = url;
-    await store.set(STORE_KEY, data);
+    await storage.set(PRICING_STORE_KEY, data);
   };
 
   const getPricingApiUrl = async () => {
-    const data: PricingStore = await store.get(STORE_KEY);
+    const data: PricingStore = await storage.get(PRICING_STORE_KEY);
     return data.coingeckoApiUrl;
-  };
-
-  const resetPricingData = async () => {
-    await store.set(STORE_KEY, {
-      coingeckoApiUrl: "https://api.coingecko.com/api/v3",
-      price: 0,
-    });
   };
 
   const getBitcoinHistoricalData = async (): Promise<
@@ -79,11 +77,10 @@ export const usePricing = () => {
   };
 
   return {
-    loadLatestPrice,
-    loadLatestPriceFromStoreOrZero,
+    getLatestPrice,
+    pollLatestPrice,
     updatePricingAPIUrl,
     getPricingApiUrl,
-    resetPricingData,
     getBitcoinHistoricalData,
   };
 };

@@ -1,13 +1,17 @@
 export const BTCFormatter = (value: number | string) => {
-  return Number(value) / 100000000 + " ₿";
+  return Number(value) / 1e8 + " ₿";
 };
 
 export const SATSFormatter = (value: number | string) => {
   return value.toLocaleString() + " SAT";
 };
 
+const _usdFormat = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
 export const USDFormatter = (value: number | string) => {
-  return value.toLocaleString("us-US") + " $";
+  return _usdFormat.format(Number(value));
 };
 
 export const addressFormatter = (address?: string) => {

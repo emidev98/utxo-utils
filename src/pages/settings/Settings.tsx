@@ -14,6 +14,7 @@ import { useAddresses } from "../../hooks/useAddresses";
 import AppToast from "../../components/toast/Toast";
 import Loader from "../../components/loader/Loader";
 import { addressFormatter } from "../../hooks/useFormatter";
+import { useStorage } from "../../context/StorageContext";
 
 const SettingsPage: React.FC = () => {
   const [mempoolAPIUrl, setMempoolAPIUrl] = useState<string>("");
@@ -24,16 +25,12 @@ const SettingsPage: React.FC = () => {
   const [coingeckoUrlValid, setCoingeckoUrlValid] = useState<boolean>(true);
   const [coingeckoTouched, setCoingeckoTouched] = useState<boolean>(true);
 
-  const { updatePricingAPIUrl, getPricingApiUrl, resetPricingData } =
-    usePricing();
-  const {
-    getStoredData,
-    updateMempoolAPIUrl,
-    resetMempoolData,
-    queryTxsByAddr,
-  } = useMempoolApi();
-  const { resetTransactionsData, getAllTxs, appendTxs } = useTxs();
-  const { resetAddressesData, getAddresses } = useAddresses();
+  const { updatePricingAPIUrl, getPricingApiUrl } = usePricing();
+  const { getStoredData, updateMempoolAPIUrl, queryTxsByAddr } =
+    useMempoolApi();
+  const { getAllTxs, appendTxs } = useTxs();
+  const { resetStorage } = useStorage();
+  const { getAddresses } = useAddresses();
   const [toast, setToastData] = useState({
     isOpen: false,
     message: "",
@@ -122,10 +119,7 @@ const SettingsPage: React.FC = () => {
   };
 
   const onResetData = () => {
-    resetPricingData();
-    resetMempoolData();
-    resetTransactionsData();
-    resetAddressesData();
+    resetStorage();
     setToastData({
       isOpen: true,
       message: `Data reset successfully! The app is now in the initial state.`,

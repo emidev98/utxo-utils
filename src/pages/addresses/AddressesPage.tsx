@@ -7,11 +7,12 @@ import * as _ from "lodash";
 import HoldingsDistributionChart from "./components/holdings-distribution-chart/HoldingsDistributionChart";
 import AddressesTable from "./components/addresses-table/AddressesTable";
 import { useModalContext } from "../../context/ModalContext";
-import { BTCFormatter } from "../../hooks/useFormatter";
+import { BTCFormatter, USDFormatter } from "../../hooks/useFormatter";
+import { usePricing } from "../../hooks/usePricing";
 
 const AddressesPage = ({}) => {
   const { getAllTxs } = useTxs();
-  const { getAddresses, sumBalances, sumTxsFeesPaid } = useAddresses();
+  const { getAddresses, sumBalances } = useAddresses();
 
   const [isLoading, setLoading] = useState(true);
 
@@ -21,9 +22,13 @@ const AddressesPage = ({}) => {
   const [txStore, setTxStore] = useState<TransactionsStorage>();
   const [addrStore, setAddrStore] = useState<AddressStateObject>();
   const [spendableBalance, setSpendableBalance] = useState(0);
-  const [feesPaid, setFeesPaid] = useState(0);
+  const [spendableBalanceUSD, setSpendableBalanceUSD] = useState(0);
+  const { pollLatestPrice } = usePricing();
+  const [latestPrice, setLatestPrice] = useState<number>(0);
 
   const { isOpen } = useModalContext();
+
+  useEffect(pollLatestPrice(setLatestPrice), []);
 
   const init = async () => {
     const [_txStore, _addrStore] = await Promise.all([
@@ -31,11 +36,13 @@ const AddressesPage = ({}) => {
       getAddresses(),
     ]);
     const flattenTxs = _.flatMap(_txStore);
-
     setAddrCount(Object.keys(_addrStore).length);
     setTxsCount(flattenTxs.filter((tx) => tx.status.confirmed).length);
-    setFeesPaid(sumTxsFeesPaid(_txStore, _addrStore));
-    setSpendableBalance(sumBalances(_addrStore));
+
+    const spendableBalance = sumBalances(_addrStore);
+
+    setSpendableBalance(spendableBalance);
+    setSpendableBalanceUSD((spendableBalance / 1e8) * latestPrice);
 
     setTxStore(_txStore);
     setAddrStore(_addrStore);
@@ -45,7 +52,7 @@ const AddressesPage = ({}) => {
 
   useEffect(() => {
     init();
-  }, [addrCount]);
+  }, [addrCount, latestPrice]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -61,13 +68,13 @@ const AddressesPage = ({}) => {
         loading={isLoading}
         value={spendableBalance}
         formatter={BTCFormatter}
-        title="Spendable balance"
+        title="BTC Balance"
       />
       <SimpleKpi
         loading={isLoading}
-        value={feesPaid}
-        formatter={BTCFormatter}
-        title="Fees paid"
+        value={spendableBalanceUSD}
+        formatter={USDFormatter}
+        title="USD Balance"
       />
       <HoldingsDistributionChart loading={isLoading} addrStore={addrStore} />
       <AddressesTable

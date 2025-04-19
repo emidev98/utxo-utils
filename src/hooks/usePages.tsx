@@ -1,14 +1,8 @@
 import {
-  listOutline,
-  listSharp,
-  archiveOutline,
-  archiveSharp,
   cogOutline,
   cogSharp,
-  pieChartOutline,
-  pieChartSharp,
-  alarmOutline,
-  alarmSharp,
+  shuffleSharp,
+  shuffleOutline,
   atCircleOutline,
   atCircleSharp,
   gitNetworkOutline,
@@ -17,7 +11,7 @@ import {
 import { useLocation, useNavigate } from "react-router";
 import ArchivePage from "../pages/archive/Archive";
 import AlertsPage from "../pages/alerts/Alerts";
-import DashboardPage from "../pages/dashboard/Dashboard";
+import TransactionsPage from "../pages/transactions/TransactionsPage";
 import UTXOsPage from "../pages/utxos/UTXOsPage";
 import SettingsPage from "../pages/settings/Settings";
 import AddressesPage from "../pages/addresses/AddressesPage";
@@ -36,13 +30,6 @@ export const usePages = () => {
   const navigate = useNavigate();
 
   const pages: Page[] = [
-    // {
-    //     title: 'Dashboard',
-    //     url: '/dashboard',
-    //     iosIcon: pieChartOutline,
-    //     mdIcon: pieChartSharp,
-    //     component: <DashboardPage />
-    // },
     {
       title: "Addresses",
       url: "/addresses",
@@ -57,6 +44,13 @@ export const usePages = () => {
       iosIcon: gitNetworkOutline,
       mdIcon: gitNetworkSharp,
       component: <UTXOsPage />,
+    },
+    {
+      title: "Transactions",
+      url: "/transactions",
+      iosIcon: shuffleOutline,
+      mdIcon: shuffleSharp,
+      component: <TransactionsPage />,
     },
     // {
     //     title: 'Alerts',

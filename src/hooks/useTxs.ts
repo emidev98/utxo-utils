@@ -1,21 +1,11 @@
-import { Storage } from "@ionic/storage";
 import { Transaction } from "../models/MempoolAddressTxs";
-import { useEffect, useState } from "react";
 import * as _ from "lodash";
+import { TXS_STORE_KEY, useStorage } from "../context/StorageContext";
 export interface TransactionsStorage {
   [key: string]: Array<Transaction>;
 }
-
-const STORE_KEY = "transactions";
 export const useTxs = () => {
-  const [store] = useState(new Storage());
-
-  useEffect(() => {
-    const initializeStorage = async () => {
-      await store.create();
-    };
-    initializeStorage();
-  }, [store]);
+  const { storage } = useStorage();
 
   const appendTxs = async (addr: string, transactions: Array<Transaction>) => {
     let storedTxs = await getAllTxs();
@@ -27,13 +17,13 @@ export const useTxs = () => {
       storedTxs[addr] = transactions;
     }
 
-    await store.set(STORE_KEY, storedTxs);
+    await storage.set(TXS_STORE_KEY, storedTxs);
 
     return storedTxs;
   };
 
   const getTxsByAddress = async (address: string) => {
-    const res = (await store.get(STORE_KEY)) as TransactionsStorage;
+    const res = (await storage.get(TXS_STORE_KEY)) as TransactionsStorage;
 
     if (res && res[address]) {
       return res[address];
@@ -43,8 +33,7 @@ export const useTxs = () => {
   };
 
   const getAllTxs = async (): Promise<TransactionsStorage> => {
-    const res = (await store.get(STORE_KEY)) as TransactionsStorage;
-    return res ? res : {};
+    return (await storage.get(TXS_STORE_KEY)) as TransactionsStorage;
   };
 
   // Returns the first transaction in and the last transaction out
@@ -77,16 +66,11 @@ export const useTxs = () => {
     return Number(feesPaid.toFixed(0));
   };
 
-  const resetTransactionsData = async () => {
-    await store.set(STORE_KEY, {});
-  };
-
   return {
     appendTxs,
     getAllTxs,
     getTxsByAddress,
     getIncomingTxFees,
     getFirstInAndLastOut,
-    resetTransactionsData,
   };
 };

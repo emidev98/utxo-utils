@@ -23,7 +23,7 @@ const ToastContext = createContext<IToastContext | undefined>(undefined);
 export const ToastProvider: React.FC<{ children: JSX.Element }> = ({
   children,
 }) => {
-  const [closeAfter, setCloseAfter] = useState(3000);
+  const CLOSE_AFTER = 3000;
   const [toast, setToastData] = useState<IToastState>({
     isOpen: false,
     message: "",
@@ -41,7 +41,7 @@ export const ToastProvider: React.FC<{ children: JSX.Element }> = ({
       () => {
         setToastData({ ...toast, isOpen: false });
       },
-      toast.closeAfter ? toast.closeAfter : closeAfter,
+      toast.closeAfter ? toast.closeAfter : CLOSE_AFTER,
     );
   };
 

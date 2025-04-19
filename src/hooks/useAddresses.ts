@@ -1,9 +1,8 @@
-import { Storage } from "@ionic/storage";
 import { AddressInfo as AddressInfoComputed } from "bitcoin-address-validation";
-import { useEffect, useState } from "react";
 import _ from "lodash";
 import { AddressInfo } from "../models/MempoolAddress";
 import { TransactionsStorage } from "./useTxs";
+import { ADDRESSES_STORE_KEY, useStorage } from "../context/StorageContext";
 
 export interface AddressInfoExtended extends AddressInfoComputed, AddressInfo {
   label: string;
@@ -13,24 +12,15 @@ export interface AddressStateObject {
   [key: string]: AddressInfoExtended;
 }
 
-const STORE_KEY = "addresses";
-
 export const useAddresses = () => {
-  const [store] = useState(new Storage());
-
-  useEffect(() => {
-    const initializeStorage = async () => {
-      await store.create();
-    };
-    initializeStorage();
-  }, [store]);
+  const { storage } = useStorage();
 
   const putAddress = async (address: AddressInfoExtended) => {
     const addresses = await getAddresses();
 
     addresses[address.address] = address;
 
-    await store.set(STORE_KEY, addresses);
+    await storage.set(ADDRESSES_STORE_KEY, addresses);
     return addresses;
   };
 
@@ -40,7 +30,9 @@ export const useAddresses = () => {
   };
 
   const getAddresses = async () => {
-    const addresses = (await store.get(STORE_KEY)) as AddressStateObject;
+    const addresses = (await storage.get(
+      ADDRESSES_STORE_KEY,
+    )) as AddressStateObject;
     return addresses ? addresses : {};
   };
 
@@ -74,16 +66,11 @@ export const useAddresses = () => {
     return feesPaid;
   };
 
-  const resetAddressesData = async () => {
-    await store.set(STORE_KEY, {});
-  };
-
   return {
     putAddress,
     getAddress,
     getAddresses,
     sumBalances,
     sumTxsFeesPaid,
-    resetAddressesData,
   };
 };

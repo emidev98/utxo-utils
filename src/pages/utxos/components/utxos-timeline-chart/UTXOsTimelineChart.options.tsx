@@ -66,7 +66,7 @@ const utxoTimelineChartOptions: ApexOptions = _.merge(
 
 export const utxoTimelineChartAnnotation: PointAnnotations = {
   marker: {
-    size: 8,
+    size: 6,
     fillColor: "#fff",
   },
   label: {

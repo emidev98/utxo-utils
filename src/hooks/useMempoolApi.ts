@@ -1,32 +1,18 @@
-import { useEffect, useState } from "react";
 import { AddressInfo } from "../models/MempoolAddress";
 import { Transaction } from "../models/MempoolAddressTxs";
-import { Storage } from "@ionic/storage";
+import { MEMPOOL_STORE_KEY, useStorage } from "../context/StorageContext";
 
 export interface MempoolStore {
   mempoolAPIUrl: string;
 }
-const STORE_KEY = "mempool_store";
 export const useMempoolApi = () => {
-  const [store] = useState(new Storage());
-
-  useEffect(() => {
-    const initializeStorage = async () => {
-      await store.create();
-      if (!(await store.get(STORE_KEY))) {
-        await store.set(STORE_KEY, {
-          mempoolAPIUrl: "https://mempool.space/api",
-        });
-      }
-    };
-    initializeStorage();
-  }, [store]);
+  const { storage } = useStorage();
 
   // Get the address details from the mempool API
   const queryAddrInfo = async (
     address: string,
   ): Promise<AddressInfo | Error> => {
-    const data: MempoolStore = await store.get(STORE_KEY);
+    const data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
     return await fetch(`${data.mempoolAPIUrl}/address/${address}`)
       .then((response) => {
         return response.json();
@@ -44,7 +30,7 @@ export const useMempoolApi = () => {
     address: string,
     txId?: string,
   ): Promise<Array<Transaction> | Error> => {
-    const data: MempoolStore = await store.get(STORE_KEY);
+    const data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
     const url = txId
       ? `${data.mempoolAPIUrl}/address/${address}/txs/chain/${txId}`
       : `${data.mempoolAPIUrl}/address/${address}/txs`;
@@ -111,19 +97,13 @@ export const useMempoolApi = () => {
   };
 
   const getStoredData = () => {
-    return store.get(STORE_KEY) as Promise<MempoolStore>;
+    return storage.get(MEMPOOL_STORE_KEY) as Promise<MempoolStore>;
   };
 
   const updateMempoolAPIUrl = async (url: string) => {
-    let data: MempoolStore = await store.get(STORE_KEY);
+    let data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
     data.mempoolAPIUrl = url;
-    await store.set(STORE_KEY, data);
-  };
-
-  const resetMempoolData = async () => {
-    await store.set(STORE_KEY, {
-      mempoolAPIUrl: "https://mempool.space/api",
-    });
+    await storage.set(MEMPOOL_STORE_KEY, data);
   };
 
   return {
@@ -133,6 +113,5 @@ export const useMempoolApi = () => {
     queryAllTxsGivenAddrInfo,
     getStoredData,
     updateMempoolAPIUrl,
-    resetMempoolData,
   };
 };
