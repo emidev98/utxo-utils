@@ -1,6 +1,6 @@
 import { Transaction } from "../models/MempoolAddressTxs";
-import * as _ from "lodash";
 import { TXS_STORE_KEY, useStorage } from "../context/StorageContext";
+import _sortBy from "lodash/sortBy";
 export interface TransactionsStorage {
   [key: string]: Array<Transaction>;
 }
@@ -41,7 +41,7 @@ export const useTxs = () => {
     txStore: TransactionsStorage,
     address: string,
   ) => {
-    const sorted = _.sortBy(txStore[address], "status.block_time");
+    const sorted = _sortBy(txStore[address], "status.block_time");
 
     return {
       firstIn: sorted[0],

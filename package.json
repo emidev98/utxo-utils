@@ -58,9 +58,12 @@
     "husky": "^9.1.7",
     "prettier": "3.5.3",
     "rollup-plugin-polyfill-node": "^0.13.0",
+    "rollup-plugin-visualizer": "^5.14.0",
     "terser": "^5.4.0",
     "typescript": "^5.1.6",
-    "vite": "6.2.5"
+    "vite": "6.2.5",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-inspect": "^11.0.1"
   },
   "description": "Cross platform application to help analyzing bitcoin UTXOS"
 }

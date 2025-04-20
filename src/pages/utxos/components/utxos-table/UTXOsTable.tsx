@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import "./UTXOsTable.scss";
-import * as _ from "lodash";
 import {
   MaterialReactTable,
   useMaterialReactTable,

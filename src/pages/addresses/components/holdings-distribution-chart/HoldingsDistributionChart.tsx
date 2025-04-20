@@ -3,7 +3,7 @@ import "./HoldingsDistributionChart.scss";
 import { AddressStateObject } from "../../../../hooks/useAddresses";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import _ from "lodash";
+import _forEach from "lodash/forEach";
 import { IonCard, IonCardContent, IonSkeletonText } from "@ionic/react";
 import { ChartSeries } from "./HoldingsDistributionChart.options";
 import holdingsDistributionChartOptions from "./HoldingsDistributionChart.options";
@@ -58,7 +58,7 @@ const HoldingsDistributionChart = ({
     const seriesData: ChartSeries = [];
     let _totalSpendableBalance = 0;
 
-    _.forEach(addrStore, (addr) => {
+    _forEach(addrStore, (addr) => {
       const spendableBalance =
         addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum;
       _totalSpendableBalance += spendableBalance;

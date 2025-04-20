@@ -1,6 +1,6 @@
-import * as _ from "lodash";
+import _ from "lodash";
 import { useTxs } from "./useTxs";
-import { Vout, VoutWithBlockTime } from "../models/MempoolAddressTxs";
+import { VoutWithBlockTime } from "../models/MempoolAddressTxs";
 import dayjs from "dayjs";
 
 export const useUTXOs = () => {

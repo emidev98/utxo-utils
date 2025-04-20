@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import _merge from "lodash/merge";
 import { ApexOptions } from "apexcharts";
 import DEFAULT_OPTIONS from "../../../../charts.global.options";
 
@@ -8,7 +8,7 @@ export interface ChartSeries
     y: number;
   }> {}
 
-const holdingsDistributionChartOptions: ApexOptions = _.merge(
+const holdingsDistributionChartOptions: ApexOptions = _merge(
   {
     chart: {
       animations: {

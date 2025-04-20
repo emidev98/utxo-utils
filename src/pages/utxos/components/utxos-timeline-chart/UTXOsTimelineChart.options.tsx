@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import _merge from "lodash/merge";
 import { ApexOptions } from "apexcharts";
 import DEFAULT_OPTIONS from "../../../../charts.global.options";
 import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
@@ -12,7 +12,7 @@ export interface UTXOSPrices {
 
 export interface ChartSeries extends Array<[number, number]> {}
 
-const utxoTimelineChartOptions: ApexOptions = _.merge(
+const utxoTimelineChartOptions: ApexOptions = _merge(
   {
     stroke: {
       curve: "smooth",

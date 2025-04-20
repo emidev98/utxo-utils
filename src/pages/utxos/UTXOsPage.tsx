@@ -3,7 +3,8 @@ import "./UTXOsPage.scss";
 import { usePricing } from "../../hooks/usePricing";
 import UTXOsTimelineChart from "./components/utxos-timeline-chart/UTXOsTimelineChart";
 import { BitcoinHistoricalData } from "../../models/BitcoinHistoricalData";
-import * as _ from "lodash";
+import _first from "lodash/first";
+import _last from "lodash/last";
 import { useUTXOs } from "../../hooks/useUTXOs";
 import { VoutWithBlockTime } from "../../models/MempoolAddressTxs";
 import SimpleKpi from "../../components/kpis/counter/SimpleKpi";
@@ -37,8 +38,8 @@ const UTXOsPage = ({}) => {
       }
 
       setUtxosCount(_utxos.length);
-      setFirstUtxo(_.first(_utxos));
-      setLastUtxo(_.last(_utxos));
+      setFirstUtxo(_first(_utxos));
+      setLastUtxo(_last(_utxos));
 
       setAddresses(_addresses);
       setUtxos(_utxos);

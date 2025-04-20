@@ -3,7 +3,7 @@ import "./AddressesPage.scss";
 import { TransactionsStorage, useTxs } from "../../hooks/useTxs";
 import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
 import SimpleKpi from "../../components/kpis/counter/SimpleKpi";
-import * as _ from "lodash";
+import _flatMap from "lodash/flatMap";
 import HoldingsDistributionChart from "./components/holdings-distribution-chart/HoldingsDistributionChart";
 import AddressesTable from "./components/addresses-table/AddressesTable";
 import { useModalContext } from "../../context/ModalContext";
@@ -35,7 +35,7 @@ const AddressesPage = ({}) => {
       getAllTxs(),
       getAddresses(),
     ]);
-    const flattenTxs = _.flatMap(_txStore);
+    const flattenTxs = _flatMap(_txStore);
     if (flattenTxs.length !== 0) {
       setTxsCount(flattenTxs.filter((tx) => tx?.status?.confirmed).length);
     }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./UTXOsTimelineChart.scss";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import _ from "lodash";
+import _groupBy from "lodash/groupBy";
 import { IonCard, IonCardContent, IonSkeletonText } from "@ionic/react";
 import { BitcoinHistoricalData } from "../../../../models/BitcoinHistoricalData";
 import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
@@ -69,7 +69,7 @@ const UTXOsTimelineChart = (props: UTXOTimelineChartProps) => {
     const _series: ChartSeries = [];
     const _pricesPoints: Record<number, UTXOSPrices> = {};
 
-    const allUtoxs = _.groupBy(utxos, (value) => {
+    const allUtoxs = _groupBy(utxos, (value) => {
       return value.block_time
         .set("hour", 0)
         .set("minute", 0)

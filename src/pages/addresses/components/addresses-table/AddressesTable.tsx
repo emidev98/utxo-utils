@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import "./AddressesTable.scss";
 import { TransactionsStorage, useTxs } from "../../../../hooks/useTxs";
 import { AddressStateObject } from "../../../../hooks/useAddresses";
-import * as _ from "lodash";
+import _forEach from "lodash/forEach";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -126,7 +126,7 @@ const AddressesTable = ({
 
     const _tableData = new Array<TableColumn>();
 
-    _.forEach(addrStore, (addr) => {
+    _forEach(addrStore, (addr) => {
       const _filo = getFirstInAndLastOut(txStore, addr.address);
       const txCount = txStore[addr.address].filter(
         (tx) => tx.status.confirmed,
