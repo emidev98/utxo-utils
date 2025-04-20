@@ -52,9 +52,7 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     if (!txData || overwritte) {
-      await storage.set(TXS_STORE_KEY, {
-        transactions: {},
-      });
+      await storage.set(TXS_STORE_KEY, {});
     }
 
     if (!pricingData || overwritte) {

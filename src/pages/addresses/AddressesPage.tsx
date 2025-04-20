@@ -36,8 +36,10 @@ const AddressesPage = ({}) => {
       getAddresses(),
     ]);
     const flattenTxs = _.flatMap(_txStore);
+    if (flattenTxs.length !== 0) {
+      setTxsCount(flattenTxs.filter((tx) => tx?.status?.confirmed).length);
+    }
     setAddrCount(Object.keys(_addrStore).length);
-    setTxsCount(flattenTxs.filter((tx) => tx.status.confirmed).length);
 
     const spendableBalance = sumBalances(_addrStore);
 

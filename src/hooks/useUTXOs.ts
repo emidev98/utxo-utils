@@ -10,6 +10,10 @@ export const useUTXOs = () => {
   const getAllUTXOs = async (): Promise<Array<VoutWithBlockTime>> => {
     const txs = await getAllTxs();
 
+    if (Object.keys(txs).length === 0) {
+      return [];
+    }
+
     return _.chain(txs)
       .map((txs, key) => {
         return txs.map((tx) => {

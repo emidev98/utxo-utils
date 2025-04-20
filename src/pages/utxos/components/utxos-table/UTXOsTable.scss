@@ -2,4 +2,12 @@
   .UTXOsTableDetailPanel {
     text-align: center;
   }
+  .UTXOsTableLoading {
+    padding: 31px 32px 10px 32px !important;
+
+    .UTXOsTableSkeleton {
+      height: 46px;
+      margin: 6px 0;
+    }
+  }
 }
