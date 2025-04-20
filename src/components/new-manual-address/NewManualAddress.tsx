@@ -1,4 +1,4 @@
-import "./NewAddress.scss";
+import "./NewManualAddress.scss";
 import {
   IonButton,
   IonButtons,
@@ -25,14 +25,17 @@ import AppToast from "../toast/Toast";
 import { useTxs } from "../../hooks/useTxs";
 import { addressFormatter } from "../../hooks/useFormatter";
 
-interface NewAddressProps {
+interface NewManualAddressProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const TOAST_DURATION = 4000;
 
-const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
+const NewManualAddress: React.FC<NewManualAddressProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const [isValidInputLabel, setValidInputLabel] = useState<boolean>();
   const [isTouchedInputLabel, setTouchedInputLabel] = useState(false);
   const [addressLabel, setAddressLabel] = useState("");
@@ -42,7 +45,6 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
   const [addressDetails, setAddressDetails] = useState<AddressInfo>();
 
   // TODO: Index in background
-  const [indexInBackgroud, setIndexInBackgroud] = useState(false);
   const [toast, setToastData] = useState({
     isOpen: false,
     message: "",
@@ -79,28 +81,24 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
         });
         setValidInputAddress(false);
       } else {
-        if (indexInBackgroud) {
-          // TODO: Index in background
-        } else {
-          const res = await queryAllTxsGivenAddrInfo(addrInfo);
-          if (res instanceof Error) {
-            return setToastData({
-              isOpen: true,
-              message: `Something went wrong indexing the data ${JSON.stringify(addrInfo)}.`,
-              color: "warning",
-            });
-          }
-          await appendTxs(addrInfo.address, res);
-
-          putAddress({ ...addressDetails, ...addrInfo, label: addressLabel });
-          setAddressLabel("");
-          setAddressDetails({ ...addressDetails, address: "" });
-          setToastData({
+        const res = await queryAllTxsGivenAddrInfo(addrInfo);
+        if (res instanceof Error) {
+          return setToastData({
             isOpen: true,
-            message: `${res.length} txs indexed for address ${addressFormatter(addressDetails?.address)} successfully!`,
-            color: "success",
+            message: `Something went wrong indexing the data ${JSON.stringify(addrInfo)}.`,
+            color: "warning",
           });
         }
+        await appendTxs(addrInfo.address, res);
+
+        putAddress({ ...addressDetails, ...addrInfo, label: addressLabel });
+        setAddressLabel("");
+        setAddressDetails({ ...addressDetails, address: "" });
+        setToastData({
+          isOpen: true,
+          message: `${res.length} txs indexed for address ${addressFormatter(addressDetails?.address)} successfully!`,
+          color: "success",
+        });
       }
     }
 
@@ -136,7 +134,11 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <IonModal className="NewAddress" isOpen={isOpen} onWillDismiss={onClose}>
+    <IonModal
+      className="NewManualAddress"
+      isOpen={isOpen}
+      onWillDismiss={onClose}
+    >
       <IonHeader>
         <IonToolbar>
           <IonTitle>New address</IonTitle>
@@ -157,7 +159,7 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
           value={addressLabel}
           helperText="Human redeable text to identify the address"
           errorText="Label must have between 1 and 27 characters"
-          onIonInput={(event) => validateLabel(event)}
+          onIonInput={(event: Event) => validateLabel(event)}
           onIonBlur={() => setTouchedInputLabel(true)}
         />
 
@@ -169,18 +171,9 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
           value={addressDetails?.address}
           helperText="Required a valid Bitcoin adddres to analyze its UTXO"
           errorText="Invalid Bitcoin address"
-          onIonInput={(event) => validateBitcoinAddress(event)}
+          onIonInput={(event: Event) => validateBitcoinAddress(event)}
           onIonBlur={() => setTouchedInputAddress(true)}
         />
-
-        {/*
-                    <IonCheckbox className="InputElement"
-                    labelPlacement="end"
-                    value={indexInBackgroud}
-                    onClick={() => setIndexInBackgroud(!indexInBackgroud)}>
-                    Import data in background and notify when done
-                </IonCheckbox>
-                    */}
       </IonContent>
 
       <IonFooter className="ModalFooter">
@@ -210,4 +203,4 @@ const NewAddress: React.FC<NewAddressProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default NewAddress;
+export default NewManualAddress;

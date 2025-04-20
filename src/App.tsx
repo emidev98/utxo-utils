@@ -1,9 +1,6 @@
 import {
   IonApp,
   IonContent,
-  IonFab,
-  IonFabButton,
-  IonIcon,
   IonSplitPane,
   setupIonicReact,
 } from "@ionic/react";
@@ -33,9 +30,9 @@ import { usePages } from "./hooks/usePages";
 import React, { useEffect } from "react";
 import Header from "./components/header/Header";
 import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
-import { ModalProvider } from "./context/ModalContext";
 import { ToastProvider } from "./context/ToastContext";
 import { StorageProvider } from "./context/StorageContext";
+import { LatestPriceContext } from "./context/LatestPriceContext";
 
 setupIonicReact();
 
@@ -53,8 +50,8 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <StorageProvider>
-        <ToastProvider>
-          <ModalProvider>
+        <LatestPriceContext>
+          <ToastProvider>
             <IonSplitPane contentId="main">
               <Menu />
 
@@ -74,8 +71,8 @@ const App: React.FC = () => {
                 </div>
               </IonContent>
             </IonSplitPane>
-          </ModalProvider>
-        </ToastProvider>
+          </ToastProvider>
+        </LatestPriceContext>
       </StorageProvider>
     </IonApp>
   );

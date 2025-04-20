@@ -7,14 +7,15 @@ import {
   atCircleSharp,
   gitNetworkOutline,
   gitNetworkSharp,
+  pencilSharp,
+  pencilOutline,
 } from "ionicons/icons";
 import { useLocation, useNavigate } from "react-router";
-import ArchivePage from "../pages/archive/Archive";
-import AlertsPage from "../pages/alerts/Alerts";
 import TransactionsPage from "../pages/transactions/TransactionsPage";
 import UTXOsPage from "../pages/utxos/UTXOsPage";
 import SettingsPage from "../pages/settings/Settings";
 import AddressesPage from "../pages/addresses/AddressesPage";
+import AddressesManagementPage from "../pages/addresses-management/AddressesManagementPage";
 
 export interface Page {
   url: string;
@@ -66,6 +67,14 @@ export const usePages = () => {
     //     mdIcon: archiveSharp,
     //     component: <ArchivePage/>,
     // },
+    {
+      title: "Addresses Management",
+      url: "/addresses-management",
+      className: "addresses-management-menu-entry",
+      iosIcon: pencilOutline,
+      mdIcon: pencilSharp,
+      component: <AddressesManagementPage />,
+    },
     {
       title: "Settings",
       url: "/settings",

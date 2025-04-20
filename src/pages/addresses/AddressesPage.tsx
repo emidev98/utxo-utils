@@ -6,9 +6,9 @@ import SimpleKpi from "../../components/kpis/counter/SimpleKpi";
 import _flatMap from "lodash/flatMap";
 import HoldingsDistributionChart from "./components/holdings-distribution-chart/HoldingsDistributionChart";
 import AddressesTable from "./components/addresses-table/AddressesTable";
-import { useModalContext } from "../../context/ModalContext";
 import { BTCFormatter, USDFormatter } from "../../hooks/useFormatter";
 import { usePricing } from "../../hooks/usePricing";
+import { useLatestPricingContext } from "../../context/LatestPriceContext";
 
 const AddressesPage = ({}) => {
   const { getAllTxs } = useTxs();
@@ -23,12 +23,7 @@ const AddressesPage = ({}) => {
   const [addrStore, setAddrStore] = useState<AddressStateObject>();
   const [spendableBalance, setSpendableBalance] = useState(0);
   const [spendableBalanceUSD, setSpendableBalanceUSD] = useState(0);
-  const { pollLatestPrice } = usePricing();
-  const [latestPrice, setLatestPrice] = useState<number>(0);
-
-  const { isOpen } = useModalContext();
-
-  useEffect(pollLatestPrice(setLatestPrice), []);
+  const { latestPrice } = useLatestPricingContext();
 
   const init = async () => {
     const [_txStore, _addrStore] = await Promise.all([
@@ -55,12 +50,6 @@ const AddressesPage = ({}) => {
   useEffect(() => {
     init();
   }, [addrCount, latestPrice]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      init();
-    }
-  }, [isOpen]);
 
   return (
     <div className="AddressesPage">

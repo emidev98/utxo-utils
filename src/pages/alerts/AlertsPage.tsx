@@ -1,5 +1,5 @@
 import React from "react";
-import "./Alerts.scss";
+import "./AlertsPage.scss";
 
 const AlertsPage: React.FC = () => {
   return <div className="AlertsPage">AlertsPage</div>;

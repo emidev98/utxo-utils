@@ -10,24 +10,20 @@ import {
 } from "@ionic/react";
 import { Page, usePages } from "../../hooks/usePages";
 import { useEffect, useState } from "react";
-import { usePricing } from "../../hooks/usePricing";
 import { USDFormatter } from "../../hooks/useFormatter";
+import { useLatestPricingContext } from "../../context/LatestPriceContext";
 
 const Header: React.FC = () => {
   const { getCurrentPage } = usePages();
-  const { pollLatestPrice } = usePricing();
-  const [latestPrice, setLatestPrice] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<Page>(getCurrentPage());
   const { pathname } = useLocation();
-  const [price, setPrice] = useState("");
+  const { latestPrice } = useLatestPricingContext();
 
   useEffect(() => {
     const _currentPage = getCurrentPage();
 
     setCurrentPage(_currentPage);
   }, [pathname]);
-
-  useEffect(pollLatestPrice(setLatestPrice), []);
 
   return (
     <div className="Header">
@@ -45,11 +41,11 @@ const Header: React.FC = () => {
             md={currentPage?.mdIcon}
           />
           <IonTitle>{currentPage?.title}</IonTitle>
-          {price !== "0" && (
+          {
             <IonTitle size="small" slot="end">
-              1 ₿ = {USDFormatter(latestPrice)} $
+              1 ₿ = {USDFormatter(latestPrice)}
             </IonTitle>
-          )}
+          }
         </IonToolbar>
       </IonHeader>
     </div>

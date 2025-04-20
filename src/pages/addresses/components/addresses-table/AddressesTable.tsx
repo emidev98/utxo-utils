@@ -19,7 +19,7 @@ import {
 } from "../../../../hooks/useFormatter";
 import { useToastContext } from "../../../../context/ToastContext";
 import dayjs from "dayjs";
-import { usePricing } from "../../../../hooks/usePricing";
+import { useLatestPricingContext } from "../../../../context/LatestPriceContext";
 
 interface TableColumn {
   label: string;
@@ -43,8 +43,6 @@ const AddressesTable = ({
   txStore,
   loading,
 }: AddressesTableProps) => {
-  const { pollLatestPrice } = usePricing();
-  const [latestPrice, setLatestPrice] = useState<number>(0);
   const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
     () => [
       {
@@ -117,8 +115,7 @@ const AddressesTable = ({
   const [tableData, setTableData] = useState(new Array<TableColumn>());
   const { getFirstInAndLastOut } = useTxs();
   const { setOpenToast } = useToastContext();
-
-  useEffect(pollLatestPrice(setLatestPrice), []);
+  const { latestPrice } = useLatestPricingContext();
 
   useEffect(() => {
     if (addrStore === undefined) return;

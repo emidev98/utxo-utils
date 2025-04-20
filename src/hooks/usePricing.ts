@@ -10,30 +10,12 @@ export interface PricingStore {
 }
 export const usePricing = () => {
   const { storage } = useStorage();
-
-  const PRICE_CACHE_TIME = 30_000;
-  const PRICE_FETCH_INTERVAL = 60_000;
-
-  const pollLatestPrice = (setter: Dispatch<SetStateAction<number>>) => {
-    // fetch inital price
-    (async () => {
-      const latestPrice = await getLatestPrice();
-      setter(latestPrice);
-    })();
-
-    // fetch price interval
-    const interval = setInterval(async () => {
-      const latestPrice = await getLatestPrice();
-      setter(latestPrice);
-    }, PRICE_FETCH_INTERVAL);
-
-    return () => clearInterval(interval);
-  };
+  const PRICING_CACHE_EXPIRING_TIME = 60_000;
 
   const getLatestPrice = async () => {
     const data: PricingStore = await storage.get(PRICING_STORE_KEY);
     const TIME_SINCE_LAST_UPDATE = Date.now() - data.lastUpdateTime;
-    if (TIME_SINCE_LAST_UPDATE < PRICE_CACHE_TIME) {
+    if (TIME_SINCE_LAST_UPDATE < PRICING_CACHE_EXPIRING_TIME) {
       return data.price;
     }
 
@@ -77,8 +59,8 @@ export const usePricing = () => {
   };
 
   return {
+    PRICING_CACHE_EXPIRING_TIME,
     getLatestPrice,
-    pollLatestPrice,
     updatePricingAPIUrl,
     getPricingApiUrl,
     getBitcoinHistoricalData,

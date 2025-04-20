@@ -19,6 +19,7 @@ import {
   arrowUpOutline,
   arrowDownOutline,
 } from "ionicons/icons";
+import { useLatestPricingContext } from "../../../../context/LatestPriceContext";
 
 interface TableColumn {
   addressLabel?: string;
@@ -47,8 +48,7 @@ const UTXOsTable = ({
   firstUtxo,
   lastUtxo,
 }: UTXOsTableProps) => {
-  const { pollLatestPrice } = usePricing();
-  const [latestPrice, setLatestPrice] = useState<number>(0);
+  const { latestPrice } = useLatestPricingContext();
   const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
     () => [
       {
@@ -117,8 +117,6 @@ const UTXOsTable = ({
     new Array<MRT_ColumnDef<TableColumn>>(),
   );
   const [tableData, setTableData] = useState(new Array<TableColumn>());
-
-  useEffect(pollLatestPrice(setLatestPrice), []);
 
   useEffect(() => {
     if (firstUtxo === undefined || lastUtxo === undefined) return;
