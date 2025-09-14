@@ -35,7 +35,6 @@ const ImportAddressesDropdown: React.FC = () => {
     <ButtonGroup className="ImportAddressesDropdown">
       <IonButton
         id="ImportAddressesDropdownButton"
-        variant="contained"
         onClick={() => setIsOpenMenu(!isOpenMenu)}
       >
         Import Addresses

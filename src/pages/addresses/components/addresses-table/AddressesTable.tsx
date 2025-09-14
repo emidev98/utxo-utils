@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import "./AddressesTable.scss";
 import { TransactionsStorage, useTxs } from "../../../../hooks/useTxs";
 import { AddressStateObject } from "../../../../hooks/useAddresses";
-import _forEach from "lodash/forEach";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -123,7 +122,7 @@ const AddressesTable = ({
 
     const _tableData = new Array<TableColumn>();
 
-    _forEach(addrStore, (addr) => {
+    for (const addr of Object.values(addrStore)) {
       const _filo = getFirstInAndLastOut(txStore, addr.address);
       const txCount = txStore[addr.address].filter(
         (tx) => tx.status.confirmed,
@@ -136,7 +135,7 @@ const AddressesTable = ({
           addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum,
         txCount: txCount,
         type: addr.type,
-        firstTxIn: _filo.firstIn.status.block_time
+        firstTxIn: _filo.firstIn?.status.block_time
           ? dayjs
               .unix(_filo.firstIn.status.block_time)
               .format("YYYY-MM-DD HH:mm:ss")
@@ -147,7 +146,7 @@ const AddressesTable = ({
               .format("YYYY-MM-DD HH:mm:ss")
           : "-",
       });
-    });
+    }
 
     setTableData(_tableData.sort((a, b) => b.balance - a.balance));
   }, [addrStore, txStore, latestPrice, loading]);

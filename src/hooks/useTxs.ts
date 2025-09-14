@@ -42,14 +42,16 @@ export const useTxs = () => {
     address: string,
   ) => {
     const sorted = _sortBy(txStore[address], "status.block_time");
+    const firstIn = sorted.length >= 1 ? sorted[0] : undefined;
+    const lastOut = sorted
+      .reverse()
+      .find((tx) =>
+        tx.vin.find((vin) => vin.prevout.scriptpubkey_address === address),
+      );
 
     return {
-      firstIn: sorted[0],
-      lastOut: sorted
-        .reverse()
-        .find((tx) =>
-          tx.vin.find((vin) => vin.prevout.scriptpubkey_address === address),
-        ),
+      firstIn,
+      lastOut,
     };
   };
   const getIncomingTxFees = (txStore: TransactionsStorage, address: string) => {
