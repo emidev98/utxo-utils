@@ -1,0 +1,24 @@
+---
+version: 2
+open-pull-requests-limit: 1 # Keep only one open at a time
+allow:
+  - dependency-type: "direct"
+  - dependency-type: "indirect"
+commit-message:
+  prefix: "chore(deps)"
+  include:
+    - "dependency-name"
+    - "scope"
+labels: ["dependencies"]
+rebase-strategy: "auto" # Auto‑rebase stale PRs
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    # optional: target‑branch, reviewers, assignees, etc.
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    # optional: target‑branch, reviewers, assignees, etc.
