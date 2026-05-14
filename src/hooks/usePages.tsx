@@ -15,7 +15,6 @@ import TransactionsPage from "../pages/transactions/TransactionsPage";
 import UTXOsPage from "../pages/utxos/UTXOsPage";
 import SettingsPage from "../pages/settings/Settings";
 import AddressesPage from "../pages/addresses/AddressesPage";
-import AddressesManagementPage from "../pages/addresses-management/AddressesManagementPage";
 
 export interface Page {
   url: string;
@@ -68,16 +67,9 @@ export const usePages = () => {
     //     component: <ArchivePage/>,
     // },
     {
-      title: "Addresses Management",
-      url: "/addresses-management",
-      className: "addresses-management-menu-entry",
-      iosIcon: pencilOutline,
-      mdIcon: pencilSharp,
-      component: <AddressesManagementPage />,
-    },
-    {
       title: "Settings",
       url: "/settings",
+      className: "settings-menu-entry",
       iosIcon: cogOutline,
       mdIcon: cogSharp,
       component: <SettingsPage />,

@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import "./AddressesPage.scss";
 import { TransactionsStorage, useTxs } from "../../hooks/useTxs";
 import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
-import SimpleKpi from "../../components/kpis/counter/SimpleKpi";
+import Kpi from "../../components/kpis/Kpi";
 import _flatMap from "lodash/flatMap";
 import HoldingsDistributionChart from "./components/holdings-distribution-chart/HoldingsDistributionChart";
 import AddressesTable from "./components/addresses-table/AddressesTable";
 import { BTCFormatter, USDFormatter } from "../../hooks/useFormatter";
-import { usePricing } from "../../hooks/usePricing";
 import { useLatestPricingContext } from "../../context/LatestPriceContext";
 
 const AddressesPage = ({}) => {
@@ -47,21 +46,23 @@ const AddressesPage = ({}) => {
     setLoading(false);
   };
 
+  const refresh = () => init();
+
   useEffect(() => {
     init();
   }, [addrCount, latestPrice]);
 
   return (
     <div className="AddressesPage">
-      <SimpleKpi loading={isLoading} value={addrCount} title="Addresses" />
-      <SimpleKpi loading={isLoading} value={txsCount} title="Confirmed Tx" />
-      <SimpleKpi
+      <Kpi loading={isLoading} value={addrCount} title="Addresses" />
+      <Kpi loading={isLoading} value={txsCount} title="Confirmed Tx" />
+      <Kpi
         loading={isLoading}
         value={spendableBalance}
         formatter={BTCFormatter}
         title="BTC Balance"
       />
-      <SimpleKpi
+      <Kpi
         loading={isLoading}
         value={spendableBalanceUSD}
         formatter={USDFormatter}
@@ -72,6 +73,7 @@ const AddressesPage = ({}) => {
         loading={isLoading}
         addrStore={addrStore}
         txStore={txStore}
+        refresh={refresh}
       />
     </div>
   );

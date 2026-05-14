@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./SimpleKpi.scss";
+import "./Kpi.scss";
 import {
   IonCard,
   IonCardContent,
@@ -8,14 +8,14 @@ import {
   IonSkeletonText,
 } from "@ionic/react";
 
-interface SimpleKpiProps {
+interface KpiProps {
   title: string;
   value?: number | string;
   loading?: boolean;
   formatter?: (value: number | string) => string;
 }
 
-const SimpleKpi = ({ value, title, formatter, loading }: SimpleKpiProps) => {
+const Kpi = ({ value, title, formatter, loading }: KpiProps) => {
   const [_value, setValue] = useState("-");
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const SimpleKpi = ({ value, title, formatter, loading }: SimpleKpiProps) => {
   }, [value, title, formatter, loading]);
 
   return (
-    <IonCard className="SimpleKpi">
+    <IonCard className="Kpi">
       {loading ? (
         <IonCardContent>
           <IonSkeletonText
@@ -49,4 +49,4 @@ const SimpleKpi = ({ value, title, formatter, loading }: SimpleKpiProps) => {
   );
 };
 
-export default SimpleKpi;
+export default Kpi;

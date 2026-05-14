@@ -1,8 +1,7 @@
-import "./NewManualAddress.scss";
+import "./AddressModal.scss";
 import {
   IonButton,
   IonButtons,
-  IonCheckbox,
   IonContent,
   IonFooter,
   IonHeader,
@@ -25,16 +24,18 @@ import AppToast from "../toast/Toast";
 import { useTxs } from "../../hooks/useTxs";
 import { addressFormatter } from "../../hooks/useFormatter";
 
-interface NewManualAddressProps {
+interface AddressModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAddressAdded: () => void;
 }
 
 const TOAST_DURATION = 4000;
 
-const NewManualAddress: React.FC<NewManualAddressProps> = ({
+const AddressModal: React.FC<AddressModalProps> = ({
   isOpen,
   onClose,
+  onAddressAdded,
 }) => {
   const [isValidInputLabel, setValidInputLabel] = useState<boolean>();
   const [isTouchedInputLabel, setTouchedInputLabel] = useState(false);
@@ -92,6 +93,7 @@ const NewManualAddress: React.FC<NewManualAddressProps> = ({
         await appendTxs(addrInfo.address, res);
 
         putAddress({ ...addressDetails, ...addrInfo, label: addressLabel });
+        onAddressAdded();
         setAddressLabel("");
         setAddressDetails({ ...addressDetails, address: "" });
         setToastData({
@@ -99,18 +101,17 @@ const NewManualAddress: React.FC<NewManualAddressProps> = ({
           message: `${res.length} txs indexed for address ${addressFormatter(addressDetails?.address)} successfully!`,
           color: "success",
         });
+        setTimeout(() => {
+          setToastData({
+            isOpen: false,
+            message: "",
+            color: "",
+          });
+          onClose();
+        }, TOAST_DURATION);
       }
     }
 
-    setTimeout(
-      () =>
-        setToastData({
-          isOpen: false,
-          message: "",
-          color: "",
-        }),
-      TOAST_DURATION,
-    );
     setIsLoading(false);
   };
 
@@ -203,4 +204,4 @@ const NewManualAddress: React.FC<NewManualAddressProps> = ({
   );
 };
 
-export default NewManualAddress;
+export default AddressModal;

@@ -9,7 +9,7 @@ import {
 } from "material-react-table";
 import { copy } from "ionicons/icons";
 import { Button } from "@mui/material";
-import { IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
+import { IonButton, IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
 import { sortFirstNumericElement } from "../../../../utils/tables";
 import {
   addressFormatter,
@@ -19,6 +19,7 @@ import {
 import { useToastContext } from "../../../../context/ToastContext";
 import dayjs from "dayjs";
 import { useLatestPricingContext } from "../../../../context/LatestPriceContext";
+import AddressModal from "../../../../components/address-modal/AddressModal";
 
 interface TableColumn {
   label: string;
@@ -35,12 +36,14 @@ interface AddressesTableProps {
   addrStore?: AddressStateObject;
   txStore?: TransactionsStorage;
   loading?: boolean;
+  refresh: () => void;
 }
 
 const AddressesTable = ({
   addrStore,
   txStore,
   loading,
+  refresh,
 }: AddressesTableProps) => {
   const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
     () => [
@@ -115,6 +118,7 @@ const AddressesTable = ({
   const { getFirstInAndLastOut } = useTxs();
   const { setOpenToast } = useToastContext();
   const { latestPrice } = useLatestPricingContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (addrStore === undefined) return;
@@ -161,6 +165,11 @@ const AddressesTable = ({
     },
     filterFromLeafRows: true, //apply filtering to all rows instead of just parent rows
     paginateExpandedRows: false, //When rows are expanded, do not count sub-rows as number of rows on the page towards pagination
+    renderTopToolbarCustomActions: ({ table }) => (
+      <IonButton fill="clear" color="dark" onClick={() => setIsModalOpen(true)}>
+        + Add New Address
+      </IonButton>
+    ),
   });
 
   const onCopyValueFromCell = (value: string) => {
@@ -187,6 +196,11 @@ const AddressesTable = ({
       ) : (
         <MaterialReactTable table={table} />
       )}
+      <AddressModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddressAdded={refresh}
+      />
     </IonCard>
   );
 };

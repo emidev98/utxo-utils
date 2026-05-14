@@ -7,9 +7,9 @@ import _first from "lodash/first";
 import _last from "lodash/last";
 import { useUTXOs } from "../../hooks/useUTXOs";
 import { VoutWithBlockTime } from "../../models/MempoolAddressTxs";
-import SimpleKpi from "../../components/kpis/counter/SimpleKpi";
 import UTXOsTable from "./components/utxos-table/UTXOsTable";
 import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
+import Kpi from "../../components/kpis/Kpi";
 
 const UTXOsPage = ({}) => {
   const { getAllUTXOs } = useUTXOs();
@@ -59,15 +59,15 @@ const UTXOsPage = ({}) => {
 
   return (
     <div className="UTXOsPage">
-      <SimpleKpi loading={isLoading} value={utxosCount} title="UTXOs" />
+      <Kpi loading={isLoading} value={utxosCount} title="UTXOs" />
 
-      <SimpleKpi
+      <Kpi
         loading={isLoading}
         value={firstUtxo?.block_time.format("DD MMM YYYY H:m:s")}
         title="First UTXO date"
       />
 
-      <SimpleKpi
+      <Kpi
         loading={isLoading}
         value={lastUtxo?.block_time.format("DD MMM YYYY H:m:s")}
         title="Last UTXO date"
