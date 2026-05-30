@@ -68,9 +68,19 @@ export const useTxs = () => {
     return Number(feesPaid.toFixed(0));
   };
 
+  const removeTx = async (address: string) => {
+    const txs = await getAllTxs();
+    if (txs && txs[address]) {
+      delete txs[address];
+      await storage.set(TXS_STORE_KEY, txs);
+    }
+    return txs;
+  };
+
   return {
     appendTxs,
     getAllTxs,
+    removeTx,
     getTxsByAddress,
     getIncomingTxFees,
     getFirstInAndLastOut,

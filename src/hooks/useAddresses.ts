@@ -66,11 +66,21 @@ export const useAddresses = () => {
     return feesPaid;
   };
 
+  const removeAddress = async (address: string) => {
+    const addresses = await getAddresses();
+    if (addresses && addresses[address]) {
+      delete addresses[address];
+      await storage.set(ADDRESSES_STORE_KEY, addresses);
+    }
+    return addresses;
+  };
+
   return {
     putAddress,
     getAddress,
     getAddresses,
     sumBalances,
     sumTxsFeesPaid,
+    removeAddress,
   };
 };

@@ -9,7 +9,7 @@ interface Data {
 }
 
 const parseDataUntil2018 = (): Promise<Data[]> => {
-  const OLD_DATA = "btc_1d_data_2013_to_2018.csv";
+  const OLD_DATA = process.cwd() + "/data/btc_1d_data_2013_to_2018.csv";
 
   return new Promise((resolve, reject) => {
     const data: Data[] = [];
@@ -32,7 +32,7 @@ const parseDataUntil2018 = (): Promise<Data[]> => {
 };
 
 const parseDataFrom2018 = (): Promise<Data[]> => {
-  const NOT_SO_OLD_DATA = "btc_1d_data_2018_to_2025.csv";
+  const NOT_SO_OLD_DATA = process.cwd() + "/data/btc_1d_data_2018_to_2025.csv";
 
   return new Promise((resolve, reject) => {
     const data: Data[] = [];
@@ -75,7 +75,10 @@ const storeCompresed = async (data: Data[]) => {
 
     buffer = Buffer.concat([buffer, entry]);
   }
-  fs.writeFileSync("btc-1-day-avg-historical.txt", buffer);
+  fs.writeFileSync(
+    process.cwd() + "/public/btc-1-day-avg-historical.txt",
+    buffer,
+  );
 };
 
 (async () => {

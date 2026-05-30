@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import "./AddressesTable.scss";
 import { TransactionsStorage, useTxs } from "../../../../hooks/useTxs";
-import { AddressStateObject } from "../../../../hooks/useAddresses";
+import {
+  AddressStateObject,
+  AddressInfoExtended,
+  useAddresses,
+} from "../../../../hooks/useAddresses";
 import {
   MaterialReactTable,
+  MRT_Row,
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from "material-react-table";
-import { copy } from "ionicons/icons";
-import { Button } from "@mui/material";
+import { copy, copySharp, pencil, trash } from "ionicons/icons";
 import { IonButton, IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
 import { sortFirstNumericElement } from "../../../../utils/tables";
 import {
@@ -19,8 +23,7 @@ import {
 import { useToastContext } from "../../../../context/ToastContext";
 import dayjs from "dayjs";
 import { useLatestPricingContext } from "../../../../context/LatestPriceContext";
-import AddressModal from "../../../../components/address-modal/AddressModal";
-
+import ConfirmModal from "../../../../components/confirm-modal/ConfirmModal";
 interface TableColumn {
   label: string;
   type: string;
@@ -36,17 +39,58 @@ interface AddressesTableProps {
   addrStore?: AddressStateObject;
   txStore?: TransactionsStorage;
   loading?: boolean;
-  refresh: () => void;
+  onAddAddress: () => void;
+  onEditAddress: (address: string) => void;
+  onDeleteAddress: (address: string) => Promise<void> | void;
 }
 
 const AddressesTable = ({
   addrStore,
   txStore,
   loading,
-  refresh,
+  onAddAddress,
+  onEditAddress,
+  onDeleteAddress,
 }: AddressesTableProps) => {
   const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
     () => [
+      {
+        accessorKey: "remove",
+        header: "",
+        size: 0,
+        Cell: (props) => {
+          return (
+            <div className="LabelCell">
+              <IonButton
+                className="RemoveButton"
+                fill="clear"
+                color="danger"
+                onClick={() => onDeleteAddress(props.row.original.address)}
+              >
+                <IonIcon size="small" icon={trash}></IonIcon>
+              </IonButton>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "edit",
+        header: "",
+        size: 0,
+        Cell: (props) => {
+          return (
+            <div className="LabelCell">
+              <IonButton
+                className="EditButton"
+                fill="clear"
+                onClick={() => onEditAddress(props.row.original.address)}
+              >
+                <IonIcon size="small" icon={pencil}></IonIcon>
+              </IonButton>
+            </div>
+          );
+        },
+      },
       {
         accessorKey: "label",
         header: "Label",
@@ -59,15 +103,16 @@ const AddressesTable = ({
         Cell: (props) => {
           return (
             <div className="CopyCell">
-              <Button
+              <IonButton
+                fill="clear"
                 className="CopyCellButton"
                 onClick={() =>
-                  onCopyValueFromCell(props.renderedCellValue as string)
+                  onCopyValueFromCell(String(props.renderedCellValue))
                 }
               >
-                <IonIcon size="medium-large" icon={copy}></IonIcon>
-              </Button>
-              <span>{addressFormatter(props.renderedCellValue as string)}</span>
+                <IonIcon size="small" icon={copySharp}></IonIcon>
+              </IonButton>
+              <span>{addressFormatter(String(props.renderedCellValue))}</span>
             </div>
           );
         },
@@ -112,20 +157,18 @@ const AddressesTable = ({
         size: 0,
       },
     ],
-    new Array<MRT_ColumnDef<TableColumn>>(),
+    [onEditAddress, onDeleteAddress],
   );
   const [tableData, setTableData] = useState(new Array<TableColumn>());
   const { getFirstInAndLastOut } = useTxs();
   const { setOpenToast } = useToastContext();
   const { latestPrice } = useLatestPricingContext();
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (addrStore === undefined) return;
     if (txStore === undefined) return;
 
     const _tableData = new Array<TableColumn>();
-
     for (const addr of Object.values(addrStore)) {
       const _filo = getFirstInAndLastOut(txStore, addr.address);
       const txCount = txStore[addr.address].filter(
@@ -134,7 +177,10 @@ const AddressesTable = ({
       _tableData.push({
         label: addr.label,
         address: addr.address,
-        currentPrice: (addr.chain_stats.funded_txo_sum / 1e8) * latestPrice,
+        currentPrice:
+          ((addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum) /
+            1e8) *
+          latestPrice,
         balance:
           addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum,
         txCount: txCount,
@@ -159,14 +205,17 @@ const AddressesTable = ({
     columns: columns as any,
     data: tableData,
     enableFullScreenToggle: false,
-    initialState: { pagination: { pageSize: 25, pageIndex: 0 } },
+    initialState: {
+      pagination: { pageSize: 25, pageIndex: 0 },
+      density: "compact",
+    },
     muiPaginationProps: {
       rowsPerPageOptions: [25, 50, 100],
     },
     filterFromLeafRows: true, //apply filtering to all rows instead of just parent rows
     paginateExpandedRows: false, //When rows are expanded, do not count sub-rows as number of rows on the page towards pagination
     renderTopToolbarCustomActions: ({ table }) => (
-      <IonButton fill="clear" color="dark" onClick={() => setIsModalOpen(true)}>
+      <IonButton fill="clear" color="dark" onClick={onAddAddress}>
         + Add New Address
       </IonButton>
     ),
@@ -196,11 +245,6 @@ const AddressesTable = ({
       ) : (
         <MaterialReactTable table={table} />
       )}
-      <AddressModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onAddressAdded={refresh}
-      />
     </IonCard>
   );
 };

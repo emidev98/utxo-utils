@@ -1,30 +1,47 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./AddressesPage.scss";
 import { TransactionsStorage, useTxs } from "../../hooks/useTxs";
-import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
+import {
+  AddressInfoExtended,
+  AddressStateObject,
+  useAddresses,
+} from "../../hooks/useAddresses";
 import Kpi from "../../components/kpis/Kpi";
 import _flatMap from "lodash/flatMap";
 import HoldingsDistributionChart from "./components/holdings-distribution-chart/HoldingsDistributionChart";
 import AddressesTable from "./components/addresses-table/AddressesTable";
-import { BTCFormatter, USDFormatter } from "../../hooks/useFormatter";
+import AddressModal from "../../components/address-modal/AddressModal";
+import {
+  addressFormatter,
+  BTCFormatter,
+  USDFormatter,
+} from "../../hooks/useFormatter";
 import { useLatestPricingContext } from "../../context/LatestPriceContext";
+import ConfirmModal from "../../components/confirm-modal/ConfirmModal";
+import { useToastContext } from "../../context/ToastContext";
 
 const AddressesPage = ({}) => {
-  const { getAllTxs } = useTxs();
-  const { getAddresses, sumBalances } = useAddresses();
+  const { getAllTxs, removeTx } = useTxs();
+  const { getAddresses, sumBalances, removeAddress } = useAddresses();
 
   const [isLoading, setLoading] = useState(true);
 
   const [addrCount, setAddrCount] = useState(0);
   const [txsCount, setTxsCount] = useState(0);
+  const { setOpenToast } = useToastContext();
 
   const [txStore, setTxStore] = useState<TransactionsStorage>();
   const [addrStore, setAddrStore] = useState<AddressStateObject>();
   const [spendableBalance, setSpendableBalance] = useState(0);
   const [spendableBalanceUSD, setSpendableBalanceUSD] = useState(0);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [addressToEdit, setAddressToEdit] = useState<
+    AddressInfoExtended | undefined
+  >();
   const { latestPrice } = useLatestPricingContext();
+  const [addressToRemove, setAddressToRemove] = useState<string>();
 
-  const init = async () => {
+  const init = useCallback(async () => {
     const [_txStore, _addrStore] = await Promise.all([
       getAllTxs(),
       getAddresses(),
@@ -44,13 +61,60 @@ const AddressesPage = ({}) => {
     setAddrStore(_addrStore);
 
     setLoading(false);
+  }, [latestPrice, getAllTxs, getAddresses, sumBalances]);
+
+  const openNewAddressModal = () => {
+    setAddressToEdit(undefined);
+    setIsAddressModalOpen(true);
   };
 
-  const refresh = () => init();
+  const onConfirmRemoveAddress = async () => {
+    if (!addressToRemove) {
+      console.error("No address selected for deletion");
+      return;
+    }
+
+    try {
+      await Promise.all([
+        removeTx(addressToRemove),
+        removeAddress(addressToRemove),
+      ]);
+      setOpenToast({
+        message: `Address ${addressFormatter(addressToRemove)} removed successfully!`,
+        color: "success",
+      });
+      setAddressToRemove(undefined);
+      init();
+    } catch (err) {
+      setOpenToast({
+        message: `Could not remove address ${addressFormatter(addressToRemove)}`,
+        color: "danger",
+      });
+    }
+  };
+
+  const onDeleteAddress = (address: string) => {
+    setAddressToRemove(address);
+  };
+
+  const onEditAddress = (address: string) => {
+    if (addrStore && addrStore[address]) {
+      setAddressToEdit(addrStore[address]);
+      setIsAddressModalOpen(true);
+    } else {
+      console.error("Address not found in store for editing:", address);
+    }
+  };
+
+  const closeAddressModal = () => {
+    setIsAddressModalOpen(false);
+    setAddressToEdit(undefined);
+    init();
+  };
 
   useEffect(() => {
     init();
-  }, [addrCount, latestPrice]);
+  }, []);
 
   return (
     <div className="AddressesPage">
@@ -73,7 +137,23 @@ const AddressesPage = ({}) => {
         loading={isLoading}
         addrStore={addrStore}
         txStore={txStore}
-        refresh={refresh}
+        onAddAddress={openNewAddressModal}
+        onEditAddress={onEditAddress}
+        onDeleteAddress={onDeleteAddress}
+      />
+      <AddressModal
+        isOpen={isAddressModalOpen}
+        onClose={closeAddressModal}
+        addressToEdit={addressToEdit}
+      />
+      <ConfirmModal
+        isOpen={addressToRemove !== undefined}
+        title="Remove address"
+        message={`Are you sure you want to remove ${addressFormatter(addressToRemove)}?`}
+        confirmText="Yes, remove"
+        cancelText="Cancel"
+        onCancel={() => setAddressToRemove(undefined)}
+        onConfirm={onConfirmRemoveAddress}
       />
     </div>
   );

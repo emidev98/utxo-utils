@@ -165,7 +165,10 @@ const UTXOsTable = ({
     enableFullScreenToggle: false,
     filterFromLeafRows: true,
     paginateExpandedRows: false,
-    initialState: { pagination: { pageSize: 25, pageIndex: 0 } },
+    initialState: {
+      pagination: { pageSize: 25, pageIndex: 0 },
+      density: "compact",
+    },
     muiPaginationProps: {
       rowsPerPageOptions: [25, 50, 100],
     },

@@ -1,6 +1,12 @@
 @use "../../theme/mixins.scss";
 
 .NewManualAddress {
+  --border-radius: 8px;
+
+  .ModalFooterIcon {
+    margin-right: 0.5em;
+  }
+
   .InputElement {
     margin-bottom: 2em;
   }

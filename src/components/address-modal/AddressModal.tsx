@@ -11,13 +11,18 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import validate, {
   AddressInfo,
   getAddressInfo,
 } from "bitcoin-address-validation";
-import { addOutline, closeOutline, closeSharp } from "ionicons/icons";
-import { useAddresses } from "../../hooks/useAddresses";
+import {
+  addOutline,
+  closeOutline,
+  closeSharp,
+  saveOutline,
+} from "ionicons/icons";
+import { AddressInfoExtended, useAddresses } from "../../hooks/useAddresses";
 import { useMempoolApi } from "../../hooks/useMempoolApi";
 import Loader from "../loader/Loader";
 import AppToast from "../toast/Toast";
@@ -27,7 +32,7 @@ import { addressFormatter } from "../../hooks/useFormatter";
 interface AddressModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddressAdded: () => void;
+  addressToEdit?: AddressInfoExtended;
 }
 
 const TOAST_DURATION = 4000;
@@ -35,7 +40,7 @@ const TOAST_DURATION = 4000;
 const AddressModal: React.FC<AddressModalProps> = ({
   isOpen,
   onClose,
-  onAddressAdded,
+  addressToEdit,
 }) => {
   const [isValidInputLabel, setValidInputLabel] = useState<boolean>();
   const [isTouchedInputLabel, setTouchedInputLabel] = useState(false);
@@ -61,6 +66,24 @@ const AddressModal: React.FC<AddressModalProps> = ({
   const onImportAddress = async () => {
     setIsLoading(true);
     setAmountOfTxsToIndex("");
+    // If we're editing an existing address, update its label and return
+    if (addressToEdit) {
+      try {
+        await putAddress({ ...addressToEdit, label: addressLabel });
+        setToastData({
+          isOpen: true,
+          message: `Address ${addressFormatter(addressToEdit.address)} updated successfully!`,
+          color: "success",
+        });
+        setTimeout(() => {
+          setToastData({ isOpen: false, message: "", color: "" });
+        }, TOAST_DURATION);
+      } finally {
+        setIsLoading(false);
+      }
+      return onClose();
+    }
+
     if (addressDetails) {
       const isAlreadyDefined = await getAddress(addressDetails?.address);
       const addrInfo = await queryAddrInfo(addressDetails?.address);
@@ -92,8 +115,11 @@ const AddressModal: React.FC<AddressModalProps> = ({
         }
         await appendTxs(addrInfo.address, res);
 
-        putAddress({ ...addressDetails, ...addrInfo, label: addressLabel });
-        onAddressAdded();
+        await putAddress({
+          ...addressDetails,
+          ...addrInfo,
+          label: addressLabel,
+        });
         setAddressLabel("");
         setAddressDetails({ ...addressDetails, address: "" });
         setToastData({
@@ -107,13 +133,40 @@ const AddressModal: React.FC<AddressModalProps> = ({
             message: "",
             color: "",
           });
-          onClose();
         }, TOAST_DURATION);
       }
     }
 
     setIsLoading(false);
+    return onClose();
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (addressToEdit) {
+      setAddressLabel(addressToEdit.label || "");
+      setAddressDetails(addressToEdit);
+      setValidInputLabel(
+        !!(
+          addressToEdit.label &&
+          addressToEdit.label.length > 0 &&
+          addressToEdit.label.length < 28
+        ),
+      );
+      setValidInputAddress(true);
+      setTouchedInputLabel(false);
+      setTouchedInputAddress(false);
+    } else {
+      // New address mode: reset form
+      setAddressLabel("");
+      setAddressDetails({ address: "" } as any);
+      setValidInputLabel(false);
+      setValidInputAddress(false);
+      setTouchedInputLabel(false);
+      setTouchedInputAddress(false);
+    }
+  }, [isOpen, addressToEdit]);
 
   const validateLabel = (ev: Event) => {
     const value = (ev.target as HTMLInputElement).value;
@@ -135,64 +188,72 @@ const AddressModal: React.FC<AddressModalProps> = ({
   };
 
   return (
-    <IonModal
-      className="NewManualAddress"
-      isOpen={isOpen}
-      onWillDismiss={onClose}
-    >
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>New address</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={onClose}>
-              <IonIcon ios={closeOutline} md={closeSharp} />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+    <>
+      <IonModal
+        className="NewManualAddress"
+        isOpen={isOpen}
+        onWillDismiss={onClose}
+      >
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>
+              {addressToEdit ? "Edit address" : "New address"}
+            </IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={onClose}>
+                <IonIcon ios={closeOutline} md={closeSharp} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
 
-      <IonContent className="ion-padding">
-        <IonInput
-          className={`InputElement ${isValidInputLabel && "ion-valid"} ${isValidInputLabel === false && "ion-invalid"} ${isTouchedInputLabel && "ion-touched"}`}
-          label="* Address label"
-          labelPlacement="floating"
-          type="text"
-          value={addressLabel}
-          helperText="Human redeable text to identify the address"
-          errorText="Label must have between 1 and 27 characters"
-          onIonInput={(event: Event) => validateLabel(event)}
-          onIonBlur={() => setTouchedInputLabel(true)}
+        <IonContent className="ion-padding">
+          <IonInput
+            className={`InputElement ${isValidInputLabel && "ion-valid"} ${isValidInputLabel === false && "ion-invalid"} ${isTouchedInputLabel && "ion-touched"}`}
+            label="* Address label"
+            labelPlacement="floating"
+            type="text"
+            value={addressLabel}
+            helperText="Human redeable text to identify the address"
+            errorText="Label must have between 1 and 27 characters"
+            onIonInput={(event: Event) => validateLabel(event)}
+            onIonBlur={() => setTouchedInputLabel(true)}
+          />
+
+          <IonInput
+            className={`InputElement ${isValidInputAddress && "ion-valid"} ${isValidInputAddress === false && "ion-invalid"} ${isTouchedInputAddress && "ion-touched"}`}
+            label="* Address"
+            labelPlacement="floating"
+            type="text"
+            value={addressDetails?.address}
+            disabled={!!addressToEdit}
+            helperText="Required a valid Bitcoin adddres to analyze its UTXO"
+            errorText="Invalid Bitcoin address"
+            onIonInput={(event: Event) => validateBitcoinAddress(event)}
+            onIonBlur={() => setTouchedInputAddress(true)}
+          />
+        </IonContent>
+
+        <IonFooter className="ModalFooter">
+          <IonButton
+            expand="block"
+            color="primary"
+            onClick={onImportAddress}
+            disabled={!isValidInputLabel || !isValidInputAddress}
+          >
+            <IonIcon
+              className="ModalFooterIcon"
+              icon={addressToEdit ? saveOutline : addOutline}
+            ></IonIcon>
+            {addressToEdit ? "Save" : "Import address"}
+          </IonButton>
+        </IonFooter>
+
+        <Loader
+          isOpen={isLoading}
+          message={`Indexing ${amountOfTxsToIndex} txs for address ${addressFormatter(addressDetails?.address)}`}
         />
-
-        <IonInput
-          className={`InputElement ${isValidInputAddress && "ion-valid"} ${isValidInputAddress === false && "ion-invalid"} ${isTouchedInputAddress && "ion-touched"}`}
-          label="* Address"
-          labelPlacement="floating"
-          type="text"
-          value={addressDetails?.address}
-          helperText="Required a valid Bitcoin adddres to analyze its UTXO"
-          errorText="Invalid Bitcoin address"
-          onIonInput={(event: Event) => validateBitcoinAddress(event)}
-          onIonBlur={() => setTouchedInputAddress(true)}
-        />
-      </IonContent>
-
-      <IonFooter className="ModalFooter">
-        <IonButton
-          expand="block"
-          color="primary"
-          onClick={onImportAddress}
-          disabled={!isValidInputLabel || !isValidInputAddress}
-        >
-          <IonIcon icon={addOutline}></IonIcon>
-          Import address
-        </IonButton>
-      </IonFooter>
-
-      <Loader
-        isOpen={isLoading}
-        message={`Indexing ${amountOfTxsToIndex} txs for address ${addressFormatter(addressDetails?.address)}`}
-      />
+      </IonModal>
 
       <AppToast
         isOpen={toast.isOpen}
@@ -200,7 +261,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
         message={toast.message}
         color={toast.color}
       />
-    </IonModal>
+    </>
   );
 };
 
