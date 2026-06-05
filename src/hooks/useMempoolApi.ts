@@ -1,5 +1,5 @@
 import { AddressInfo } from "../models/MempoolAddress";
-import { Transaction } from "../models/MempoolAddressTxs";
+import { Transaction, UTXO } from "../models/MempoolAddressTxs";
 import { MEMPOOL_STORE_KEY, useStorage } from "../context/StorageContext";
 
 export interface MempoolStore {
@@ -36,6 +36,18 @@ export const useMempoolApi = () => {
       : `${data.mempoolAPIUrl}/address/${address}/txs`;
 
     return await fetch(url)
+      .then((response) => {
+        return response.json();
+      })
+      .catch((error) => {
+        return error;
+      });
+  };
+
+  const queryUtxos = async (address: string): Promise<UTXO[] | Error> => {
+    const data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
+
+    return await fetch(`${data.mempoolAPIUrl}/address/${address}/utxo`)
       .then((response) => {
         return response.json();
       })
@@ -109,6 +121,7 @@ export const useMempoolApi = () => {
   return {
     queryAddrInfo,
     queryTxsByAddr,
+    queryUtxos,
     queryAllTxs,
     queryAllTxsGivenAddrInfo,
     getStoredData,

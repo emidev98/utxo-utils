@@ -1,13 +1,13 @@
 import _merge from "lodash/merge";
 import { ApexOptions } from "apexcharts";
 import DEFAULT_OPTIONS from "../../../../charts.global.options";
-import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
+import { UTXO } from "../../../../models/MempoolAddressTxs";
 import { USDFormatter } from "../../../../hooks/useFormatter";
 import dayjs from "dayjs";
 
 export interface UTXOSPrices {
   price: number;
-  utxos: VoutWithBlockTime[];
+  utxos: UTXO[];
 }
 
 export interface ChartSeries extends Array<[number, number]> {}

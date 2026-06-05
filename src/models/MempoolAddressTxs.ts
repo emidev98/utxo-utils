@@ -51,3 +51,12 @@ export interface Status {
   block_hash: string;
   block_time: number;
 }
+
+export interface UTXO {
+  txid: string;
+  vout: number;
+  status: Status;
+  value: number;
+  block_time: Dayjs;
+  scriptpubkey_address: string;
+}

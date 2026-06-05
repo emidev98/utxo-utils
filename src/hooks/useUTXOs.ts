@@ -1,44 +1,79 @@
 import _ from "lodash";
-import { useTxs } from "./useTxs";
-import { VoutWithBlockTime } from "../models/MempoolAddressTxs";
-import dayjs from "dayjs";
+import { UTXO, VoutWithBlockTime } from "../models/MempoolAddressTxs";
+import dayjs, { Dayjs } from "dayjs";
+import { useStorage, UTXOS_STORE_KEY } from "../context/StorageContext";
+import { LocalUTXO } from "../models/UTXOs";
 
 export const useUTXOs = () => {
-  const { getAllTxs } = useTxs();
+  const { storage } = useStorage();
+
+  const updateUTXOs = async (addr: string, utxos: Array<UTXO>) => {
+    let utxosStorage = (await storage.get(UTXOS_STORE_KEY)) as Record<
+      string,
+      LocalUTXO
+    >;
+    utxosStorage[addr] = {
+      lastUpdated: dayjs().unix(),
+      utxos,
+    };
+
+    await storage.set(UTXOS_STORE_KEY, utxosStorage);
+    return utxosStorage;
+  };
+
+  const deleteUTXOs = async (addr: string) => {
+    let utxosStorage = (await storage.get(UTXOS_STORE_KEY)) as Record<
+      string,
+      LocalUTXO
+    >;
+    delete utxosStorage[addr];
+    await storage.set(UTXOS_STORE_KEY, utxosStorage);
+    return utxosStorage;
+  };
 
   // return all UTXO's from your addresses, sorted ascending
-  const getAllUTXOs = async (): Promise<Array<VoutWithBlockTime>> => {
-    const txs = await getAllTxs();
-
-    if (Object.keys(txs).length === 0) {
+  const getAllUTXOs = async (): Promise<Array<UTXO>> => {
+    let utxosStorage = (await storage.get(UTXOS_STORE_KEY)) as Record<
+      string,
+      LocalUTXO
+    >;
+    if (Object.keys(utxosStorage).length === 0) {
       return [];
     }
-
-    return _.chain(txs)
-      .map((txs, key) => {
-        return txs.map((tx) => {
-          const block_time = tx.status.block_time;
-          const vouts: Array<VoutWithBlockTime> = [];
-
-          for (const vo of tx.vout) {
-            if (vo.scriptpubkey_address === key) {
-              vouts.push({
-                ...vo,
-                block_time: dayjs(block_time * 1000),
-              });
-            }
-          }
-
-          return vouts;
-        });
-      })
+    return _.chain(utxosStorage)
+      .map((localUtxo, key) =>
+        localUtxo.utxos.map((u) => {
+          return {
+            ...u,
+            block_time: dayjs(u.status.block_time * 1000),
+            scriptpubkey_address: key,
+          };
+        }),
+      )
       .flatten()
-      .flatten()
-      .sort((a, b) => a.block_time.diff(b.block_time))
+      .sort((a, b) => a.status.block_height - b.status.block_height)
+      .value();
+  };
+
+  const getUtxoFirstSyncDate = async () => {
+    let utxosStorage = (await storage.get(UTXOS_STORE_KEY)) as Record<
+      string,
+      LocalUTXO
+    >;
+    if (Object.keys(utxosStorage).length === 0) {
+      return undefined;
+    }
+
+    return _.chain(utxosStorage)
+      .map((localUtxo) => localUtxo.lastUpdated)
+      .min()
       .value();
   };
 
   return {
     getAllUTXOs,
+    updateUTXOs,
+    deleteUTXOs,
+    getUtxoFirstSyncDate,
   };
 };

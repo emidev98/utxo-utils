@@ -28,6 +28,7 @@ import Loader from "../loader/Loader";
 import AppToast from "../toast/Toast";
 import { useTxs } from "../../hooks/useTxs";
 import { addressFormatter } from "../../hooks/useFormatter";
+import { useUTXOs } from "../../hooks/useUTXOs";
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -58,8 +59,10 @@ const AddressModal: React.FC<AddressModalProps> = ({
   });
   const [amountOfTxsToIndex, setAmountOfTxsToIndex] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { queryAllTxsGivenAddrInfo, queryAddrInfo } = useMempoolApi();
+  const { queryAllTxsGivenAddrInfo, queryAddrInfo, queryUtxos } =
+    useMempoolApi();
   const { appendTxs } = useTxs();
+  const { updateUTXOs } = useUTXOs();
 
   const { putAddress, getAddress } = useAddresses();
 
@@ -85,13 +88,13 @@ const AddressModal: React.FC<AddressModalProps> = ({
     }
 
     if (addressDetails) {
-      const isAlreadyDefined = await getAddress(addressDetails?.address);
-      const addrInfo = await queryAddrInfo(addressDetails?.address);
+      const isAlreadyDefined = await getAddress(addressDetails.address);
+      const addrInfo = await queryAddrInfo(addressDetails.address);
       if (addrInfo instanceof Error) {
         return setToastData({
           isOpen: true,
           message: `Something went wrong indexing the data ${JSON.stringify(addrInfo)}.`,
-          color: "warning",
+          color: "error",
         });
       }
 
@@ -100,31 +103,38 @@ const AddressModal: React.FC<AddressModalProps> = ({
       if (isAlreadyDefined) {
         setToastData({
           isOpen: true,
-          message: `Address ${addressFormatter(addressDetails?.address)} already exists! Try providing a different address.`,
+          message: `Address ${addressFormatter(addressDetails.address)} already exists! Try providing a different address.`,
           color: "warning",
         });
         setValidInputAddress(false);
       } else {
-        const res = await queryAllTxsGivenAddrInfo(addrInfo);
-        if (res instanceof Error) {
+        const [txs, utxos] = await Promise.all([
+          queryAllTxsGivenAddrInfo(addrInfo),
+          queryUtxos(addrInfo.address),
+        ]);
+        if (txs instanceof Error || utxos instanceof Error) {
           return setToastData({
             isOpen: true,
             message: `Something went wrong indexing the data ${JSON.stringify(addrInfo)}.`,
-            color: "warning",
+            color: "error",
           });
         }
-        await appendTxs(addrInfo.address, res);
 
-        await putAddress({
-          ...addressDetails,
-          ...addrInfo,
-          label: addressLabel,
-        });
+        await Promise.all([
+          appendTxs(addrInfo.address, txs),
+          putAddress({
+            ...addressDetails,
+            ...addrInfo,
+            label: addressLabel,
+          }),
+          updateUTXOs(addrInfo.address, utxos),
+        ]);
+
         setAddressLabel("");
         setAddressDetails({ ...addressDetails, address: "" });
         setToastData({
           isOpen: true,
-          message: `${res.length} txs indexed for address ${addressFormatter(addressDetails?.address)} successfully!`,
+          message: `${txs.length} txs indexed for address ${addressFormatter(addressDetails.address)} successfully!`,
           color: "success",
         });
         setTimeout(() => {
@@ -148,11 +158,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
       setAddressLabel(addressToEdit.label || "");
       setAddressDetails(addressToEdit);
       setValidInputLabel(
-        !!(
-          addressToEdit.label &&
-          addressToEdit.label.length > 0 &&
-          addressToEdit.label.length < 28
-        ),
+        addressToEdit?.label?.length > 0 && addressToEdit?.label?.length < 100,
       );
       setValidInputAddress(true);
       setTouchedInputLabel(false);
@@ -172,7 +178,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
     const value = (ev.target as HTMLInputElement).value;
     setAddressLabel(value);
 
-    if (value?.length && value.length < 28) setValidInputLabel(true);
+    if (value?.length && value.length < 100) setValidInputLabel(true);
     else setValidInputLabel(false);
   };
 
@@ -215,7 +221,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
             type="text"
             value={addressLabel}
             helperText="Human redeable text to identify the address"
-            errorText="Label must have between 1 and 27 characters"
+            errorText="Label can have a maximum of 100 characters"
             onIonInput={(event: Event) => validateLabel(event)}
             onIonBlur={() => setTouchedInputLabel(true)}
           />

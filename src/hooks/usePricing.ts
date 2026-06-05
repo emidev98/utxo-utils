@@ -46,16 +46,12 @@ export const usePricing = () => {
   };
 
   const getBitcoinHistoricalData = async (): Promise<
-    BitcoinHistoricalData[] | Error
+    BitcoinHistoricalData[]
   > => {
-    return fetch(btc1DayAvgHistoricalDataUrl)
-      .then(async (res) => {
-        let buffer = await res.text();
-        return buffer.split(",").map(BitcoinHistoricalData.fromEntryFileValue);
-      })
-      .catch((e) => {
-        return e;
-      });
+    return fetch(btc1DayAvgHistoricalDataUrl).then(async (res) => {
+      let buffer = await res.text();
+      return buffer.split(",").map(BitcoinHistoricalData.fromEntryFileValue);
+    });
   };
 
   return {

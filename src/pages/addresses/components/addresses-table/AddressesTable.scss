@@ -7,4 +7,20 @@
     height: 46px;
     margin: 6px 0;
   }
+
+  .AddressTableActionCell {
+    .AddressTableAcctionButton {
+      margin: 0;
+    }
+  }
+
+  .AddressTableCopyCell {
+    display: flex;
+    align-items: center;
+
+    .CopyCellButton {
+      padding: 0;
+      margin: 0;
+    }
+  }
 }

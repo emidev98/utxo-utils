@@ -19,9 +19,11 @@ import {
 import { useLatestPricingContext } from "../../context/LatestPriceContext";
 import ConfirmModal from "../../components/confirm-modal/ConfirmModal";
 import { useToastContext } from "../../context/ToastContext";
+import { useUTXOs } from "../../hooks/useUTXOs";
 
 const AddressesPage = ({}) => {
   const { getAllTxs, removeTx } = useTxs();
+  const { deleteUTXOs } = useUTXOs();
   const { getAddresses, sumBalances, removeAddress } = useAddresses();
 
   const [isLoading, setLoading] = useState(true);
@@ -78,6 +80,7 @@ const AddressesPage = ({}) => {
       await Promise.all([
         removeTx(addressToRemove),
         removeAddress(addressToRemove),
+        deleteUTXOs(addressToRemove),
       ]);
       setOpenToast({
         message: `Address ${addressFormatter(addressToRemove)} removed successfully!`,

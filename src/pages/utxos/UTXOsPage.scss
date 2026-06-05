@@ -1,20 +1,24 @@
 .UTXOsPage {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   grid-template-rows: min-content min-content auto;
   gap: 1rem;
+
+  &.WithThreeKpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
   .UTXOsTimelineChart {
     grid-row-start: 2;
     grid-row-end: 3;
 
     grid-column-start: 1;
-    grid-column-end: 4;
+    grid-column-end: -1;
   }
 
   .UTXOsTable {
     grid-column-start: 1;
-    grid-column-end: 4;
+    grid-column-end: -1;
 
     grid-row-start: 3;
     grid-row-end: 4;

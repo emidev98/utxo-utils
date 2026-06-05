@@ -15,6 +15,7 @@ const StorageContext = createContext<StorageContextType>({
 
 export const PRICING_STORE_KEY = "pricing_store";
 export const TXS_STORE_KEY = "transactions";
+export const UTXOS_STORE_KEY = "utxos";
 export const MEMPOOL_STORE_KEY = "mempool_store";
 export const ADDRESSES_STORE_KEY = "addresses";
 
@@ -44,6 +45,7 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
     const txData = await storage.get(TXS_STORE_KEY);
     const pricingData = await storage.get(PRICING_STORE_KEY);
     const addressesData = await storage.get(ADDRESSES_STORE_KEY);
+    const utxosData = await storage.get(UTXOS_STORE_KEY);
 
     if (!mempoolData || overwritte) {
       await storage.set(MEMPOOL_STORE_KEY, {
@@ -65,6 +67,10 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (!addressesData || overwritte) {
       await storage.set(ADDRESSES_STORE_KEY, {});
+    }
+
+    if (!utxosData || overwritte) {
+      await storage.set(UTXOS_STORE_KEY, {});
     }
   };
   const resetStorage = () => setStorageData(true);

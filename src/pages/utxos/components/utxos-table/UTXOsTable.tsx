@@ -9,7 +9,7 @@ import { IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
 import { sortFirstNumericElement } from "../../../../utils/tables";
 import { USDFormatter, SATSFormatter } from "../../../../hooks/useFormatter";
 import { BitcoinHistoricalData } from "../../../../models/BitcoinHistoricalData";
-import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
+import { UTXO } from "../../../../models/MempoolAddressTxs";
 import { AddressStateObject } from "../../../../hooks/useAddresses";
 import dayjs from "dayjs";
 import { usePricing } from "../../../../hooks/usePricing";
@@ -28,15 +28,14 @@ interface TableColumn {
   receivingPrice: number;
   currentPrice: number;
   profitAndLoss: number;
-  script: string;
 }
 
 interface UTXOsTableProps {
   historicalPrices: BitcoinHistoricalData[];
-  utxos: VoutWithBlockTime[];
+  utxos: UTXO[];
   addresses: AddressStateObject;
-  firstUtxo?: VoutWithBlockTime;
-  lastUtxo?: VoutWithBlockTime;
+  firstUtxo?: UTXO;
+  lastUtxo?: UTXO;
   loading: boolean;
 }
 
@@ -152,7 +151,6 @@ const UTXOsTable = ({
         currentPrice: currentPrice,
         profitAndLoss: currentPrice - receivingPrice,
         blockTime: utxo.block_time.toDate().getTime(),
-        script: utxo.scriptpubkey_asm,
       });
     });
 
@@ -167,19 +165,10 @@ const UTXOsTable = ({
     paginateExpandedRows: false,
     initialState: {
       pagination: { pageSize: 25, pageIndex: 0 },
-      density: "compact",
+      density: "comfortable",
     },
     muiPaginationProps: {
       rowsPerPageOptions: [25, 50, 100],
-    },
-    renderDetailPanel: ({ row }) => {
-      return (
-        <div className="UTXOsTableDetailPanel">
-          <div className="UTXOsTableDetailPanelValue">
-            {row.original.script}
-          </div>
-        </div>
-      );
     },
   });
 

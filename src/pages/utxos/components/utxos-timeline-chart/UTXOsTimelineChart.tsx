@@ -5,7 +5,7 @@ import { ApexOptions } from "apexcharts";
 import _groupBy from "lodash/groupBy";
 import { IonCard, IonCardContent, IonSkeletonText } from "@ionic/react";
 import { BitcoinHistoricalData } from "../../../../models/BitcoinHistoricalData";
-import { VoutWithBlockTime } from "../../../../models/MempoolAddressTxs";
+import { UTXO } from "../../../../models/MempoolAddressTxs";
 import utxoTimelineChartOptions, {
   ChartSeries,
   utxoTimelineChartAnnotation,
@@ -15,15 +15,15 @@ import { BTCFormatter } from "../../../../hooks/useFormatter";
 
 interface UTXOTimelineChartProps {
   historicalPrices: BitcoinHistoricalData[];
-  utxos: VoutWithBlockTime[];
-  firstUtxo?: VoutWithBlockTime;
-  lastUtxo?: VoutWithBlockTime;
+  utxos: UTXO[];
+  firstUtxo?: UTXO;
+  lastUtxo?: UTXO;
   loading: boolean;
 
   onClickChartAnnotation: (
     pointAnnotations: PointAnnotations,
     event: Event,
-    utxos: VoutWithBlockTime[],
+    utxos: UTXO[],
   ) => void;
 }
 

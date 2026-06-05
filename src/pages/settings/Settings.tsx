@@ -15,6 +15,7 @@ import AppToast from "../../components/toast/Toast";
 import Loader from "../../components/loader/Loader";
 import { addressFormatter } from "../../hooks/useFormatter";
 import { useStorage } from "../../context/StorageContext";
+import { useUTXOs } from "../../hooks/useUTXOs";
 
 const SettingsPage: React.FC = () => {
   const [mempoolAPIUrl, setMempoolAPIUrl] = useState<string>("");
@@ -26,8 +27,9 @@ const SettingsPage: React.FC = () => {
   const [coingeckoTouched, setCoingeckoTouched] = useState<boolean>(true);
 
   const { updatePricingAPIUrl, getPricingApiUrl } = usePricing();
-  const { getStoredData, updateMempoolAPIUrl, queryTxsByAddr } =
+  const { getStoredData, updateMempoolAPIUrl, queryTxsByAddr, queryUtxos } =
     useMempoolApi();
+  const { updateUTXOs } = useUTXOs();
   const { getAllTxs, appendTxs } = useTxs();
   const { resetStorage } = useStorage();
   const { getAddresses } = useAddresses();
@@ -94,11 +96,14 @@ const SettingsPage: React.FC = () => {
         while (true) {
           if (currAddrTxs.length > 0) {
             const lastTxId = currAddrTxs[currAddrTxs.length - 1].txid;
-            const newTxs = await queryTxsByAddr(addr, lastTxId);
-            if (newTxs instanceof Error) {
-              return newTxs;
+            const [newTxs, utxos] = await Promise.all([
+              queryTxsByAddr(addr, lastTxId),
+              queryUtxos(addr),
+            ]);
+            if (utxos instanceof Error || newTxs instanceof Error) {
+              return utxos || newTxs;
             }
-
+            await updateUTXOs(addr, utxos);
             if (newTxs.length == 0) {
               break;
             } else {

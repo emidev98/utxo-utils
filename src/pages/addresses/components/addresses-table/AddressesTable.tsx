@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import "./AddressesTable.scss";
 import { TransactionsStorage, useTxs } from "../../../../hooks/useTxs";
-import {
-  AddressStateObject,
-  AddressInfoExtended,
-  useAddresses,
-} from "../../../../hooks/useAddresses";
+import { AddressStateObject } from "../../../../hooks/useAddresses";
 import {
   MaterialReactTable,
-  MRT_Row,
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from "material-react-table";
-import { copy, copySharp, pencil, trash } from "ionicons/icons";
+import { copySharp, pencil, trash } from "ionicons/icons";
 import { IonButton, IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
 import { sortFirstNumericElement } from "../../../../utils/tables";
 import {
@@ -23,7 +18,6 @@ import {
 import { useToastContext } from "../../../../context/ToastContext";
 import dayjs from "dayjs";
 import { useLatestPricingContext } from "../../../../context/LatestPriceContext";
-import ConfirmModal from "../../../../components/confirm-modal/ConfirmModal";
 interface TableColumn {
   label: string;
   type: string;
@@ -55,14 +49,25 @@ const AddressesTable = ({
   const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
     () => [
       {
-        accessorKey: "remove",
+        accessorKey: "actions",
         header: "",
         size: 0,
+        enableColumnActions: false,
+        enableColumnFilter: false,
+        enableColumnDragging: false,
+        enableSorting: false,
         Cell: (props) => {
           return (
-            <div className="LabelCell">
+            <div className="AddressTableActionCell">
               <IonButton
-                className="RemoveButton"
+                className="AddressTableAcctionButton"
+                fill="clear"
+                onClick={() => onEditAddress(props.row.original.address)}
+              >
+                <IonIcon size="small" icon={pencil}></IonIcon>
+              </IonButton>
+              <IonButton
+                className="AddressTableAcctionButton"
                 fill="clear"
                 color="danger"
                 onClick={() => onDeleteAddress(props.row.original.address)}
@@ -74,19 +79,22 @@ const AddressesTable = ({
         },
       },
       {
-        accessorKey: "edit",
-        header: "",
+        accessorKey: "address",
+        header: "Address",
         size: 0,
         Cell: (props) => {
           return (
-            <div className="LabelCell">
+            <div className="AddressTableCopyCell">
               <IonButton
-                className="EditButton"
                 fill="clear"
-                onClick={() => onEditAddress(props.row.original.address)}
+                className="CopyCellButton"
+                onClick={() =>
+                  onCopyValueFromCell(String(props.renderedCellValue))
+                }
               >
-                <IonIcon size="small" icon={pencil}></IonIcon>
+                <IonIcon size="small" icon={copySharp}></IonIcon>
               </IonButton>
+              <div>{addressFormatter(String(props.renderedCellValue))}</div>
             </div>
           );
         },
@@ -97,25 +105,9 @@ const AddressesTable = ({
         size: 0,
       },
       {
-        accessorKey: "address",
-        header: "Address",
+        accessorKey: "txCount",
+        header: "Txs",
         size: 0,
-        Cell: (props) => {
-          return (
-            <div className="CopyCell">
-              <IonButton
-                fill="clear"
-                className="CopyCellButton"
-                onClick={() =>
-                  onCopyValueFromCell(String(props.renderedCellValue))
-                }
-              >
-                <IonIcon size="small" icon={copySharp}></IonIcon>
-              </IonButton>
-              <span>{addressFormatter(String(props.renderedCellValue))}</span>
-            </div>
-          );
-        },
       },
       {
         accessorKey: "balance",
@@ -137,19 +129,14 @@ const AddressesTable = ({
         },
       },
       {
-        accessorKey: "lastTxOut",
-        header: "Last tx sent",
-        size: 162,
-      },
-      {
         accessorKey: "firstTxIn",
         header: "First tx received",
         size: 162,
       },
       {
-        accessorKey: "txCount",
-        header: "Txs",
-        size: 0,
+        accessorKey: "lastTxOut",
+        header: "Last tx sent",
+        size: 162,
       },
       {
         accessorKey: "type",

@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "lint": "eslint --fix",
     "prettier": "prettier . --write",
-    "update-data": "ts-node data/data-parser.ts",
+    "update:data": "ts-node data/update.ts",
     "prepare": "husky"
   },
   "dependencies": {
