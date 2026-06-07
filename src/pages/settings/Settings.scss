@@ -10,6 +10,11 @@
 
   .InputElement {
     margin-bottom: 2em;
+    color: var((--ion-color-step-000, #fff));
+
+    .helper-text {
+      color: var(--ion-color-step-550, #737373);
+    }
   }
 
   .AlignFooterEnd {
