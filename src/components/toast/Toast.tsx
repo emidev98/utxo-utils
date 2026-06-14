@@ -1,6 +1,6 @@
+import { IonToast } from "@ionic/react";
 import { useEffect, useState } from "react";
 import "./Toast.scss";
-import { IonToast } from "@ionic/react";
 
 interface ToastProps {
   isOpen: boolean;

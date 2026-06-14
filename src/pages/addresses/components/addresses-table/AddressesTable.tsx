@@ -1,33 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
-import "./AddressesTable.scss";
-import { TransactionsStorage, useTxs } from "../../../../hooks/useTxs";
-import { AddressStateObject } from "../../../../hooks/useAddresses";
+import { IonButton, IonCard, IonSkeletonText } from "@ionic/react";
+import dayjs from "dayjs";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef,
 } from "material-react-table";
-import { copySharp, pencil, trash } from "ionicons/icons";
-import { IonButton, IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
-import { sortFirstNumericElement } from "../../../../utils/tables";
-import {
-  addressFormatter,
-  BTCFormatter,
-  USDFormatter,
-} from "../../../../hooks/useFormatter";
-import { useToastContext } from "../../../../context/ToastContext";
-import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 import { useLatestPricingContext } from "../../../../context/LatestPriceContext";
-interface TableColumn {
-  label: string;
-  type: string;
-  address: string;
-  balance: number;
-  currentPrice: number;
-  txCount: number;
-  firstTxIn: string;
-  lastTxOut: string;
-}
+import { useToastContext } from "../../../../context/ToastContext";
+import { AddressStateObject } from "../../../../hooks/useAddresses";
+import { TransactionsStorage, useTxs } from "../../../../hooks/useTxs";
+import "./AddressesTable.scss";
+import {
+  AddressesTableColumn,
+  useAddressesTableColumns,
+} from "./AddressesTableColumns";
 
 interface AddressesTableProps {
   addrStore?: AddressStateObject;
@@ -46,116 +32,21 @@ const AddressesTable = ({
   onEditAddress,
   onDeleteAddress,
 }: AddressesTableProps) => {
-  const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
-    () => [
-      {
-        accessorKey: "actions",
-        header: "",
-        size: 0,
-        enableColumnActions: false,
-        enableColumnFilter: false,
-        enableColumnDragging: false,
-        enableSorting: false,
-        Cell: (props) => {
-          return (
-            <div className="AddressTableActionCell">
-              <IonButton
-                className="AddressTableAcctionButton"
-                fill="clear"
-                onClick={() => onEditAddress(props.row.original.address)}
-              >
-                <IonIcon size="small" icon={pencil}></IonIcon>
-              </IonButton>
-              <IonButton
-                className="AddressTableAcctionButton"
-                fill="clear"
-                color="danger"
-                onClick={() => onDeleteAddress(props.row.original.address)}
-              >
-                <IonIcon size="small" icon={trash}></IonIcon>
-              </IonButton>
-            </div>
-          );
-        },
-      },
-      {
-        accessorKey: "address",
-        header: "Address",
-        size: 0,
-        Cell: (props) => {
-          return (
-            <div className="AddressTableCopyCell">
-              <IonButton
-                fill="clear"
-                className="CopyCellButton"
-                onClick={() =>
-                  onCopyValueFromCell(String(props.renderedCellValue))
-                }
-              >
-                <IonIcon size="small" icon={copySharp}></IonIcon>
-              </IonButton>
-              <div>{addressFormatter(String(props.renderedCellValue))}</div>
-            </div>
-          );
-        },
-      },
-      {
-        accessorKey: "label",
-        header: "Label",
-        size: 0,
-      },
-      {
-        accessorKey: "txCount",
-        header: "Txs",
-        size: 0,
-      },
-      {
-        accessorKey: "balance",
-        header: "Spendable Balance",
-        size: 0,
-        sortingFn: sortFirstNumericElement,
-        Cell: (props) => {
-          const value = props.cell.getValue<number>();
-          return <span>{BTCFormatter(value)}</span>;
-        },
-      },
-      {
-        accessorKey: "currentPrice",
-        header: "Current Price",
-        sortingFn: sortFirstNumericElement,
-        Cell: (props) => {
-          const value = props.cell.getValue<number>();
-          return <span>{USDFormatter(value)}</span>;
-        },
-      },
-      {
-        accessorKey: "firstTxIn",
-        header: "First tx received",
-        size: 162,
-      },
-      {
-        accessorKey: "lastTxOut",
-        header: "Last tx sent",
-        size: 162,
-      },
-      {
-        accessorKey: "type",
-        header: "Type",
-        size: 0,
-      },
-    ],
-    [onEditAddress, onDeleteAddress],
-  );
-  const [tableData, setTableData] = useState(new Array<TableColumn>());
+  const [tableData, setTableData] = useState(new Array<AddressesTableColumn>());
   const { getFirstInAndLastOut } = useTxs();
   const { setOpenToast } = useToastContext();
   const { latestPrice } = useLatestPricingContext();
+  const ADDRESSES_TABLE_COLUMNS = useAddressesTableColumns({
+    onEditAddress,
+    onDeleteAddress,
+    onCopyValueFromCell,
+  });
 
   useEffect(() => {
     if (addrStore === undefined) return;
     if (txStore === undefined) return;
 
-    const _tableData = new Array<TableColumn>();
+    const _tableData = new Array<AddressesTableColumn>();
     for (const addr of Object.values(addrStore)) {
       const _filo = getFirstInAndLastOut(txStore, addr.address);
       const txCount = txStore[addr.address].filter(
@@ -189,7 +80,7 @@ const AddressesTable = ({
   }, [addrStore, txStore, latestPrice, loading]);
 
   const table = useMaterialReactTable({
-    columns: columns as any,
+    columns: ADDRESSES_TABLE_COLUMNS,
     data: tableData,
     enableFullScreenToggle: false,
     initialState: {
@@ -201,20 +92,20 @@ const AddressesTable = ({
     },
     filterFromLeafRows: true, //apply filtering to all rows instead of just parent rows
     paginateExpandedRows: false, //When rows are expanded, do not count sub-rows as number of rows on the page towards pagination
-    renderTopToolbarCustomActions: ({ table }) => (
+    renderTopToolbarCustomActions: () => (
       <IonButton fill="clear" color="dark" onClick={onAddAddress}>
         + Add New Address
       </IonButton>
     ),
   });
 
-  const onCopyValueFromCell = (value: string) => {
+  function onCopyValueFromCell(value: string) {
     navigator.clipboard.writeText(value);
     setOpenToast({
       message: `Address ${value} copied to clipboard!`,
       color: "success",
     });
-  };
+  }
 
   return (
     <IonCard className="AddressesTable TableData">

@@ -1,18 +1,17 @@
-import _merge from "lodash/merge";
 import { ApexOptions } from "apexcharts";
-import DEFAULT_OPTIONS from "../../../../charts.global.options";
-import { UTXO } from "../../../../models/MempoolAddressTxs";
-import { USDFormatter } from "../../../../hooks/useFormatter";
 import dayjs from "dayjs";
+import DEFAULT_OPTIONS from "../../../../charts.global.options";
+import { USDFormatter } from "../../../../hooks/useFormatter";
+import { UTXO } from "../../../../models/MempoolAddressTxs";
 
 export interface UTXOSPrices {
   price: number;
   utxos: UTXO[];
 }
 
-export interface ChartSeries extends Array<[number, number]> {}
+export type ChartSeries = Array<[number, number]>;
 
-const utxoTimelineChartOptions: ApexOptions = _merge(
+const utxoTimelineChartOptions: ApexOptions = Object.assign(
   {
     stroke: {
       curve: "smooth",

@@ -1,17 +1,16 @@
-import { useEffect, useState } from "react";
-import "./UTXOsTimelineChart.scss";
-import ReactApexChart from "react-apexcharts";
-import { ApexOptions } from "apexcharts";
-import _groupBy from "lodash/groupBy";
 import { IonCard, IonCardContent, IonSkeletonText } from "@ionic/react";
+import { ApexOptions } from "apexcharts";
+import { useEffect, useState } from "react";
+import ReactApexChart from "react-apexcharts";
+import { BTCFormatter } from "../../../../hooks/useFormatter";
 import { BitcoinHistoricalData } from "../../../../models/BitcoinHistoricalData";
 import { UTXO } from "../../../../models/MempoolAddressTxs";
 import utxoTimelineChartOptions, {
   ChartSeries,
-  utxoTimelineChartAnnotation,
   UTXOSPrices,
+  utxoTimelineChartAnnotation,
 } from "./UTXOsTimelineChart.options";
-import { BTCFormatter } from "../../../../hooks/useFormatter";
+import "./UTXOsTimelineChart.scss";
 
 interface UTXOTimelineChartProps {
   historicalPrices: BitcoinHistoricalData[];
@@ -69,15 +68,24 @@ const UTXOsTimelineChart = (props: UTXOTimelineChartProps) => {
     const _series: ChartSeries = [];
     const _pricesPoints: Record<number, UTXOSPrices> = {};
 
-    const allUtoxs = _groupBy(utxos, (value) => {
-      return value.block_time
-        .set("hour", 0)
-        .set("minute", 0)
-        .set("second", 0)
-        .set("millisecond", 0)
-        .toDate()
-        .getTime();
-    });
+    const allUtoxs = utxos.reduce(
+      (acc, utxo) => {
+        const date = utxo.block_time
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .set("millisecond", 0)
+          .toDate()
+          .getTime();
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(utxo);
+        return acc;
+      },
+      {} as Record<number, UTXO[]>,
+    );
+
     for (const { date, price } of historicalPrices) {
       _series.push([date.toDate().getTime(), price]);
 

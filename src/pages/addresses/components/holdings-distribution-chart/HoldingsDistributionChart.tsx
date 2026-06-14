@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import "./HoldingsDistributionChart.scss";
-import { AddressStateObject } from "../../../../hooks/useAddresses";
-import ReactApexChart from "react-apexcharts";
-import { ApexOptions } from "apexcharts";
-import _forEach from "lodash/forEach";
 import { IonCard, IonCardContent, IonSkeletonText } from "@ionic/react";
-import { ChartSeries } from "./HoldingsDistributionChart.options";
-import holdingsDistributionChartOptions from "./HoldingsDistributionChart.options";
+import { ApexOptions } from "apexcharts";
+import { useEffect, useState } from "react";
+import ReactApexChart from "react-apexcharts";
+import { AddressStateObject } from "../../../../hooks/useAddresses";
 import { addressFormatter, BTCFormatter } from "../../../../hooks/useFormatter";
+import holdingsDistributionChartOptions, {
+  ChartSeries,
+} from "./HoldingsDistributionChart.options";
+import "./HoldingsDistributionChart.scss";
 
 interface HoldingsDistributionChartProps {
   addrStore?: AddressStateObject;
@@ -58,7 +58,7 @@ const HoldingsDistributionChart = ({
     const seriesData: ChartSeries = [];
     let _totalSpendableBalance = 0;
 
-    _forEach(addrStore, (addr) => {
+    Object.entries(addrStore ?? {}).forEach(([, addr]) => {
       const spendableBalance =
         addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum;
       _totalSpendableBalance += spendableBalance;

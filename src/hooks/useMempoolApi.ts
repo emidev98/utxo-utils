@@ -1,6 +1,6 @@
+import { MEMPOOL_STORE_KEY, useStorage } from "../context/StorageContext";
 import { AddressInfo } from "../models/MempoolAddress";
 import { Transaction, UTXO } from "../models/MempoolAddressTxs";
-import { MEMPOOL_STORE_KEY, useStorage } from "../context/StorageContext";
 
 export interface MempoolStore {
   mempoolAPIUrl: string;
@@ -113,7 +113,7 @@ export const useMempoolApi = () => {
   };
 
   const updateMempoolAPIUrl = async (url: string) => {
-    let data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
+    const data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
     data.mempoolAPIUrl = url;
     await storage.set(MEMPOOL_STORE_KEY, data);
   };

@@ -1,15 +1,14 @@
-import "./ConfirmModal.scss";
 import {
-  IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
+  IonButton,
   IonContent,
   IonFooter,
-  IonButton,
-  IonButtons,
+  IonHeader,
+  IonModal,
+  IonTitle,
+  IonToolbar,
 } from "@ionic/react";
 import React from "react";
+import "./ConfirmModal.scss";
 
 interface ConfirmModalProps {
   isOpen: boolean;

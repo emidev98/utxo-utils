@@ -1,8 +1,7 @@
 import { AddressInfo as AddressInfoComputed } from "bitcoin-address-validation";
+import { ADDRESSES_STORE_KEY, useStorage } from "../context/StorageContext";
 import { AddressInfo } from "../models/MempoolAddress";
 import { TransactionsStorage } from "./useTxs";
-import { ADDRESSES_STORE_KEY, useStorage } from "../context/StorageContext";
-import _forEach from "lodash/forEach";
 
 export interface AddressInfoExtended extends AddressInfoComputed, AddressInfo {
   label: string;
@@ -39,10 +38,10 @@ export const useAddresses = () => {
   const sumBalances = (addrStore: AddressStateObject) => {
     let _totalHoldings = 0;
 
-    _forEach(addrStore, (addr) => {
+    for (const addr of Object.values(addrStore)) {
       _totalHoldings +=
         addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum;
-    });
+    }
 
     return _totalHoldings;
   };

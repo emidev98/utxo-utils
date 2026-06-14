@@ -1,18 +1,16 @@
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import "./UTXOsPage.scss";
-import { usePricing } from "../../hooks/usePricing";
-import UTXOsTimelineChart from "./components/utxos-timeline-chart/UTXOsTimelineChart";
-import { BitcoinHistoricalData } from "../../models/BitcoinHistoricalData";
-import _first from "lodash/first";
-import _last from "lodash/last";
-import { useUTXOs } from "../../hooks/useUTXOs";
-import { UTXO, VoutWithBlockTime } from "../../models/MempoolAddressTxs";
-import UTXOsTable from "./components/utxos-table/UTXOsTable";
-import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
 import Kpi from "../../components/kpis/Kpi";
-import dayjs, { Dayjs } from "dayjs";
+import { AddressStateObject, useAddresses } from "../../hooks/useAddresses";
+import { usePricing } from "../../hooks/usePricing";
+import { useUTXOs } from "../../hooks/useUTXOs";
+import { BitcoinHistoricalData } from "../../models/BitcoinHistoricalData";
+import { UTXO } from "../../models/MempoolAddressTxs";
+import UTXOsTable from "./components/utxos-table/UTXOsTable";
+import UTXOsTimelineChart from "./components/utxos-timeline-chart/UTXOsTimelineChart";
+import "./UTXOsPage.scss";
 
-const UTXOsPage = ({}) => {
+const UTXOsPage = () => {
   const { getAllUTXOs, getUtxoFirstSyncDate } = useUTXOs();
   const { getBitcoinHistoricalData } = usePricing();
   const [firstUtxo, setFirstUtxo] = useState<UTXO>();
@@ -38,8 +36,8 @@ const UTXOsPage = ({}) => {
           getAddresses(),
         ]);
 
-      const _firstUtxo = _first(_utxos);
-      const _lastUtxo = _last(_utxos);
+      const _firstUtxo = _utxos[0];
+      const _lastUtxo = _utxos[_utxos.length - 1];
       setUtxosCount(_utxos.length);
       setFirstUtxo(_firstUtxo);
       setLastUtxo(_lastUtxo);

@@ -1,7 +1,6 @@
-import { Dispatch, SetStateAction } from "react";
-import btc1DayAvgHistoricalDataUrl from "/btc-1-day-avg-historical.txt";
-import { BitcoinHistoricalData } from "../models/BitcoinHistoricalData";
 import { PRICING_STORE_KEY, useStorage } from "../context/StorageContext";
+import { BitcoinHistoricalData } from "../models/BitcoinHistoricalData";
+import btc1DayAvgHistoricalDataUrl from "/btc-1-day-avg-historical.txt";
 
 export interface PricingStore {
   coingeckoApiUrl: string;
@@ -35,7 +34,7 @@ export const usePricing = () => {
   };
 
   const updatePricingAPIUrl = async (url: string) => {
-    let data: PricingStore = await storage.get(PRICING_STORE_KEY);
+    const data: PricingStore = await storage.get(PRICING_STORE_KEY);
     data.coingeckoApiUrl = url;
     await storage.set(PRICING_STORE_KEY, data);
   };
@@ -49,7 +48,7 @@ export const usePricing = () => {
     BitcoinHistoricalData[]
   > => {
     return fetch(btc1DayAvgHistoricalDataUrl).then(async (res) => {
-      let buffer = await res.text();
+      const buffer = await res.text();
       return buffer.split(",").map(BitcoinHistoricalData.fromEntryFileValue);
     });
   };

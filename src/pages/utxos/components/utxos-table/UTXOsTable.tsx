@@ -1,34 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
-import "./UTXOsTable.scss";
+import { IonCard, IonSkeletonText } from "@ionic/react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef,
 } from "material-react-table";
-import { IonCard, IonIcon, IonSkeletonText } from "@ionic/react";
-import { sortFirstNumericElement } from "../../../../utils/tables";
-import { USDFormatter, SATSFormatter } from "../../../../hooks/useFormatter";
+import { useEffect, useState } from "react";
+import { useLatestPricingContext } from "../../../../context/LatestPriceContext";
+import { AddressStateObject } from "../../../../hooks/useAddresses";
 import { BitcoinHistoricalData } from "../../../../models/BitcoinHistoricalData";
 import { UTXO } from "../../../../models/MempoolAddressTxs";
-import { AddressStateObject } from "../../../../hooks/useAddresses";
-import dayjs from "dayjs";
-import { usePricing } from "../../../../hooks/usePricing";
-import {
-  arrowUp,
-  arrowDown,
-  arrowUpOutline,
-  arrowDownOutline,
-} from "ionicons/icons";
-import { useLatestPricingContext } from "../../../../context/LatestPriceContext";
-
-interface TableColumn {
-  addressLabel?: string;
-  value: number;
-  blockTime: number;
-  receivingPrice: number;
-  currentPrice: number;
-  profitAndLoss: number;
-}
+import "./UTXOsTable.scss";
+import { UTXOS_TABLE_COLUMNS, UtxosTableColumn } from "./UTXOsTableColumns";
 
 interface UTXOsTableProps {
   historicalPrices: BitcoinHistoricalData[];
@@ -48,79 +29,13 @@ const UTXOsTable = ({
   lastUtxo,
 }: UTXOsTableProps) => {
   const { latestPrice } = useLatestPricingContext();
-  const columns = useMemo<MRT_ColumnDef<TableColumn>[]>(
-    () => [
-      {
-        accessorKey: "addressLabel",
-        header: "Address Label",
-      },
-      {
-        accessorKey: "value",
-        header: "Value",
-        sortingFn: sortFirstNumericElement,
-        Cell: (props) => {
-          const value = props.cell.getValue<number>();
-          return <span>{SATSFormatter(value)}</span>;
-        },
-      },
-      {
-        accessorKey: "receivingPrice",
-        header: "Reciving Price",
-        Cell: (props) => {
-          const historicalPrice = props.cell.getValue<number>();
-          return (
-            <span>
-              {historicalPrice !== undefined
-                ? USDFormatter(historicalPrice)
-                : "N/A"}
-            </span>
-          );
-        },
-      },
-      {
-        accessorKey: "currentPrice",
-        header: "Current Price",
-        sortingFn: sortFirstNumericElement,
-        Cell: (props) => {
-          const value = props.cell.getValue<number>();
-          return <span>{USDFormatter(value)}</span>;
-        },
-      },
-      {
-        accessorKey: "profitAndLoss",
-        header: "P&L",
-        sortingFn: sortFirstNumericElement,
-        Cell: (props) => {
-          const value = props.cell.getValue<number>();
-          return (
-            <span>
-              {value > 0 ? (
-                <IonIcon ios={arrowUpOutline} md={arrowUp} />
-              ) : (
-                <IonIcon ios={arrowDownOutline} md={arrowDown} />
-              )}
-              {USDFormatter(value)}
-            </span>
-          );
-        },
-      },
-      {
-        accessorKey: "blockTime",
-        header: "Receiving Time",
-        Cell: (props) => {
-          const blockTime = props.cell.getValue<number>();
-          return <span>{dayjs(blockTime).format("YYYY-MM-DD HH:mm:ss")}</span>;
-        },
-      },
-    ],
-    new Array<MRT_ColumnDef<TableColumn>>(),
-  );
-  const [tableData, setTableData] = useState(new Array<TableColumn>());
+
+  const [tableData, setTableData] = useState(new Array<UtxosTableColumn>());
 
   useEffect(() => {
     if (firstUtxo === undefined || lastUtxo === undefined) return;
 
-    const _tableData = new Array<TableColumn>();
+    const _tableData = new Array<UtxosTableColumn>();
     // Keep track of current position in historicalPrices
     // to make the search linear instead of quadratic
     let priceIndex = 0;
@@ -158,7 +73,7 @@ const UTXOsTable = ({
   }, [historicalPrices, utxos, addresses, latestPrice]);
 
   const table = useMaterialReactTable({
-    columns: columns,
+    columns: UTXOS_TABLE_COLUMNS,
     data: tableData,
     enableFullScreenToggle: false,
     filterFromLeafRows: true,

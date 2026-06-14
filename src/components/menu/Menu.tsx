@@ -8,10 +8,10 @@ import {
   IonNote,
 } from "@ionic/react";
 
-import "./Menu.scss";
 import { logoGithub } from "ionicons/icons";
-import { usePages } from "../../hooks/usePages";
 import { NavLink } from "react-router-dom";
+import { usePages } from "../../hooks/usePages";
+import "./Menu.scss";
 
 const Menu: React.FC = () => {
   const { pages } = usePages();

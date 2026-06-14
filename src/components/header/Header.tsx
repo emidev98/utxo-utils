@@ -1,5 +1,3 @@
-import { useLocation } from "react-router";
-import "./Header.scss";
 import {
   IonButtons,
   IonHeader,
@@ -8,10 +6,12 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { Page, usePages } from "../../hooks/usePages";
 import { useEffect, useState } from "react";
-import { USDFormatter } from "../../hooks/useFormatter";
+import { useLocation } from "react-router";
 import { useLatestPricingContext } from "../../context/LatestPriceContext";
+import { USDFormatter } from "../../hooks/useFormatter";
+import { Page, usePages } from "../../hooks/usePages";
+import "./Header.scss";
 
 const Header: React.FC = () => {
   const { getCurrentPage } = usePages();

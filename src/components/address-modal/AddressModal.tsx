@@ -1,4 +1,3 @@
-import "./AddressModal.scss";
 import {
   IonButton,
   IonButtons,
@@ -11,7 +10,6 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useState, useEffect } from "react";
 import validate, {
   AddressInfo,
   getAddressInfo,
@@ -22,13 +20,15 @@ import {
   closeSharp,
   saveOutline,
 } from "ionicons/icons";
+import { useEffect, useState } from "react";
 import { AddressInfoExtended, useAddresses } from "../../hooks/useAddresses";
+import { addressFormatter } from "../../hooks/useFormatter";
 import { useMempoolApi } from "../../hooks/useMempoolApi";
+import { useTxs } from "../../hooks/useTxs";
+import { useUTXOs } from "../../hooks/useUTXOs";
 import Loader from "../loader/Loader";
 import AppToast from "../toast/Toast";
-import { useTxs } from "../../hooks/useTxs";
-import { addressFormatter } from "../../hooks/useFormatter";
-import { useUTXOs } from "../../hooks/useUTXOs";
+import "./AddressModal.scss";
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -166,7 +166,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
     } else {
       // New address mode: reset form
       setAddressLabel("");
-      setAddressDetails({ address: "" } as any);
+      setAddressDetails(undefined);
       setValidInputLabel(false);
       setValidInputAddress(false);
       setTouchedInputLabel(false);

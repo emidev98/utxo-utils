@@ -1,5 +1,5 @@
-import "./Loader.scss";
 import { IonLoading } from "@ionic/react";
+import "./Loader.scss";
 
 interface LoaderProps {
   isOpen: boolean;

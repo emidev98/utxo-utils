@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
 import { Storage } from "@ionic/storage";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type StorageContextType = {
   storage: Storage;
-  resetStorage: () => {};
+  resetStorage: () => Promise<void> | void;
   ready: boolean;
 };
 

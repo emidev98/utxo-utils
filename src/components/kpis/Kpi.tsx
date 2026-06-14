@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import "./Kpi.scss";
 import {
   IonCard,
   IonCardContent,
@@ -7,6 +5,8 @@ import {
   IonCardTitle,
   IonSkeletonText,
 } from "@ionic/react";
+import { useEffect, useState } from "react";
+import "./Kpi.scss";
 
 interface KpiProps {
   title: string;

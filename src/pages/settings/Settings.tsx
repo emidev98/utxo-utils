@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
-import "./Settings.scss";
 import {
+  IonButton,
   IonCard,
   IonCardContent,
   IonCardTitle,
-  IonButton,
   IonInput,
 } from "@ionic/react";
-import { usePricing } from "../../hooks/usePricing";
-import { useMempoolApi } from "../../hooks/useMempoolApi";
-import { useTxs } from "../../hooks/useTxs";
-import { useAddresses } from "../../hooks/useAddresses";
-import AppToast from "../../components/toast/Toast";
+import React, { useEffect, useState } from "react";
 import Loader from "../../components/loader/Loader";
-import { addressFormatter } from "../../hooks/useFormatter";
+import AppToast from "../../components/toast/Toast";
 import { useStorage } from "../../context/StorageContext";
+import { useAddresses } from "../../hooks/useAddresses";
+import { addressFormatter } from "../../hooks/useFormatter";
+import { useMempoolApi } from "../../hooks/useMempoolApi";
+import { usePricing } from "../../hooks/usePricing";
+import { useTxs } from "../../hooks/useTxs";
 import { useUTXOs } from "../../hooks/useUTXOs";
+import "./Settings.scss";
 
 const SettingsPage: React.FC = () => {
   const [mempoolAPIUrl, setMempoolAPIUrl] = useState<string>("");
@@ -58,7 +58,7 @@ const SettingsPage: React.FC = () => {
     try {
       new URL(url);
       setMempoolUrlValid(true);
-    } catch (e) {
+    } catch {
       setMempoolUrlValid(false);
     }
     setMempoolAPIUrl(url);
@@ -68,7 +68,7 @@ const SettingsPage: React.FC = () => {
     const url = (event.target as HTMLInputElement).value;
     try {
       new URL(url);
-    } catch (e) {
+    } catch {
       setCoingeckoUrlValid(false);
     }
     setCoingeckoApiUrl(url);
@@ -90,7 +90,7 @@ const SettingsPage: React.FC = () => {
       const addresses = await getAddresses();
       const txs = await getAllTxs();
 
-      for (let addr in addresses) {
+      for (const addr in addresses) {
         setCurrentAddr(addr);
         let currAddrTxs = txs[addr];
         while (true) {
@@ -113,7 +113,7 @@ const SettingsPage: React.FC = () => {
           }
         }
       }
-    } catch (e) {
+    } catch {
       setToastData({
         isOpen: true,
         message: `Error syncing data for address ${addressFormatter(currentAddr)}. Please try again later.`,

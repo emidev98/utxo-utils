@@ -1,6 +1,5 @@
-import { Transaction } from "../models/MempoolAddressTxs";
 import { TXS_STORE_KEY, useStorage } from "../context/StorageContext";
-import _sortBy from "lodash/sortBy";
+import { Transaction } from "../models/MempoolAddressTxs";
 export interface TransactionsStorage {
   [key: string]: Array<Transaction>;
 }
@@ -8,8 +7,8 @@ export const useTxs = () => {
   const { storage } = useStorage();
 
   const appendTxs = async (addr: string, transactions: Array<Transaction>) => {
-    let storedTxs = await getAllTxs();
-    let addrEntry = storedTxs[addr];
+    const storedTxs = await getAllTxs();
+    const addrEntry = storedTxs[addr];
 
     if (addrEntry) {
       storedTxs[addr] = addrEntry.concat(transactions);
@@ -41,7 +40,9 @@ export const useTxs = () => {
     txStore: TransactionsStorage,
     address: string,
   ) => {
-    const sorted = _sortBy(txStore[address], "status.block_time");
+    const sorted = txStore[address].sort(
+      (a, b) => a.status.block_time - b.status.block_time,
+    );
     const firstIn = sorted.length >= 1 ? sorted[0] : undefined;
     const lastOut = sorted
       .reverse()

@@ -1,20 +1,18 @@
 import {
-  cogOutline,
-  cogSharp,
-  shuffleSharp,
-  shuffleOutline,
   atCircleOutline,
   atCircleSharp,
+  cogOutline,
+  cogSharp,
   gitNetworkOutline,
   gitNetworkSharp,
-  pencilSharp,
-  pencilOutline,
+  shuffleOutline,
+  shuffleSharp,
 } from "ionicons/icons";
 import { useLocation, useNavigate } from "react-router";
+import AddressesPage from "../pages/addresses/AddressesPage";
+import SettingsPage from "../pages/settings/Settings";
 import TransactionsPage from "../pages/transactions/TransactionsPage";
 import UTXOsPage from "../pages/utxos/UTXOsPage";
-import SettingsPage from "../pages/settings/Settings";
-import AddressesPage from "../pages/addresses/AddressesPage";
 
 export interface Page {
   url: string;

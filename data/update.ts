@@ -1,6 +1,6 @@
-import * as fs from "fs";
 import csvParser from "csv-parser";
 import dayjs from "dayjs";
+import * as fs from "fs";
 
 interface Data {
   Date: string;

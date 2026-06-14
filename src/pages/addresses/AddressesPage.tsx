@@ -1,27 +1,27 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import "./AddressesPage.scss";
-import { TransactionsStorage, useTxs } from "../../hooks/useTxs";
+import { useCallback, useEffect, useState } from "react";
+import AddressModal from "../../components/address-modal/AddressModal";
+import ConfirmModal from "../../components/confirm-modal/ConfirmModal";
+import Kpi from "../../components/kpis/Kpi";
+import { useLatestPricingContext } from "../../context/LatestPriceContext";
+import { useToastContext } from "../../context/ToastContext";
 import {
   AddressInfoExtended,
   AddressStateObject,
   useAddresses,
 } from "../../hooks/useAddresses";
-import Kpi from "../../components/kpis/Kpi";
-import _flatMap from "lodash/flatMap";
-import HoldingsDistributionChart from "./components/holdings-distribution-chart/HoldingsDistributionChart";
-import AddressesTable from "./components/addresses-table/AddressesTable";
-import AddressModal from "../../components/address-modal/AddressModal";
 import {
   addressFormatter,
   BTCFormatter,
   USDFormatter,
 } from "../../hooks/useFormatter";
-import { useLatestPricingContext } from "../../context/LatestPriceContext";
-import ConfirmModal from "../../components/confirm-modal/ConfirmModal";
-import { useToastContext } from "../../context/ToastContext";
+import { TransactionsStorage, useTxs } from "../../hooks/useTxs";
 import { useUTXOs } from "../../hooks/useUTXOs";
+import { Transaction } from "../../models/MempoolAddressTxs";
+import "./AddressesPage.scss";
+import AddressesTable from "./components/addresses-table/AddressesTable";
+import HoldingsDistributionChart from "./components/holdings-distribution-chart/HoldingsDistributionChart";
 
-const AddressesPage = ({}) => {
+const AddressesPage = () => {
   const { getAllTxs, removeTx } = useTxs();
   const { deleteUTXOs } = useUTXOs();
   const { getAddresses, sumBalances, removeAddress } = useAddresses();
@@ -48,7 +48,7 @@ const AddressesPage = ({}) => {
       getAllTxs(),
       getAddresses(),
     ]);
-    const flattenTxs = _flatMap(_txStore);
+    const flattenTxs: Array<Transaction> = Object.values(_txStore).flat();
     if (flattenTxs.length !== 0) {
       setTxsCount(flattenTxs.filter((tx) => tx?.status?.confirmed).length);
     }
@@ -88,7 +88,7 @@ const AddressesPage = ({}) => {
       });
       setAddressToRemove(undefined);
       init();
-    } catch (err) {
+    } catch {
       setOpenToast({
         message: `Could not remove address ${addressFormatter(addressToRemove)}`,
         color: "danger",
