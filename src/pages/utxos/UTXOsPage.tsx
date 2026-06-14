@@ -67,20 +67,20 @@ const UTXOsPage = () => {
       {firstUtxo?.block_time.isSame(lastUtxo?.block_time) ? (
         <Kpi
           loading={isLoading}
-          value={firstUtxo?.block_time.format("DD MMM YYYY H:m:s")}
+          value={firstUtxo?.block_time.format("DD MMM YYYY H:m")}
           title="UTXO received date"
         />
       ) : (
         <>
           <Kpi
             loading={isLoading}
-            value={firstUtxo?.block_time.format("DD MMM YYYY H:m:s")}
+            value={firstUtxo?.block_time.format("DD MMM YYYY H:m")}
             title="First received UTXO date"
           />
 
           <Kpi
             loading={isLoading}
-            value={lastUtxo?.block_time.format("DD MMM YYYY H:m:s")}
+            value={lastUtxo?.block_time.format("DD MMM YYYY H:m")}
             title="Last received UTXO date"
           />
         </>
@@ -89,7 +89,7 @@ const UTXOsPage = () => {
         loading={isLoading}
         value={
           lastSyncDate
-            ? dayjs.unix(lastSyncDate).format("DD MMM YYYY H:m:s")
+            ? dayjs.unix(lastSyncDate).format("DD MMM YYYY H:m")
             : "-"
         }
         title="Last full check date"

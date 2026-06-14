@@ -1,12 +1,13 @@
 import { ApexOptions } from "apexcharts";
 import DEFAULT_OPTIONS from "../../../../charts.global.options";
+import { merge } from "../../../../utils/merge";
 
 export type ChartSeries = Array<{
   x: string;
   y: number;
 }>;
 
-const holdingsDistributionChartOptions: ApexOptions = Object.assign(
+const holdingsDistributionChartOptions: ApexOptions = merge(
   {
     chart: {
       animations: {

@@ -29,7 +29,7 @@ const Kpi = ({ value, title, formatter, loading }: KpiProps) => {
   return (
     <IonCard className="Kpi">
       {loading ? (
-        <IonCardContent>
+        <IonCardContent className="KpiContent">
           <IonSkeletonText
             animated={true}
             className="SkeletonTitle"
@@ -40,7 +40,7 @@ const Kpi = ({ value, title, formatter, loading }: KpiProps) => {
           ></IonSkeletonText>
         </IonCardContent>
       ) : (
-        <IonCardContent>
+        <IonCardContent className="KpiContent">
           <IonCardTitle>{_value}</IonCardTitle>
           <IonCardSubtitle>{title}</IonCardSubtitle>
         </IonCardContent>

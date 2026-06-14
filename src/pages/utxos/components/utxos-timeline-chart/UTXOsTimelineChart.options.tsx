@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import DEFAULT_OPTIONS from "../../../../charts.global.options";
 import { USDFormatter } from "../../../../hooks/useFormatter";
 import { UTXO } from "../../../../models/MempoolAddressTxs";
+import { merge } from "../../../../utils/merge";
 
 export interface UTXOSPrices {
   price: number;
@@ -11,7 +12,7 @@ export interface UTXOSPrices {
 
 export type ChartSeries = Array<[number, number]>;
 
-const utxoTimelineChartOptions: ApexOptions = Object.assign(
+const utxoTimelineChartOptions: ApexOptions = merge(
   {
     stroke: {
       curve: "smooth",

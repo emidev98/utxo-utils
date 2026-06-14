@@ -87,9 +87,9 @@ const UTXOsTimelineChart = (props: UTXOTimelineChartProps) => {
     );
 
     for (const { date, price } of historicalPrices) {
-      _series.push([date.toDate().getTime(), price]);
-
       const formattedDate = date.toDate().getTime();
+      _series.push([formattedDate, price]);
+
       const utxos = allUtoxs[formattedDate];
       if (utxos !== undefined) {
         _pricesPoints[formattedDate] = {

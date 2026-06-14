@@ -4,17 +4,22 @@
   overflow: auto;
   min-height: 72px;
 
-  .SkeletonTitle {
-    margin-right: auto;
-    margin-left: auto;
-    width: 60px;
-    height: 21px;
-  }
+  .KpiContent {
+    padding-left: 0;
+    padding-right: 0;
 
-  .SkeletonSubTitle {
-    margin-right: auto;
-    margin-left: auto;
-    width: 140px;
-    height: 12px;
+    .SkeletonTitle {
+      margin-right: auto;
+      margin-left: auto;
+      width: 60px;
+      height: 21px;
+    }
+
+    .SkeletonSubTitle {
+      margin-right: auto;
+      margin-left: auto;
+      width: 140px;
+      height: 12px;
+    }
   }
 }

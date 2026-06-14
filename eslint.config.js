@@ -26,6 +26,8 @@ export default defineConfig({
         allowDefaultProject: [
           "capacitor.config.ts",
           "cypress.config.ts",
+          "jest.setup.ts",
+          "jest.config.ts",
           "data/update.ts",
         ],
       },
