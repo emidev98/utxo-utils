@@ -9,10 +9,13 @@ import {
   gitNetworkSharp,
   shuffleOutline,
   shuffleSharp,
+  swapHorizontalOutline,
+  swapHorizontalSharp,
 } from "ionicons/icons";
 import { useLocation, useNavigate } from "react-router";
 import AddressesPage from "../pages/addresses/AddressesPage";
 import DataPage from "../pages/data/DataPage";
+import ExchangesPage from "../pages/exchanges/ExchangesPage";
 import SettingsPage from "../pages/settings/Settings";
 import TransactionsPage from "../pages/transactions/TransactionsPage";
 import UTXOsPage from "../pages/utxos/UTXOsPage";
@@ -52,6 +55,13 @@ export const usePages = () => {
       iosIcon: shuffleOutline,
       mdIcon: shuffleSharp,
       component: <TransactionsPage />,
+    },
+    {
+      title: "Exchanges",
+      url: "/exchanges",
+      iosIcon: swapHorizontalOutline,
+      mdIcon: swapHorizontalSharp,
+      component: <ExchangesPage />,
     },
     // {
     //     title: 'Alerts',

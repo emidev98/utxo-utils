@@ -18,6 +18,7 @@ export const TXS_STORE_KEY = "transactions";
 export const UTXOS_STORE_KEY = "utxos";
 export const MEMPOOL_STORE_KEY = "mempool_store";
 export const ADDRESSES_STORE_KEY = "addresses";
+export const EXCHANGES_STORE_KEY = "exchanges_store";
 
 export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -46,6 +47,7 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
     const pricingData = await storage.get(PRICING_STORE_KEY);
     const addressesData = await storage.get(ADDRESSES_STORE_KEY);
     const utxosData = await storage.get(UTXOS_STORE_KEY);
+    const exchangesData = await storage.get(EXCHANGES_STORE_KEY);
 
     if (!mempoolData || overwritte) {
       await storage.set(MEMPOOL_STORE_KEY, {
@@ -71,6 +73,10 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (!utxosData || overwritte) {
       await storage.set(UTXOS_STORE_KEY, {});
+    }
+
+    if (!exchangesData || overwritte) {
+      await storage.set(EXCHANGES_STORE_KEY, {});
     }
   };
   const resetStorage = () => setStorageData(true);
