@@ -1,4 +1,6 @@
 import {
+  analyticsOutline,
+  analyticsSharp,
   atCircleOutline,
   atCircleSharp,
   cogOutline,
@@ -10,6 +12,7 @@ import {
 } from "ionicons/icons";
 import { useLocation, useNavigate } from "react-router";
 import AddressesPage from "../pages/addresses/AddressesPage";
+import DataPage from "../pages/data/DataPage";
 import SettingsPage from "../pages/settings/Settings";
 import TransactionsPage from "../pages/transactions/TransactionsPage";
 import UTXOsPage from "../pages/utxos/UTXOsPage";
@@ -64,6 +67,14 @@ export const usePages = () => {
     //     mdIcon: archiveSharp,
     //     component: <ArchivePage/>,
     // },
+    {
+      title: "Data",
+      url: "/data",
+      className: "data-menu-entry",
+      iosIcon: analyticsOutline,
+      mdIcon: analyticsSharp,
+      component: <DataPage />,
+    },
     {
       title: "Settings",
       url: "/settings",

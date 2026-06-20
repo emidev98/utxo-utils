@@ -1,0 +1,132 @@
+.DataPage {
+  display: grid;
+  grid-template-rows: min-content repeat(4, min-content);
+  gap: 1rem;
+
+  .DataPageIntro {
+    padding: 1rem 1.1rem;
+    border-radius: 10px;
+    border: 1px solid var(--ion-color-step-150, #d7d8da);
+    background:
+      linear-gradient(
+        135deg,
+        rgba(var(--ion-color-primary-rgb), 0.08),
+        rgba(var(--ion-color-primary-rgb), 0.02)
+      ),
+      var(--ion-card-background, #fff);
+
+    h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ion-text-color, #000);
+    }
+
+    p {
+      margin: 0.5rem 0 0;
+      color: var(--ion-color-medium-shade);
+      font-size: 0.93rem;
+      line-height: 1.45;
+    }
+  }
+
+  .DataFeatureCard {
+    border: 1px solid var(--ion-color-step-100, #e3e4e7);
+  }
+
+  .DangerFeatureCard {
+    border-color: rgba(var(--ion-color-danger-rgb), 0.35);
+  }
+
+  ion-card-title {
+    padding: 0.9rem 1rem 0;
+    font-size: 1.02rem;
+    letter-spacing: 0.01em;
+  }
+
+  .DataCardContent {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .FeatureText {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .FeatureSummary {
+    margin: 0;
+    line-height: 1.45;
+    color: var(--ion-text-color, #000);
+  }
+
+  .ImportSummaryText {
+    margin: 0 0 0.75rem;
+  }
+
+  .FeatureHint {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--ion-color-medium-shade);
+  }
+
+  .ImportStatus {
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .ImportFileLabel {
+    font-size: 0.9rem;
+    color: var(--ion-color-medium-shade);
+  }
+
+  .ConflictSection {
+    margin-top: 0.5rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px dashed var(--ion-color-step-200, #cfd1d4);
+    background: rgba(var(--ion-color-medium-rgb), 0.06);
+  }
+
+  .ConflictTitle {
+    margin-bottom: 0.75rem;
+  }
+
+  .AlignFooterEnd {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .HiddenFileInput {
+    display: none;
+  }
+
+  .ConflictSelector {
+    margin-bottom: 1rem;
+  }
+
+  .InputElement {
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .DataCardContent {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .AlignFooterEnd {
+      justify-content: flex-start;
+    }
+
+    .ImportStatus {
+      gap: 0.75rem;
+    }
+  }
+}

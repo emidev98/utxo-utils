@@ -78,9 +78,13 @@
       }
     }
 
-    .settings-menu-entry {
+    .data-menu-entry {
       margin-top: auto;
       border-top: 1px solid var(--ion-color-step-150, #d7d8da);
+      border-radius: 4px 4px 0 0;
+    }
+
+    .settings-menu-entry {
       border-radius: 0 0 4px 4px;
     }
   }

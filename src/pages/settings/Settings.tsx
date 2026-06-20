@@ -6,15 +6,9 @@ import {
   IonInput,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
-import Loader from "../../components/loader/Loader";
 import AppToast from "../../components/toast/Toast";
-import { useStorage } from "../../context/StorageContext";
-import { useAddresses } from "../../hooks/useAddresses";
-import { addressFormatter } from "../../hooks/useFormatter";
 import { useMempoolApi } from "../../hooks/useMempoolApi";
 import { usePricing } from "../../hooks/usePricing";
-import { useTxs } from "../../hooks/useTxs";
-import { useUTXOs } from "../../hooks/useUTXOs";
 import "./Settings.scss";
 
 const SettingsPage: React.FC = () => {
@@ -27,20 +21,12 @@ const SettingsPage: React.FC = () => {
   const [coingeckoTouched, setCoingeckoTouched] = useState<boolean>(true);
 
   const { updatePricingAPIUrl, getPricingApiUrl } = usePricing();
-  const { getStoredData, updateMempoolAPIUrl, queryTxsByAddr, queryUtxos } =
-    useMempoolApi();
-  const { updateUTXOs } = useUTXOs();
-  const { getAllTxs, appendTxs } = useTxs();
-  const { resetStorage } = useStorage();
-  const { getAddresses } = useAddresses();
+  const { getStoredData, updateMempoolAPIUrl } = useMempoolApi();
   const [toast, setToastData] = useState({
     isOpen: false,
     message: "",
     color: "",
   });
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [currentAddr, setCurrentAddr] = useState<string>("");
 
   useEffect(() => {
     // Load the stored API URL
@@ -68,6 +54,7 @@ const SettingsPage: React.FC = () => {
     const url = (event.target as HTMLInputElement).value;
     try {
       new URL(url);
+      setCoingeckoUrlValid(true);
     } catch {
       setCoingeckoUrlValid(false);
     }
@@ -84,73 +71,10 @@ const SettingsPage: React.FC = () => {
     });
   };
 
-  const onSyncFromAPI = async () => {
-    setIsLoading(true);
-    try {
-      const addresses = await getAddresses();
-      const txs = await getAllTxs();
-
-      for (const addr in addresses) {
-        setCurrentAddr(addr);
-        let currAddrTxs = txs[addr];
-        while (true) {
-          if (currAddrTxs.length > 0) {
-            const lastTxId = currAddrTxs[currAddrTxs.length - 1].txid;
-            const [newTxs, utxos] = await Promise.all([
-              queryTxsByAddr(addr, lastTxId),
-              queryUtxos(addr),
-            ]);
-            if (utxos instanceof Error || newTxs instanceof Error) {
-              return utxos || newTxs;
-            }
-            await updateUTXOs(addr, utxos);
-            if (newTxs.length == 0) {
-              break;
-            } else {
-              await appendTxs(addr, newTxs);
-              currAddrTxs = newTxs;
-            }
-          }
-        }
-      }
-    } catch {
-      setToastData({
-        isOpen: true,
-        message: `Error syncing data for address ${addressFormatter(currentAddr)}. Please try again later.`,
-        color: "warning",
-      });
-    }
-    setIsLoading(false);
-  };
-
-  const onResetData = () => {
-    resetStorage();
-    setToastData({
-      isOpen: true,
-      message: `Data reset successfully! The app is now in the initial state.`,
-      color: "success",
-    });
-  };
-
   return (
     <div className="SettingsPage">
       <IonCard>
-        <IonCardTitle>Sync data</IonCardTitle>
-        <IonCardContent className="SettingsCardContent">
-          <div>
-            Sync your app with the latest data from the blockchain API,
-            including wallets, transactions, prices, and more. This process
-            might take some time depending on the amount of data, your network
-            speed, and when you last synced.
-          </div>
-          <div className="AlignFooterEnd">
-            <IonButton onClick={onSyncFromAPI}>Sync</IonButton>
-          </div>
-        </IonCardContent>
-      </IonCard>
-
-      <IonCard>
-        <IonCardTitle>API URLS</IonCardTitle>
+        <IonCardTitle>API URLs</IonCardTitle>
         <IonCardContent>
           <IonInput
             className={`InputElement ${mempoolTouched && "ion-touched"} ${mempoolUrlValid === false ? "ion-invalid" : ""}`}
@@ -177,23 +101,7 @@ const SettingsPage: React.FC = () => {
           />
 
           <div className="AlignFooterEnd">
-            <IonButton onClick={onSetAPIUrls}>Set Urls</IonButton>
-          </div>
-        </IonCardContent>
-      </IonCard>
-
-      <IonCard>
-        <IonCardTitle>Reset data</IonCardTitle>
-        <IonCardContent className="SettingsCardContent">
-          <div>
-            Delete all stored data from the application including wallets,
-            transactions, prices and set it to the initial state as when open
-            for the first time. This action is irreversible!
-          </div>
-          <div className="AlignFooterEnd">
-            <IonButton color="danger" onClick={onResetData}>
-              Reset data
-            </IonButton>
+            <IonButton onClick={onSetAPIUrls}>Set URLs</IonButton>
           </div>
         </IonCardContent>
       </IonCard>
@@ -206,11 +114,6 @@ const SettingsPage: React.FC = () => {
         }
         message={toast.message}
         color={toast.color}
-      />
-
-      <Loader
-        isOpen={isLoading}
-        message={`Syncing new transactions for address ${addressFormatter(currentAddr)}`}
       />
     </div>
   );
