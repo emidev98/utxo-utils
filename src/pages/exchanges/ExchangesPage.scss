@@ -1,137 +1,16 @@
 .ExchangesPage {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  padding: 8px;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: min-content auto;
+  gap: 1rem;
 
-  .Kpi {
-    flex: 1 1 140px;
-    min-width: 120px;
+  .ExchangesTable {
+    grid-column-start: 1;
+    grid-column-end: 5;
+
+    grid-row-start: 2;
+    grid-row-end: 3;
+
+    margin: 10px;
   }
-}
-
-.ExchangesActions {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding: 8px 4px;
-}
-
-.ExchangeCard {
-  width: 100%;
-  margin: 4px 0;
-}
-
-.CardHeaderRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.CardHeaderMeta {
-  flex: 1;
-  min-width: 0;
-}
-
-.TxTable {
-  overflow-x: auto;
-  margin-top: 4px;
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-
-    th,
-    td {
-      padding: 6px 10px;
-      text-align: left;
-      border-bottom: 1px solid var(--ion-border-color);
-      white-space: nowrap;
-    }
-
-    th {
-      font-weight: 600;
-      color: var(--ion-color-medium);
-    }
-  }
-}
-
-.AmountPos {
-  color: var(--ion-color-success);
-}
-
-.AmountNeg {
-  color: var(--ion-color-danger);
-}
-
-.TxHash {
-  font-family: monospace;
-  font-size: 0.8rem;
-  color: var(--ion-color-medium);
-}
-
-.MatchChip {
-  height: 22px;
-  font-size: 0.75rem;
-}
-
-.TxTypeBadge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 99px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.TxType-buy {
-  background: rgba(var(--ion-color-success-rgb), 0.15);
-  color: var(--ion-color-success-shade);
-}
-
-.TxType-sell {
-  background: rgba(var(--ion-color-danger-rgb), 0.15);
-  color: var(--ion-color-danger-shade);
-}
-
-.TxType-withdrawal {
-  background: rgba(var(--ion-color-warning-rgb), 0.15);
-  color: var(--ion-color-warning-shade);
-}
-
-.TxType-deposit {
-  background: rgba(var(--ion-color-primary-rgb), 0.15);
-  color: var(--ion-color-primary-shade);
-}
-
-.TxType-reward {
-  background: rgba(var(--ion-color-tertiary-rgb), 0.15);
-  color: var(--ion-color-tertiary-shade);
-}
-
-.TxType-unknown {
-  background: rgba(var(--ion-color-medium-rgb), 0.15);
-  color: var(--ion-color-medium-shade);
-}
-
-.EmptyState {
-  width: 100%;
-  text-align: center;
-  padding: 48px 16px;
-  color: var(--ion-color-medium);
-
-  p {
-    margin: 4px 0;
-  }
-}
-
-.EmptyTransactions {
-  color: var(--ion-color-medium);
-  font-size: 0.9rem;
-  text-align: center;
-  padding: 16px 0;
 }

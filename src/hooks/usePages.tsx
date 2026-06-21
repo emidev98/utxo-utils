@@ -96,7 +96,10 @@ export const usePages = () => {
   ];
 
   const getCurrentPage = () => {
-    const page = pages.find((menuEntry) => menuEntry.url === pathname);
+    const page = pages.find(
+      (menuEntry) =>
+        menuEntry.url === pathname || pathname.startsWith(`${menuEntry.url}/`),
+    );
 
     if (!page) {
       return pages[0];

@@ -26,24 +26,36 @@ import "@ionic/react/css/text-transformation.css";
 import "./theme/variables.scss";
 
 import React, { useEffect } from "react";
-import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import "./App.scss";
 import Header from "./components/header/Header";
 import { LatestPriceContext } from "./context/LatestPriceContext";
 import { StorageProvider } from "./context/StorageContext";
 import { ToastProvider } from "./context/ToastContext";
 import { usePages } from "./hooks/usePages";
+import ExchangeDetailPage from "./pages/exchanges/exchange-detail/ExchangeDetailPage";
 
 setupIonicReact();
 
 const App: React.FC = () => {
   const { pages, getCurrentPage } = usePages();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
 
   // Load the first page when user tries to access
   // a page that is not defined in the router
   useEffect(() => {
     const currentPage = getCurrentPage();
+    const isNestedPagePath = pathname.startsWith(`${currentPage.url}/`);
+    if (pathname === currentPage.url || isNestedPagePath) {
+      return;
+    }
     navigate(currentPage.url);
   }, []);
 
@@ -66,6 +78,10 @@ const App: React.FC = () => {
                         element={page.component}
                       />
                     ))}
+                    <Route
+                      path="/exchanges/:exchangeId"
+                      element={<ExchangeDetailPage />}
+                    />
                   </Routes>
                   <Outlet />
                 </div>

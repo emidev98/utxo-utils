@@ -1,0 +1,18 @@
+.ExchangesTable {
+  .ExchangesTableLoading {
+    padding: 31px 32px 10px 32px !important;
+  }
+
+  .ExchangesTableSkeleton {
+    height: 46px;
+    margin: 6px 0;
+  }
+
+  .ExchangeTableActionCell {
+    display: flex;
+
+    .ExchangeTableActionButton {
+      margin: 0;
+    }
+  }
+}
