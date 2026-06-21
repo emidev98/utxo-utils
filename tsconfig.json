@@ -15,9 +15,9 @@
     "isolatedModules": true,
     "types": ["jest", "@testing-library/jest-dom"],
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "noImplicitAny": false
   },
-  "include": ["src"],
-  "exclude": ["src/clients/frankfurter/client"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["src/clients/frankfurter/client"]
 }

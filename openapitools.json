@@ -10,10 +10,7 @@
         "output": "src/clients/frankfurter/client",
         "additionalProperties": {
           "supportsES6": true,
-          "typescriptThreePlus": true,
-          "typeMappings": {
-            "object": "Record<string, string>"
-          }
+          "typescriptThreePlus": true
         }
       }
     }
