@@ -1,5 +1,18 @@
-// Assets list can be extended if needed but must be supported by the Frankfurter API
+// Assets list respecting the ISO-4217 standard can be extended
+// when needed but must be supported by the Frankfurter API
+
+export type FiatAsset = (typeof FIAT_ASSETS)[keyof typeof FIAT_ASSETS];
+
+export function isSupportedFiatAsset(
+  asset: string,
+): asserts asset is FiatAsset {
+  if (!Object.values(FIAT_ASSETS).includes(asset as FiatAsset)) {
+    throw new Error(`Invalid fiat asset: ${asset}`);
+  }
+}
+
 export const FIAT_ASSETS = {
+  EUR: "EUR",
   AUD: "AUD",
   CAD: "CAD",
   CHF: "CHF",
