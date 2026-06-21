@@ -1,9 +1,8 @@
-const REQUEST_TIMEOUT_MS = 15_000;
+const REQUEST_TIMEOUT_MS = 10_000;
 const MAX_RETRIES = 3;
 const BASE_BACKOFF_MS = 500;
 
-const isRetryableStatus = (status: number) =>
-  status === 429 || status >= 500;
+const isRetryableStatus = (status: number) => status === 429 || status >= 500;
 
 const backoffMs = (attempt: number) => {
   const exponential = BASE_BACKOFF_MS * Math.pow(2, attempt);
@@ -22,10 +21,7 @@ export const fetchWithRetry = async (
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      REQUEST_TIMEOUT_MS,
-    );
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
     try {
       const response = await fetch(url, {
