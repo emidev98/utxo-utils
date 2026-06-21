@@ -1,11 +1,16 @@
 {
   "name": "@emidev98/utxo-utils",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "description": "Cross platform application to help analyzing bitcoin UTXOS",
+  "engines": {
+    "node": "24.x.x"
+  },
   "scripts": {
+    "predev": "bash scripts/generate-clients.sh",
     "dev": "vite",
+    "prebuild": "bash scripts/generate-clients.sh",
     "build": "NODE_ENV=production tsc && NODE_ENV=production vite build",
     "build:dev": "NODE_ENV=development tsc && NODE_ENV=development vite build",
     "preview": "vite preview",
@@ -22,6 +27,7 @@
     "@capacitor/haptics": "6.0.0",
     "@capacitor/keyboard": "6.0.0",
     "@capacitor/status-bar": "6.0.0",
+    "@date-fns/utc": "^2.1.1",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@ionic/react": "^7.0.0",
@@ -46,6 +52,7 @@
   "devDependencies": {
     "@capacitor/cli": "^6.0.0",
     "@eslint-react/eslint-plugin": "5.8.18",
+    "@openapitools/openapi-generator-cli": "^2.39.0",
     "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
