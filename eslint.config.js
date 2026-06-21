@@ -6,6 +6,9 @@ import tseslint from "typescript-eslint";
 export default defineConfig({
   files: ["**/*.ts", "**/*.tsx"],
 
+  // Ignore auto-generated clients that are not type-checked by the main tsconfig
+  ignores: ["src/clients/frankfurter/client/**"],
+
   // Extend recommended rule sets from:
   // 1. ESLint JS's recommended rules
   // 2. TypeScript ESLint recommended rules

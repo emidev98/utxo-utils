@@ -29,3 +29,6 @@ yarn-error.log*
 .eslintcache
 
 ./stats.html
+
+# Generated API clients (regenerated via scripts/generate-clients.sh)
+src/clients/frankfurter/client
