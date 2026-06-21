@@ -4,6 +4,9 @@
   "version": "0.0.3",
   "type": "module",
   "description": "Cross platform application to help analyzing bitcoin UTXOS",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "predev": "bash scripts/generate-clients.sh",
     "dev": "vite",
