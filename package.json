@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Cross platform application to help analyzing bitcoin UTXOS",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "24.x.x"
   },
   "scripts": {
     "predev": "bash scripts/generate-clients.sh",
