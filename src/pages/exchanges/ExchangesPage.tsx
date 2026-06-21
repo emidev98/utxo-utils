@@ -15,7 +15,6 @@ import {
   addOutline,
   chevronDownOutline,
   chevronUpOutline,
-  documentTextOutline,
   refreshOutline,
   trashOutline,
 } from "ionicons/icons";
@@ -58,9 +57,6 @@ const ExchangesPage = () => {
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalExchange, setModalExchange] = useState<
-    ExchangeAccount | undefined
-  >();
   const [exchangeToDelete, setExchangeToDelete] = useState<
     ExchangeAccount | undefined
   >();
@@ -103,18 +99,11 @@ const ExchangesPage = () => {
   };
 
   const openNewExchangeModal = () => {
-    setModalExchange(undefined);
-    setIsModalOpen(true);
-  };
-
-  const openImportModal = (exchange: ExchangeAccount) => {
-    setModalExchange(exchange);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setModalExchange(undefined);
     init();
   };
 
@@ -159,8 +148,6 @@ const ExchangesPage = () => {
       });
     }
   };
-
-  // ─── Render helpers ───────────────────────────────────────────────────────
 
   const renderTransactionsTable = (txs: ExchangeTransaction[]) => {
     if (!txs.length) {
@@ -249,14 +236,6 @@ const ExchangesPage = () => {
               <IonButton
                 fill="outline"
                 size="small"
-                onClick={() => openImportModal(account)}
-              >
-                <IonIcon slot="start" icon={documentTextOutline} />
-                Import CSV
-              </IonButton>
-              <IonButton
-                fill="outline"
-                size="small"
                 disabled={isReconciling}
                 onClick={() => onReconcile(account)}
               >
@@ -325,11 +304,7 @@ const ExchangesPage = () => {
       {allAccounts.map(renderExchangeCard)}
 
       {/* Modals */}
-      <ExchangeModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        existingExchange={modalExchange}
-      />
+      <ExchangeModal isOpen={isModalOpen} onClose={closeModal} />
 
       <ConfirmModal
         isOpen={exchangeToDelete !== undefined}
