@@ -12,9 +12,6 @@ const prodPlugins = [
   VitePluginClean(),
   viteCompression({
     verbose: true,
-  }),
-  viteCompression({
-    verbose: true,
     algorithm: "brotliCompress",
     compressionOptions: { level: 5 },
   }),
