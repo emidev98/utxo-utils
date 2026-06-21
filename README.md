@@ -4,4 +4,6 @@ Progressive webapp written with React and Ionic. It uses [mempool.space REST API
 
 ## Pricing Data
 
-Real time data is provided by [CoinGecko V3 API](https://docs.coingecko.com/v3.0.1/reference/introduction) and historical pricing data is provided by [Novandra Anugrah in Kaggle](https://www.kaggle.com/datasets/novandraanugrah/bitcoin-historical-datasets-2018-2024/data).
+- Real time Bitcoin data is provided by [CoinGecko V3 API](https://docs.coingecko.com/v3.0.1/reference/introduction).
+- Historical pricing data is provided by [Novandra Anugrah in Kaggle](https://www.kaggle.com/datasets/novandraanugrah/bitcoin-historical-datasets-2018-2024/data).
+- Fiat pricing data provided by [Frankfurter](https://frankfurter.dev/)
