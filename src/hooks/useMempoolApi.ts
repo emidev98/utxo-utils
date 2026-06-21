@@ -1,3 +1,4 @@
+import { MempoolClient } from "../clients/MempoolClient";
 import { MEMPOOL_STORE_KEY, useStorage } from "../context/StorageContext";
 import { AddressInfo } from "../models/MempoolAddress";
 import { Transaction, UTXO } from "../models/MempoolAddressTxs";
@@ -8,18 +9,17 @@ export interface MempoolStore {
 export const useMempoolApi = () => {
   const { storage } = useStorage();
 
+  const getClient = async (): Promise<MempoolClient> => {
+    const data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
+    return new MempoolClient(data.mempoolAPIUrl);
+  };
+
   // Get the address details from the mempool API
   const queryAddrInfo = async (
     address: string,
   ): Promise<AddressInfo | Error> => {
-    const data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
-    return await fetch(`${data.mempoolAPIUrl}/address/${address}`)
-      .then((response) => {
-        return response.json();
-      })
-      .catch((error) => {
-        return error;
-      });
+    const client = await getClient();
+    return client.queryAddrInfo(address);
   };
 
   // Index the first 10 transactions by block height in descending order
@@ -30,30 +30,13 @@ export const useMempoolApi = () => {
     address: string,
     txId?: string,
   ): Promise<Array<Transaction> | Error> => {
-    const data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
-    const url = txId
-      ? `${data.mempoolAPIUrl}/address/${address}/txs/chain/${txId}`
-      : `${data.mempoolAPIUrl}/address/${address}/txs`;
-
-    return await fetch(url)
-      .then((response) => {
-        return response.json();
-      })
-      .catch((error) => {
-        return error;
-      });
+    const client = await getClient();
+    return client.queryTxsByAddr(address, txId);
   };
 
   const queryUtxos = async (address: string): Promise<UTXO[] | Error> => {
-    const data: MempoolStore = await storage.get(MEMPOOL_STORE_KEY);
-
-    return await fetch(`${data.mempoolAPIUrl}/address/${address}/utxo`)
-      .then((response) => {
-        return response.json();
-      })
-      .catch((error) => {
-        return error;
-      });
+    const client = await getClient();
+    return client.queryUtxos(address);
   };
 
   /// Get all transactions for a given address by fetching the first 10 transactions

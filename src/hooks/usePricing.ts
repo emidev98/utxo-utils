@@ -1,3 +1,4 @@
+import { CoinGeckoClient } from "../clients/CoinGeckoClient";
 import { PRICING_STORE_KEY, useStorage } from "../context/StorageContext";
 import { BitcoinHistoricalData } from "../models/BitcoinHistoricalData";
 import btc1DayAvgHistoricalDataUrl from "/btc-1-day-avg-historical.txt";
@@ -18,15 +19,9 @@ export const usePricing = () => {
       return data.price;
     }
 
-    const latestPriceRes = await fetch(
-      `${data.coingeckoApiUrl}/simple/price?ids=bitcoin&vs_currencies=usd`,
-    )
-      .then((response) => response.json())
-      .catch((error) => console.error("Error fetching data:", error));
+    const client = new CoinGeckoClient(data.coingeckoApiUrl);
+    const price = await client.getLatestBtcPriceUsd();
 
-    const price: number = latestPriceRes?.bitcoin?.usd
-      ? latestPriceRes.bitcoin.usd
-      : 0;
     data.price = price;
     data.lastUpdateTime = Date.now();
     await storage.set(PRICING_STORE_KEY, data);
