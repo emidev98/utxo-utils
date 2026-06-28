@@ -23,6 +23,7 @@ import {
 import React, { useState } from "react";
 import { useToastContext } from "../../context/ToastContext";
 import { useExchanges } from "../../hooks/useExchanges";
+import { BTCFormatter } from "../../hooks/useFormatter";
 import {
   CSVColumnMapping,
   ExchangeAccount,
@@ -34,6 +35,7 @@ import {
   ManualMappingParser,
   parseCSVText,
 } from "../../utils/csvParsers/index";
+import { convertFiatValuesToCommonCurrency } from "../../utils/fiat";
 import FileDropzone from "../file-dropzone/FileDropzone";
 import Loader from "../loader/Loader";
 import "./ExchangeModal.scss";
@@ -67,7 +69,6 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Step 1 – Exchange details
   const [exchangeName, setExchangeName] = useState("");
   const [isTouchedName, setTouchedName] = useState(false);
   const isNameValid = exchangeName.trim().length > 0;
@@ -78,7 +79,6 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
     useState<IExchangeCSVParser | null>(null);
   const [parsedTxs, setParsedTxs] = useState<ParsedExchangeTx[]>([]);
 
-  // Step 3 – Manual column mapping
   const [columnMapping, setColumnMapping] = useState<Partial<CSVColumnMapping>>(
     {},
   );
@@ -104,6 +104,26 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
     !!mapping.amount &&
     !!mapping.currency &&
     !!mapping.type;
+
+  const formatPreviewAmount = (tx: ParsedExchangeTx) =>
+    tx.currency.trim().toUpperCase() === "BTC"
+      ? BTCFormatter(tx.amount)
+      : tx.amount;
+
+  const addCommonFiatValues = async (
+    transactions: ParsedExchangeTx[],
+  ): Promise<ParsedExchangeTx[]> => {
+    try {
+      return await convertFiatValuesToCommonCurrency(transactions);
+    } catch {
+      setOpenToast({
+        message:
+          "CSV parsed, but fiat currency conversion failed. Original fiat values were kept.",
+        color: "warning",
+      });
+      return transactions;
+    }
+  };
 
   const onSave = async () => {
     setTouchedName(true);
@@ -160,6 +180,8 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
   };
 
   const processCSVFile = async (file: File) => {
+    setIsLoading(true);
+
     try {
       const text = await file.text();
       const { headers, rows } = parseCSVText(text);
@@ -171,7 +193,7 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
       setColumnMapping({});
 
       if (parser) {
-        const parsed = parser.parse(rows);
+        const parsed = await addCommonFiatValues(parser.parse(rows));
         setParsedTxs(parsed);
       } else {
         setParsedTxs([]);
@@ -186,28 +208,37 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
         message: "Could not read the selected file.",
         color: "danger",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const onMappingChange = (field: keyof CSVColumnMapping, value: string) => {
-    setColumnMapping((prev) => {
-      const next = { ...prev, [field]: value };
+  const onMappingChange = async (
+    field: keyof CSVColumnMapping,
+    value: string,
+  ) => {
+    const next = { ...columnMapping, [field]: value };
+    setColumnMapping(next);
 
-      if (!detectedParser && csvRows.length > 0) {
-        if (isMappingCompleteFor(next)) {
-          try {
-            const parser = new ManualMappingParser(next as CSVColumnMapping);
-            setParsedTxs(parser.parse(csvRows));
-          } catch {
-            setParsedTxs([]);
-          }
-        } else {
-          setParsedTxs([]);
-        }
-      }
+    if (detectedParser || csvRows.length === 0) {
+      return;
+    }
 
-      return next;
-    });
+    if (!isMappingCompleteFor(next)) {
+      setParsedTxs([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const parser = new ManualMappingParser(next as CSVColumnMapping);
+      const parsed = await addCommonFiatValues(parser.parse(csvRows));
+      setParsedTxs(parsed);
+    } catch {
+      setParsedTxs([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderInlinePreview = () => {
@@ -252,13 +283,15 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
                     </span>
                   </td>
                   <td className={tx.amount < 0 ? "AmountNeg" : "AmountPos"}>
-                    {tx.amount}
+                    {formatPreviewAmount(tx)}
                   </td>
                   <td>{tx.currency}</td>
                   <td>
-                    {tx.fiatAmount !== undefined
-                      ? `${tx.fiatAmount} ${tx.fiatCurrency ?? ""}`
-                      : "—"}
+                    {tx.convertedFiatAmount !== undefined
+                      ? `${tx.convertedFiatAmount.toFixed(2)} ${tx.convertedFiatCurrency ?? ""}`
+                      : tx.fiatAmount !== undefined
+                        ? `${tx.fiatAmount} ${tx.fiatCurrency ?? ""}`
+                        : "—"}
                   </td>
                   <td className="TxHash">
                     {tx.txHash ? `${tx.txHash.slice(0, 10)}…` : "—"}

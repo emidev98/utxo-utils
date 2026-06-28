@@ -1,7 +1,11 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { ExchangeTxType, ParsedExchangeTx } from "../../models/ExchangeData";
-import { buildFingerprint, IExchangeCSVParser } from "./types";
+import {
+  buildFingerprint,
+  IExchangeCSVParser,
+  normalizeBitcoinAmount,
+} from "./types";
 
 dayjs.extend(utc);
 
@@ -54,8 +58,9 @@ export class RevolutParser implements IExchangeCSVParser {
         const rawTimestamp = row["Completed Date"]?.trim() ?? "";
         const timestamp = dayjs.utc(rawTimestamp, "YYYY-M-D HH:mm:ss").unix();
 
-        const amount = parseFloat(row["Amount"] ?? "0");
+        const rawAmount = parseFloat(row["Amount"] ?? "0");
         const currency = row["Currency"]?.trim() ?? "";
+        const amount = normalizeBitcoinAmount(rawAmount, currency);
 
         const fiatAmount = parseFloat(
           row["Fiat amount (inc. fees)"] ?? row["Fiat amount"] ?? "",
@@ -68,7 +73,7 @@ export class RevolutParser implements IExchangeCSVParser {
 
         // Refine EXCHANGE direction: if currency is BTC and amount > 0 → buy; < 0 → sell
         if (typeRaw === "EXCHANGE") {
-          type = amount >= 0 ? "buy" : "sell";
+          type = rawAmount >= 0 ? "buy" : "sell";
         }
 
         const description = row["Description"]?.trim();

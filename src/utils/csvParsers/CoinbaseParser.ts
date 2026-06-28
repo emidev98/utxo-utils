@@ -1,7 +1,11 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { ExchangeTxType, ParsedExchangeTx } from "../../models/ExchangeData";
-import { buildFingerprint, IExchangeCSVParser } from "./types";
+import {
+  buildFingerprint,
+  IExchangeCSVParser,
+  normalizeBitcoinAmount,
+} from "./types";
 
 dayjs.extend(utc);
 
@@ -95,8 +99,11 @@ export class CoinbaseParser implements IExchangeCSVParser {
 
         const quantityRaw = parseFloat(row["Quantity Transacted"] ?? "0");
         // Negate for outgoing transactions since Coinbase always exports positive qty
-        const amount = OUTGOING_TYPES.has(txType) ? -quantityRaw : quantityRaw;
+        const rawAmount = OUTGOING_TYPES.has(txType)
+          ? -quantityRaw
+          : quantityRaw;
         const currency = row["Asset"]?.trim() ?? "";
+        const amount = normalizeBitcoinAmount(rawAmount, currency);
 
         const total = parseFloat(
           row["Total (inclusive of fees and/or spread)"] ?? "",

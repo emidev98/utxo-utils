@@ -1,7 +1,12 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { ExchangeTxType, ParsedExchangeTx } from "../../models/ExchangeData";
-import { buildFingerprint, IExchangeCSVParser } from "./types";
+import {
+  buildFingerprint,
+  IExchangeCSVParser,
+  normalizeBitcoinAmount,
+  normalizeBitcoinFee,
+} from "./types";
 
 dayjs.extend(utc);
 
@@ -110,14 +115,16 @@ export class KrakenParser implements IExchangeCSVParser {
         const rawTimestamp = row["time"]?.trim() ?? "";
         const timestamp = dayjs.utc(rawTimestamp, "YYYY-MM-DD HH:mm:ss").unix();
 
-        const amount = parseFloat(row["amount"] ?? "0");
+        const rawAmount = parseFloat(row["amount"] ?? "0");
         const rawAsset = row["asset"]?.trim() ?? "";
         const currency = normaliseKrakenAsset(rawAsset);
-        const fee = parseFloat(row["fee"] ?? "");
+        const amount = normalizeBitcoinAmount(rawAmount, currency);
+        const rawFee = parseFloat(row["fee"] ?? "");
+        const fee = normalizeBitcoinFee(rawFee, currency);
 
         const typeRaw = row["type"]?.trim() ?? "";
         const subtype = row["subtype"]?.trim() ?? "";
-        const type = mapKrakenType(typeRaw, subtype, amount);
+        const type = mapKrakenType(typeRaw, subtype, rawAmount);
 
         const description = [typeRaw, subtype].filter(Boolean).join(" – ");
 
@@ -127,7 +134,7 @@ export class KrakenParser implements IExchangeCSVParser {
           type,
           amount,
           currency,
-          fee: isNaN(fee) ? undefined : fee,
+          fee,
           feeCurrency: currency,
           description: description || undefined,
           rawData: row,

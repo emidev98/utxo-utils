@@ -37,8 +37,6 @@ const ExchangesPage = () => {
     init();
   }, []);
 
-  // ─── KPI derivations ─────────────────────────────────────────────────────
-
   const allAccounts = Object.values(exchangeStore);
   const allTxs: ExchangeTransaction[] = allAccounts.flatMap(
     (a) => a.transactions,

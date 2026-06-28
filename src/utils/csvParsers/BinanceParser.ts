@@ -1,7 +1,11 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { ExchangeTxType, ParsedExchangeTx } from "../../models/ExchangeData";
-import { buildFingerprint, IExchangeCSVParser } from "./types";
+import {
+  buildFingerprint,
+  IExchangeCSVParser,
+  normalizeBitcoinAmount,
+} from "./types";
 
 dayjs.extend(utc);
 
@@ -91,8 +95,9 @@ export class BinanceParser implements IExchangeCSVParser {
 
         // `Change` is a signed decimal (e.g., "+0.001" or "-0.001")
         const changeRaw = row["Change"]?.trim().replace(/\+/, "") ?? "0";
-        const amount = parseFloat(changeRaw);
+        const rawAmount = parseFloat(changeRaw);
         const currency = row["Coin"]?.trim() ?? "";
+        const amount = normalizeBitcoinAmount(rawAmount, currency);
 
         const operationRaw = row["Operation"]?.trim() ?? "";
         const type: ExchangeTxType = OPERATION_MAP[operationRaw] ?? "unknown";

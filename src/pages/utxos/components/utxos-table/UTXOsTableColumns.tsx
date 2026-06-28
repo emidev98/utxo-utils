@@ -7,7 +7,7 @@ import {
   arrowUpOutline,
 } from "ionicons/icons";
 import { MRT_ColumnDef } from "material-react-table";
-import { SATSFormatter, USDFormatter } from "../../../../hooks/useFormatter";
+import { BTCFormatter, USDFormatter } from "../../../../hooks/useFormatter";
 import { sortFirstNumericElement } from "../../../../utils/tables";
 
 export interface UtxosTableColumn {
@@ -30,7 +30,7 @@ export const UTXOS_TABLE_COLUMNS: MRT_ColumnDef<UtxosTableColumn>[] = [
     sortingFn: sortFirstNumericElement,
     Cell: (p) => {
       const value = p.cell.getValue<number>();
-      return <span>{SATSFormatter(value)} </span>;
+      return <span>{BTCFormatter(value)} </span>;
     },
   },
   {

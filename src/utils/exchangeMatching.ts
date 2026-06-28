@@ -7,6 +7,7 @@ import {
   MatchState,
 } from "../models/ExchangeData";
 import { Transaction } from "../models/MempoolAddressTxs";
+import { isBitcoinCurrency } from "./csvParsers/types";
 
 dayjs.extend(utc);
 
@@ -100,7 +101,11 @@ export function matchExchangeTx(
   }
 
   // Tier 2: amount + date match
-  const amountSats = Math.round(Math.abs(tx.amount) * 1e8);
+  if (!isBitcoinCurrency(tx.currency)) {
+    return { matchState: "unmatched" };
+  }
+
+  const amountSats = Math.abs(tx.amount);
   const dateKey = dayjs.unix(tx.timestamp).utc().format("YYYYMMDD");
 
   // Try exact amount first, then sweep tolerance window

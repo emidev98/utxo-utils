@@ -8,6 +8,13 @@ export type ExchangeTxType =
 
 export type MatchState = "hash_match" | "amount_date_match" | "unmatched";
 
+export interface FiatExchangeRateData {
+  base: string;
+  quote: string;
+  rate: number;
+  date: string;
+}
+
 export interface ExchangeTransaction {
   /** UUID assigned at import time */
   id: string;
@@ -21,12 +28,15 @@ export interface ExchangeTransaction {
   /** Unix seconds (normalized from CSV UTC strings) */
   timestamp: number;
   type: ExchangeTxType;
-  /** BTC float. Positive = received/bought, negative = sent/sold */
+  /** Asset amount. BTC values are stored as integer satoshis. */
   amount: number;
   currency: string;
   fiatAmount?: number;
   fiatCurrency?: string;
-  /** BTC fee amount */
+  convertedFiatAmount?: number;
+  convertedFiatCurrency?: string;
+  fiatExchangeRate?: FiatExchangeRateData;
+  /** Fee amount. BTC fees are stored as integer satoshis. */
   fee?: number;
   feeCurrency?: string;
   /** On-chain transaction id / hash, if provided by the exchange */
@@ -88,6 +98,9 @@ export interface ParsedExchangeTx {
   currency: string;
   fiatAmount?: number;
   fiatCurrency?: string;
+  convertedFiatAmount?: number;
+  convertedFiatCurrency?: string;
+  fiatExchangeRate?: FiatExchangeRateData;
   fee?: number;
   feeCurrency?: string;
   txHash?: string;

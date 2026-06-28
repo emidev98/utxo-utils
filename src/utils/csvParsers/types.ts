@@ -1,5 +1,8 @@
 import { ExchangeTxType, ParsedExchangeTx } from "../../models/ExchangeData";
 
+const SATOSHIS_PER_BTC = 100_000_000;
+const BITCOIN_ASSET_CODES = new Set(["BTC", "XBT"]);
+
 /**
  * Contract that every exchange CSV parser must implement.
  * Adding support for a new exchange requires only creating a class that
@@ -22,6 +25,34 @@ export interface IExchangeCSVParser {
    * @param rows  Each element maps column header → cell value.
    */
   parse(rows: Record<string, string>[]): ParsedExchangeTx[];
+}
+
+export function isBitcoinCurrency(currency: string): boolean {
+  return BITCOIN_ASSET_CODES.has(currency.trim().toUpperCase());
+}
+
+export function bitcoinToSatoshis(amount: number): number {
+  return Math.round(amount * SATOSHIS_PER_BTC);
+}
+
+export function normalizeBitcoinAmount(
+  amount: number,
+  currency: string,
+): number {
+  return isBitcoinCurrency(currency) ? bitcoinToSatoshis(amount) : amount;
+}
+
+export function normalizeBitcoinFee(
+  fee: number | undefined,
+  feeCurrency: string | undefined,
+): number | undefined {
+  if (fee === undefined || isNaN(fee)) {
+    return undefined;
+  }
+
+  return feeCurrency && isBitcoinCurrency(feeCurrency)
+    ? bitcoinToSatoshis(fee)
+    : fee;
 }
 
 /**

@@ -10,7 +10,7 @@ export interface FrankfurterClientConfig {
 export class FrankfurterClient {
   defaultApi: DefaultApi;
 
-  constructor(private readonly baseUrl: string) {
+  constructor(baseUrl?: string) {
     const config = new Configuration({
       basePath: baseUrl,
       fetchApi: fetchWithRetry,
@@ -27,6 +27,20 @@ export class FrankfurterClient {
       base,
       quotes,
       date,
+    });
+  }
+
+  async getPricesForDateRange(
+    base: FiatAsset,
+    from: UTCDate,
+    to: UTCDate,
+    quotes: string,
+  ) {
+    return this.defaultApi.getRates({
+      base,
+      quotes,
+      from,
+      to,
     });
   }
 }

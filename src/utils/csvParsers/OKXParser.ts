@@ -1,7 +1,12 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { ExchangeTxType, ParsedExchangeTx } from "../../models/ExchangeData";
-import { buildFingerprint, IExchangeCSVParser } from "./types";
+import {
+  buildFingerprint,
+  IExchangeCSVParser,
+  normalizeBitcoinAmount,
+  normalizeBitcoinFee,
+} from "./types";
 
 dayjs.extend(utc);
 
@@ -84,13 +89,15 @@ export class OKXParser implements IExchangeCSVParser {
         // OKX timestamps can be ISO 8601 or "YYYY-MM-DD HH:mm:ss"
         const timestamp = dayjs.utc(rawTimestamp).unix();
 
-        const amount = parseFloat(row["Amount"] ?? "0");
+        const rawAmount = parseFloat(row["Amount"] ?? "0");
         const currency = row["Currency"]?.trim() ?? "";
-        const fee = parseFloat(row["Fee"] ?? "");
+        const amount = normalizeBitcoinAmount(rawAmount, currency);
+        const rawFee = parseFloat(row["Fee"] ?? "");
+        const fee = normalizeBitcoinFee(rawFee, currency);
 
         const typeRaw = row["Type"]?.trim() ?? "";
         const subTypeRaw = row["Sub-type"]?.trim() ?? "";
-        const type = mapOKXType(typeRaw, subTypeRaw, amount);
+        const type = mapOKXType(typeRaw, subTypeRaw, rawAmount);
 
         const billId = row["Bill ID"]?.trim();
         const description = [typeRaw, subTypeRaw].filter(Boolean).join(" – ");
@@ -107,7 +114,7 @@ export class OKXParser implements IExchangeCSVParser {
           type,
           amount,
           currency,
-          fee: isNaN(fee) ? undefined : fee,
+          fee,
           feeCurrency: currency,
           description: description || undefined,
           rawData: row,

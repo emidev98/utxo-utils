@@ -1,7 +1,12 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { ExchangeTxType, ParsedExchangeTx } from "../../models/ExchangeData";
-import { buildFingerprint, IExchangeCSVParser } from "./types";
+import {
+  buildFingerprint,
+  IExchangeCSVParser,
+  normalizeBitcoinAmount,
+  normalizeBitcoinFee,
+} from "./types";
 
 dayjs.extend(utc);
 
@@ -78,16 +83,18 @@ export class BybitParser implements IExchangeCSVParser {
         // Bybit format: "2022-01-01 00:00:00" (UTC)
         const timestamp = dayjs.utc(rawTimestamp, "YYYY-MM-DD HH:mm:ss").unix();
 
-        const amount = parseFloat(row["Amount"] ?? "0");
+        const rawAmount = parseFloat(row["Amount"] ?? "0");
         const currency = row["Asset"]?.trim() ?? "";
-        const fee = parseFloat(row["Fee"] ?? "");
+        const amount = normalizeBitcoinAmount(rawAmount, currency);
+        const rawFee = parseFloat(row["Fee"] ?? "");
+        const fee = normalizeBitcoinFee(rawFee, currency);
 
         const typeRaw = row["Type"]?.trim() ?? "";
         let type: ExchangeTxType = TYPE_MAP[typeRaw] ?? "unknown";
 
         // Refine "Trade" type based on amount sign
         if (typeRaw === "Trade") {
-          type = amount >= 0 ? "buy" : "sell";
+          type = rawAmount >= 0 ? "buy" : "sell";
         }
 
         const txId = row["Transaction ID"]?.trim();
@@ -108,7 +115,7 @@ export class BybitParser implements IExchangeCSVParser {
           type,
           amount,
           currency,
-          fee: isNaN(fee) ? undefined : fee,
+          fee,
           feeCurrency: currency,
           txHash: isOnChain && txId ? txId : undefined,
           description: remark || typeRaw || undefined,

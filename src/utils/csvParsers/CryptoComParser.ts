@@ -1,7 +1,11 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { ExchangeTxType, ParsedExchangeTx } from "../../models/ExchangeData";
-import { buildFingerprint, IExchangeCSVParser } from "./types";
+import {
+  buildFingerprint,
+  IExchangeCSVParser,
+  normalizeBitcoinAmount,
+} from "./types";
 
 dayjs.extend(utc);
 
@@ -68,8 +72,12 @@ export class CryptoComParser implements IExchangeCSVParser {
         const isBuyWithFiat =
           toCurrency === "BTC" && !isNaN(toAmount) && toAmount !== 0;
 
-        const amount = isBuyWithFiat ? toAmount : rawAmount;
+        const rawEffectiveAmount = isBuyWithFiat ? toAmount : rawAmount;
         const effectiveCurrency = isBuyWithFiat ? toCurrency : currency;
+        const amount = normalizeBitcoinAmount(
+          rawEffectiveAmount,
+          effectiveCurrency,
+        );
 
         const fiatAmount = parseFloat(row["Native Amount (in USD)"] ?? "");
         const fiatCurrency = row["Native Currency"]?.trim();

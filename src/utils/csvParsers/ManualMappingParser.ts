@@ -6,7 +6,12 @@ import {
   ExchangeTxType,
   ParsedExchangeTx,
 } from "../../models/ExchangeData";
-import { buildFingerprint, IExchangeCSVParser } from "./types";
+import {
+  buildFingerprint,
+  IExchangeCSVParser,
+  normalizeBitcoinAmount,
+  normalizeBitcoinFee,
+} from "./types";
 
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
@@ -38,8 +43,9 @@ export class ManualMappingParser implements IExchangeCSVParser {
           ? dayjs.utc(rawTimestamp, m.timestampFormat).unix()
           : dayjs.utc(rawTimestamp).unix();
 
-        const amount = parseFloat(row[m.amount] ?? "0");
+        const rawAmount = parseFloat(row[m.amount] ?? "0");
         const currency = row[m.currency]?.trim() ?? "";
+        const amount = normalizeBitcoinAmount(rawAmount, currency);
 
         const typeRaw = m.type ? (row[m.type]?.trim() ?? "") : "";
         const type = normaliseType(typeRaw);
@@ -50,10 +56,11 @@ export class ManualMappingParser implements IExchangeCSVParser {
         const fiatCurrency = m.fiatCurrency
           ? row[m.fiatCurrency]?.trim()
           : undefined;
-        const fee = m.fee ? parseFloat(row[m.fee] ?? "") : undefined;
+        const rawFee = m.fee ? parseFloat(row[m.fee] ?? "") : undefined;
         const feeCurrency = m.feeCurrency
           ? row[m.feeCurrency]?.trim()
           : undefined;
+        const fee = normalizeBitcoinFee(rawFee, feeCurrency);
         const txHash = m.txHash ? row[m.txHash]?.trim() : undefined;
         const description = m.description
           ? row[m.description]?.trim()
@@ -76,7 +83,7 @@ export class ManualMappingParser implements IExchangeCSVParser {
               ? fiatAmount
               : undefined,
           fiatCurrency: fiatCurrency || undefined,
-          fee: fee !== undefined && !isNaN(fee) ? fee : undefined,
+          fee,
           feeCurrency: feeCurrency || undefined,
           txHash: txHash || undefined,
           description: description || undefined,
