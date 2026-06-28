@@ -1,5 +1,12 @@
 export const BTCFormatter = (value: number | string) => {
-  return Number(value) / 1e8 + " ₿";
+  const amount = typeof value === "string" ? Number(value) : value;
+
+  return (
+    (amount / 1e8).toLocaleString(undefined, {
+      maximumFractionDigits: 8,
+      minimumFractionDigits: 0,
+    }) + " ₿"
+  );
 };
 
 export const SATSFormatter = (value: number | string) => {

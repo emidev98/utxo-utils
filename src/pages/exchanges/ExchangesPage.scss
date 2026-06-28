@@ -1,0 +1,16 @@
+.ExchangesPage {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: min-content auto;
+  gap: 1rem;
+
+  .ExchangesTable {
+    grid-column-start: 1;
+    grid-column-end: 5;
+
+    grid-row-start: 2;
+    grid-row-end: 3;
+
+    margin: 10px;
+  }
+}

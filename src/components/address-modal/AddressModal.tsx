@@ -216,7 +216,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
         <IonContent className="ion-padding">
           <IonInput
             className={`InputElement ${isValidInputLabel && "ion-valid"} ${isValidInputLabel === false && "ion-invalid"} ${isTouchedInputLabel && "ion-touched"}`}
-            label="* Address label"
+            label="Address label *"
             labelPlacement="floating"
             type="text"
             value={addressLabel}
@@ -228,7 +228,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
           <IonInput
             className={`InputElement ${isValidInputAddress && "ion-valid"} ${isValidInputAddress === false && "ion-invalid"} ${isTouchedInputAddress && "ion-touched"}`}
-            label="* Address"
+            label="Address *"
             labelPlacement="floating"
             type="text"
             value={addressDetails?.address}
