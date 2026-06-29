@@ -1,16 +1,12 @@
 import { IonButton, IonIcon } from "@ionic/react";
 import { eyeOutline, trashOutline } from "ionicons/icons";
 import { MRT_ColumnDef } from "material-react-table";
-import { BTCFormatter } from "../../../../hooks/useFormatter";
 
 export interface ExchangesTableColumn {
   id: string;
   name: string;
   txCount: number;
   matchedCount: number;
-  btcPurchasedAmount: number;
-  btcDepositedAmount: number;
-  btcWithdrawnAmount: number;
   firstTxTimestamp?: number;
   lastTxTimestamp?: number;
   lastModifiedTimestamp?: number;
@@ -80,29 +76,6 @@ export const useExchangesTableColumns = ({
       accessorKey: "matchedCount",
       header: "Matched",
       size: 120,
-    },
-    {
-      accessorKey: "btcPurchasedAmount",
-      header: "BTC Flow",
-      sortingFn: (rowA, rowB) => {
-        const rowATotal =
-          rowA.original.btcPurchasedAmount +
-          rowA.original.btcDepositedAmount +
-          rowA.original.btcWithdrawnAmount;
-        const rowBTotal =
-          rowB.original.btcPurchasedAmount +
-          rowB.original.btcDepositedAmount +
-          rowB.original.btcWithdrawnAmount;
-        return rowATotal - rowBTotal;
-      },
-      size: 230,
-      Cell: ({ row }) => (
-        <div className="ExchangeBtcFlowCell">
-          <span>Bought {BTCFormatter(row.original.btcPurchasedAmount)}</span>
-          <span>Deposited {BTCFormatter(row.original.btcDepositedAmount)}</span>
-          <span>Withdrawn {BTCFormatter(row.original.btcWithdrawnAmount)}</span>
-        </div>
-      ),
     },
     {
       accessorKey: "firstTxDate",

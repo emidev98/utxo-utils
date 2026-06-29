@@ -4,6 +4,7 @@ import ConfirmModal from "../../components/confirm-modal/ConfirmModal";
 import ExchangeModal from "../../components/exchange-modal/ExchangeModal";
 import Kpi from "../../components/kpis/Kpi";
 import { useToastContext } from "../../context/ToastContext";
+import { useAppSettings } from "../../hooks/useAppSettings";
 import { useExchanges } from "../../hooks/useExchanges";
 import {
   ExchangeAccount,
@@ -16,6 +17,7 @@ import "./ExchangesPage.scss";
 const ExchangesPage = () => {
   const navigate = useNavigate();
   const { getExchanges, removeExchange } = useExchanges();
+  const { getSettings } = useAppSettings();
   const { setOpenToast } = useToastContext();
 
   const [isLoading, setLoading] = useState(true);
@@ -26,12 +28,18 @@ const ExchangesPage = () => {
   const [exchangeToDelete, setExchangeToDelete] = useState<
     ExchangeAccount | undefined
   >();
+  const [confirmDestructiveActions, setConfirmDestructiveActions] =
+    useState(true);
 
   const init = useCallback(async () => {
-    const store = await getExchanges();
+    const [store, settings] = await Promise.all([
+      getExchanges(),
+      getSettings(),
+    ]);
     setExchangeStore(store ?? {});
+    setConfirmDestructiveActions(settings.confirmDestructiveActions);
     setLoading(false);
-  }, [getExchanges]);
+  }, [getExchanges, getSettings]);
 
   useEffect(() => {
     init();
@@ -57,27 +65,33 @@ const ExchangesPage = () => {
     init();
   };
 
-  const onConfirmDelete = async () => {
-    if (!exchangeToDelete) return;
+  const removeExchangeAccount = async (
+    accountToDelete: ExchangeAccount | undefined,
+  ) => {
+    if (!accountToDelete) return;
     try {
-      await removeExchange(exchangeToDelete.id);
+      await removeExchange(accountToDelete.id);
       setOpenToast({
-        message: `Exchange "${exchangeToDelete.name}" removed.`,
+        message: `Exchange "${accountToDelete.name}" removed.`,
         color: "success",
       });
       setExchangeToDelete(undefined);
       setExchangeStore((prev) => {
         const next = { ...prev };
-        delete next[exchangeToDelete.id];
+        delete next[accountToDelete.id];
         return next;
       });
       init();
     } catch {
       setOpenToast({
-        message: `Could not remove "${exchangeToDelete?.name}".`,
+        message: `Could not remove "${accountToDelete?.name}".`,
         color: "danger",
       });
     }
+  };
+
+  const onConfirmDelete = async () => {
+    await removeExchangeAccount(exchangeToDelete);
   };
 
   const onDeleteExchange = (id: string) => {
@@ -89,6 +103,12 @@ const ExchangesPage = () => {
       });
       return;
     }
+
+    if (!confirmDestructiveActions) {
+      void removeExchangeAccount(account);
+      return;
+    }
+
     setExchangeToDelete(account);
   };
 

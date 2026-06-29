@@ -139,6 +139,10 @@ export function reconcileExchange(
   const index = buildOnChainIndex(txStore);
 
   const updatedTransactions = account.transactions.map((tx) => {
+    if (tx.matchState === "manual_match") {
+      return tx;
+    }
+
     const result = matchExchangeTx(tx, index);
     return {
       ...tx,

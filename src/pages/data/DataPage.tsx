@@ -8,10 +8,11 @@ import {
   IonSelect,
   IonSelectOption,
 } from "@ionic/react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ConfirmModal from "../../components/confirm-modal/ConfirmModal";
 import Loader from "../../components/loader/Loader";
 import AppToast from "../../components/toast/Toast";
+import { useAppSettings } from "../../hooks/useAppSettings";
 import { useDataManagement } from "../../hooks/useDataManagement";
 import { addressFormatter } from "../../hooks/useFormatter";
 import {
@@ -26,6 +27,7 @@ type ConfirmAction = "replace-import" | "reset" | null;
 const DataPage: React.FC = () => {
   const { syncFromAPI, exportDataToJson, importDataFromJson, resetCoreData } =
     useDataManagement();
+  const { getSettings } = useAppSettings();
 
   const [isLoading, setIsLoading] = useState(false);
   const [currentAddr, setCurrentAddr] = useState("");
@@ -42,6 +44,8 @@ const DataPage: React.FC = () => {
     string | null
   >(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
+  const [confirmDestructiveActions, setConfirmDestructiveActions] =
+    useState(true);
 
   const [addressConflict, setAddressConflict] = useState<
     ConflictResolution | ""
@@ -50,6 +54,15 @@ const DataPage: React.FC = () => {
   const [utxoConflict, setUtxoConflict] = useState<ConflictResolution | "">("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const initSettings = async () => {
+      const settings = await getSettings();
+      setConfirmDestructiveActions(settings.confirmDestructiveActions);
+    };
+
+    void initSettings();
+  }, []);
 
   const setToast = (message: string, color: string) => {
     setToastData({ isOpen: true, message, color });
@@ -97,7 +110,7 @@ const DataPage: React.FC = () => {
       URL.revokeObjectURL(url);
 
       setToast(
-        `Exported ${payload.metadata.addressCount} addresses, ${payload.metadata.txCount} transactions and ${payload.metadata.utxoCount} UTXOs.`,
+        `Exported ${payload.metadata.addressCount} addresses, ${payload.metadata.txCount} transactions, ${payload.metadata.utxoCount} UTXOs, ${payload.metadata.exchangeCount ?? 0} exchanges and ${payload.metadata.exchangeTxCount ?? 0} exchange transactions.`,
         "success",
       );
     } catch {
@@ -168,6 +181,11 @@ const DataPage: React.FC = () => {
     }
 
     if (importMode === "replace") {
+      if (!confirmDestructiveActions) {
+        void runImport();
+        return;
+      }
+
       setConfirmAction("replace-import");
       return;
     }
@@ -194,7 +212,7 @@ const DataPage: React.FC = () => {
       );
 
       setToast(
-        `Import complete. Addresses +${summary.insertedAddresses}/${summary.replacedAddresses} replaced, transactions +${summary.insertedTransactions}/${summary.replacedTransactions} replaced, UTXOs +${summary.insertedUtxos}/${summary.replacedUtxos} replaced.`,
+        `Import complete. Addresses +${summary.insertedAddresses}/${summary.replacedAddresses} replaced, transactions +${summary.insertedTransactions}/${summary.replacedTransactions} replaced, UTXOs +${summary.insertedUtxos}/${summary.replacedUtxos} replaced, exchanges +${summary.insertedExchanges}/${summary.insertedExchangeTransactions} txs merged.`,
         "success",
       );
     } catch (error) {
@@ -260,7 +278,8 @@ const DataPage: React.FC = () => {
         <IonCardContent className="DataCardContent">
           <div className="FeatureText">
             <p className="FeatureSummary">
-              Download a JSON backup of addresses, transactions, and UTXOs.
+              Download a JSON backup of addresses, transactions, UTXOs, and
+              exchanges.
             </p>
             <p className="FeatureHint">
               Use this before changing devices or before risky operations.
@@ -393,7 +412,7 @@ const DataPage: React.FC = () => {
         <IonCardContent className="DataCardContent">
           <div className="FeatureText">
             <p className="FeatureSummary">
-              Remove all local addresses, transactions, and UTXOs.
+              Remove all local addresses, transactions, UTXOs, and exchanges.
             </p>
             <p className="FeatureHint">
               This action is irreversible and should be used only when starting
@@ -401,7 +420,17 @@ const DataPage: React.FC = () => {
             </p>
           </div>
           <div className="AlignFooterEnd">
-            <IonButton color="danger" onClick={() => setConfirmAction("reset")}>
+            <IonButton
+              color="danger"
+              onClick={() => {
+                if (!confirmDestructiveActions) {
+                  void onResetData();
+                  return;
+                }
+
+                setConfirmAction("reset");
+              }}
+            >
               Reset data
             </IonButton>
           </div>

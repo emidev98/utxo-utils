@@ -1,5 +1,6 @@
 import { Storage } from "@ionic/storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { DEFAULT_APP_SETTINGS } from "../models/AppSettings";
 
 type StorageContextType = {
   storage: Storage;
@@ -19,6 +20,7 @@ export const UTXOS_STORE_KEY = "utxos";
 export const MEMPOOL_STORE_KEY = "mempool_store";
 export const ADDRESSES_STORE_KEY = "addresses";
 export const EXCHANGES_STORE_KEY = "exchanges_store";
+export const APP_SETTINGS_STORE_KEY = "app_settings";
 
 export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -48,6 +50,7 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
     const addressesData = await storage.get(ADDRESSES_STORE_KEY);
     const utxosData = await storage.get(UTXOS_STORE_KEY);
     const exchangesData = await storage.get(EXCHANGES_STORE_KEY);
+    const appSettingsData = await storage.get(APP_SETTINGS_STORE_KEY);
 
     if (!mempoolData || overwritte) {
       await storage.set(MEMPOOL_STORE_KEY, {
@@ -77,6 +80,10 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (!exchangesData || overwritte) {
       await storage.set(EXCHANGES_STORE_KEY, {});
+    }
+
+    if (!appSettingsData || overwritte) {
+      await storage.set(APP_SETTINGS_STORE_KEY, DEFAULT_APP_SETTINGS);
     }
   };
   const resetStorage = () => setStorageData(true);

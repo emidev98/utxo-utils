@@ -3,12 +3,14 @@ import { BitgetParser } from "./BitgetParser";
 import { BybitParser } from "./BybitParser";
 import { CoinbaseParser } from "./CoinbaseParser";
 import { CryptoComParser } from "./CryptoComParser";
+import { GenericTradeParser } from "./GenericTradeParser";
 import { KrakenParser } from "./KrakenParser";
 import { OKXParser } from "./OKXParser";
 import { RevolutParser } from "./RevolutParser";
 import { IExchangeCSVParser } from "./types";
 
 export { ManualMappingParser } from "./ManualMappingParser";
+export { isBitcoinCurrency } from "./types";
 export type { IExchangeCSVParser } from "./types";
 
 /**
@@ -26,6 +28,7 @@ export const KNOWN_PARSERS: IExchangeCSVParser[] = [
   new OKXParser(),
   new BitgetParser(),
   new BybitParser(),
+  new GenericTradeParser(),
 ];
 
 /**
@@ -82,9 +85,10 @@ function splitCSVLines(text: string): string[] {
     if (ch === '"') {
       // Handle escaped quotes ("") inside a quoted field
       if (inQuotes && text[i + 1] === '"') {
-        current += '"';
+        current += '""';
         i++;
       } else {
+        current += ch;
         inQuotes = !inQuotes;
       }
     } else if ((ch === "\n" || ch === "\r") && !inQuotes) {

@@ -1,4 +1,5 @@
 import { AddressInfo as AddressInfoComputed } from "bitcoin-address-validation";
+import { ExchangeStore } from "./ExchangeData";
 import { AddressInfo } from "./MempoolAddress";
 import { Transaction } from "./MempoolAddressTxs";
 import { LocalUTXO } from "./UTXOs";
@@ -13,6 +14,8 @@ export interface ExportMetadata {
   addressCount: number;
   txCount: number;
   utxoCount: number;
+  exchangeCount?: number;
+  exchangeTxCount?: number;
 }
 
 export interface DataExportPayload {
@@ -20,6 +23,7 @@ export interface DataExportPayload {
   addresses: Record<string, ExportAddressInfo>;
   transactions: Record<string, Transaction[]>;
   utxos: Record<string, LocalUTXO>;
+  exchanges?: ExchangeStore;
 }
 
 export type ImportMode = "replace" | "progressive";
@@ -39,4 +43,8 @@ export interface ImportSummary {
   replacedTransactions: number;
   insertedUtxos: number;
   replacedUtxos: number;
+  insertedExchanges: number;
+  replacedExchanges: number;
+  insertedExchangeTransactions: number;
+  skippedExchangeTransactions: number;
 }
