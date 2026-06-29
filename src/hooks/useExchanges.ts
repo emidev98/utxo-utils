@@ -10,8 +10,7 @@ import { TransactionsStorage } from "./useTxs";
 
 export const useExchanges = () => {
   const { storage } = useStorage();
-
-  // ─── Raw store helpers ────────────────────────────────────────────────────
+  const getNowUnix = () => Math.floor(Date.now() / 1000);
 
   const getExchanges = async (): Promise<ExchangeStore> => {
     const store = (await storage.get(EXCHANGES_STORE_KEY)) as ExchangeStore;
@@ -27,7 +26,10 @@ export const useExchanges = () => {
 
   const putExchange = async (account: ExchangeAccount): Promise<void> => {
     const store = await getExchanges();
-    store[account.id] = account;
+    store[account.id] = {
+      ...account,
+      lastModifiedAt: account.lastModifiedAt ?? getNowUnix(),
+    };
     await storage.set(EXCHANGES_STORE_KEY, store);
   };
 
@@ -39,15 +41,6 @@ export const useExchanges = () => {
     }
   };
 
-  // ─── Transaction helpers ──────────────────────────────────────────────────
-
-  /**
-   * Appends parsed exchange transactions to an account, deduplicating by
-   * fingerprint so the same CSV can be re-imported safely.
-   *
-   * @returns The number of transactions actually inserted and the number
-   *          that were skipped as duplicates.
-   */
   const appendTransactions = async (
     exchangeId: string,
     newTxs: ParsedExchangeTx[],
@@ -82,19 +75,14 @@ export const useExchanges = () => {
     }
 
     account.transactions = [...account.transactions, ...toInsert];
-    account.lastImportedAt = Math.floor(Date.now() / 1000);
+    account.lastImportedAt = getNowUnix();
+    account.lastModifiedAt = account.lastImportedAt;
     store[exchangeId] = account;
 
     await storage.set(EXCHANGES_STORE_KEY, store);
     return { inserted, duplicates };
   };
 
-  // ─── Reconciliation ───────────────────────────────────────────────────────
-
-  /**
-   * Runs the three-tier on-chain matching for a single exchange account and
-   * persists the updated match states.
-   */
   const reconcileExchange = async (
     id: string,
     txStore: TransactionsStorage,
@@ -105,6 +93,24 @@ export const useExchanges = () => {
     }
 
     const updated = reconcileUtil(account, txStore);
+    await putExchange({ ...updated, lastModifiedAt: getNowUnix() });
+    return updated;
+  };
+
+  const updateExchangeName = async (
+    id: string,
+    name: string,
+  ): Promise<ExchangeAccount> => {
+    const account = await getExchange(id);
+    if (!account) {
+      throw new Error(`Exchange account ${id} not found`);
+    }
+
+    const updated = {
+      ...account,
+      name,
+      lastModifiedAt: getNowUnix(),
+    };
     await putExchange(updated);
     return updated;
   };
@@ -116,5 +122,6 @@ export const useExchanges = () => {
     removeExchange,
     appendTransactions,
     reconcileExchange,
+    updateExchangeName,
   };
 };

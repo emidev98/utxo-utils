@@ -6,7 +6,11 @@ export type ExchangeTxType =
   | "deposit"
   | "unknown";
 
-export type MatchState = "hash_match" | "amount_date_match" | "unmatched";
+export type MatchState =
+  | "hash_match"
+  | "amount_date_match"
+  | "manual_match"
+  | "unmatched";
 
 export interface FiatExchangeRateData {
   base: string;
@@ -47,6 +51,10 @@ export interface ExchangeTransaction {
   matchState: MatchState;
   /** Matched on-chain txid (populated by reconciliation) */
   matchedTxId?: string;
+  /** True when user edits imported data or creates a row manually. */
+  isManuallyEdited?: boolean;
+  /** True when user explicitly allows a duplicate fingerprint. */
+  isIntentionalDuplicate?: boolean;
 }
 
 export interface ExchangeAccount {
@@ -57,6 +65,8 @@ export interface ExchangeAccount {
   createdAt: number;
   /** Unix seconds, updated after each CSV import */
   lastImportedAt?: number;
+  /** Unix seconds, updated after user/API changes to the exchange account */
+  lastModifiedAt?: number;
   transactions: ExchangeTransaction[];
 }
 

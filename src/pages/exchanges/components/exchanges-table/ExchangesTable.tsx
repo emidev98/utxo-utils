@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import {
   ExchangeAccount,
   ExchangeStore,
-  ExchangeTransaction,
 } from "../../../../models/ExchangeData";
 import "./ExchangesTable.scss";
 import {
@@ -23,27 +22,6 @@ interface ExchangesTableProps {
   onViewExchange: (id: string) => void;
   onDeleteExchange: (id: string) => void;
 }
-
-const getBitcoinFlowAmounts = (transactions: ExchangeTransaction[]) => {
-  return transactions.reduce(
-    (totals, tx) => {
-      if (tx.currency.trim().toUpperCase() !== "BTC") {
-        return totals;
-      }
-
-      if (tx.type === "buy") {
-        totals.purchased += Math.abs(tx.amount);
-      } else if (tx.type === "deposit") {
-        totals.deposited += Math.abs(tx.amount);
-      } else if (tx.type === "withdrawal") {
-        totals.withdrawn += Math.abs(tx.amount);
-      }
-
-      return totals;
-    },
-    { purchased: 0, deposited: 0, withdrawn: 0 },
-  );
-};
 
 const ExchangesTable = ({
   exchangeStore,
@@ -68,7 +46,6 @@ const ExchangesTable = ({
         const matchedCount = account.transactions.filter(
           (tx) => tx.matchState !== "unmatched",
         ).length;
-        const bitcoinFlowAmounts = getBitcoinFlowAmounts(account.transactions);
 
         const timestamps = account.transactions.map((tx) => tx.timestamp);
         const firstTxTimestamp = timestamps.length
@@ -83,21 +60,21 @@ const ExchangesTable = ({
           name: account.name,
           txCount,
           matchedCount,
-          btcPurchasedAmount: bitcoinFlowAmounts.purchased,
-          btcDepositedAmount: bitcoinFlowAmounts.deposited,
-          btcWithdrawnAmount: bitcoinFlowAmounts.withdrawn,
           firstTxTimestamp,
           lastTxTimestamp,
-          lastModifiedTimestamp: account.lastImportedAt,
+          lastModifiedTimestamp:
+            account.lastModifiedAt ?? account.lastImportedAt,
           firstTxDate: firstTxTimestamp
             ? dayjs.unix(firstTxTimestamp).format("YYYY-MM-DD HH:mm")
             : "-",
           lastTxDate: lastTxTimestamp
             ? dayjs.unix(lastTxTimestamp).format("YYYY-MM-DD HH:mm")
             : "-",
-          lastModifiedDate: account.lastImportedAt
-            ? dayjs.unix(account.lastImportedAt).format("YYYY-MM-DD")
-            : "-",
+          lastModifiedDate: account.lastModifiedAt
+            ? dayjs.unix(account.lastModifiedAt).format("YYYY-MM-DD")
+            : account.lastImportedAt
+              ? dayjs.unix(account.lastImportedAt).format("YYYY-MM-DD")
+              : "-",
         };
       },
     );

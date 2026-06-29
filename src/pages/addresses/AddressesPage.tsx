@@ -9,6 +9,7 @@ import {
   AddressStateObject,
   useAddresses,
 } from "../../hooks/useAddresses";
+import { useAppSettings } from "../../hooks/useAppSettings";
 import {
   addressFormatter,
   BTCFormatter,
@@ -25,6 +26,7 @@ const AddressesPage = () => {
   const { getAllTxs, removeTx } = useTxs();
   const { deleteUTXOs } = useUTXOs();
   const { getAddresses, sumBalances, removeAddress } = useAddresses();
+  const { getSettings } = useAppSettings();
 
   const [isLoading, setLoading] = useState(true);
 
@@ -42,11 +44,14 @@ const AddressesPage = () => {
   >();
   const { latestPrice } = useLatestPricingContext();
   const [addressToRemove, setAddressToRemove] = useState<string>();
+  const [confirmDestructiveActions, setConfirmDestructiveActions] =
+    useState(true);
 
   const init = useCallback(async () => {
-    const [_txStore, _addrStore] = await Promise.all([
+    const [_txStore, _addrStore, settings] = await Promise.all([
       getAllTxs(),
       getAddresses(),
+      getSettings(),
     ]);
     const flattenTxs: Array<Transaction> = Object.values(_txStore).flat();
     if (flattenTxs.length !== 0) {
@@ -61,42 +66,52 @@ const AddressesPage = () => {
 
     setTxStore(_txStore);
     setAddrStore(_addrStore);
+    setConfirmDestructiveActions(settings.confirmDestructiveActions);
 
     setLoading(false);
-  }, [latestPrice, getAllTxs, getAddresses, sumBalances]);
+  }, [latestPrice, getAllTxs, getAddresses, getSettings, sumBalances]);
 
   const openNewAddressModal = () => {
     setAddressToEdit(undefined);
     setIsAddressModalOpen(true);
   };
 
-  const onConfirmRemoveAddress = async () => {
-    if (!addressToRemove) {
+  const removeAddressData = async (address: string | undefined) => {
+    if (!address) {
       console.error("No address selected for deletion");
       return;
     }
 
     try {
       await Promise.all([
-        removeTx(addressToRemove),
-        removeAddress(addressToRemove),
-        deleteUTXOs(addressToRemove),
+        removeTx(address),
+        removeAddress(address),
+        deleteUTXOs(address),
       ]);
       setOpenToast({
-        message: `Address ${addressFormatter(addressToRemove)} removed successfully!`,
+        message: `Address ${addressFormatter(address)} removed successfully!`,
         color: "success",
       });
       setAddressToRemove(undefined);
       init();
     } catch {
       setOpenToast({
-        message: `Could not remove address ${addressFormatter(addressToRemove)}`,
+        message: `Could not remove address ${addressFormatter(address)}`,
         color: "danger",
       });
     }
   };
 
+  const onConfirmRemoveAddress = async () => {
+    await removeAddressData(addressToRemove);
+  };
+
   const onDeleteAddress = (address: string) => {
+    if (!confirmDestructiveActions) {
+      void removeAddressData(address);
+      return;
+    }
+
     setAddressToRemove(address);
   };
 

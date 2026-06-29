@@ -4,9 +4,13 @@ import {
   IonCardContent,
   IonCardTitle,
   IonInput,
+  IonItem,
+  IonLabel,
+  IonToggle,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import AppToast from "../../components/toast/Toast";
+import { useAppSettings } from "../../hooks/useAppSettings";
 import { useMempoolApi } from "../../hooks/useMempoolApi";
 import { usePricing } from "../../hooks/usePricing";
 import "./Settings.scss";
@@ -19,9 +23,12 @@ const SettingsPage: React.FC = () => {
   const [coingeckoAPIUrl, setCoingeckoApiUrl] = useState<string>("");
   const [coingeckoUrlValid, setCoingeckoUrlValid] = useState<boolean>(true);
   const [coingeckoTouched, setCoingeckoTouched] = useState<boolean>(true);
+  const [confirmDestructiveActions, setConfirmDestructiveActions] =
+    useState(true);
 
   const { updatePricingAPIUrl, getPricingApiUrl } = usePricing();
   const { getStoredData, updateMempoolAPIUrl } = useMempoolApi();
+  const { getSettings, updateSettings } = useAppSettings();
   const [toast, setToastData] = useState({
     isOpen: false,
     message: "",
@@ -35,6 +42,8 @@ const SettingsPage: React.FC = () => {
       setCoingeckoApiUrl(url);
       const mempoolData = await getStoredData();
       setMempoolAPIUrl(mempoolData.mempoolAPIUrl);
+      const settings = await getSettings();
+      setConfirmDestructiveActions(settings.confirmDestructiveActions);
     };
     init();
   }, []);
@@ -71,6 +80,18 @@ const SettingsPage: React.FC = () => {
     });
   };
 
+  const onConfirmDestructiveActionsChanged = async (checked: boolean) => {
+    setConfirmDestructiveActions(checked);
+    await updateSettings({ confirmDestructiveActions: checked });
+    setToastData({
+      isOpen: true,
+      message: checked
+        ? "Destructive action confirmations enabled."
+        : "Destructive action confirmations disabled.",
+      color: "success",
+    });
+  };
+
   return (
     <div className="SettingsPage">
       <IonCard>
@@ -103,6 +124,24 @@ const SettingsPage: React.FC = () => {
           <div className="AlignFooterEnd">
             <IonButton onClick={onSetAPIUrls}>Set URLs</IonButton>
           </div>
+        </IonCardContent>
+      </IonCard>
+
+      <IonCard>
+        <IonCardTitle>Safety</IonCardTitle>
+        <IonCardContent>
+          <IonItem lines="none">
+            <IonLabel>
+              Confirm destructive actions
+              <p>Ask before deleting or replacing local data.</p>
+            </IonLabel>
+            <IonToggle
+              checked={confirmDestructiveActions}
+              onIonChange={(event) =>
+                void onConfirmDestructiveActionsChanged(event.detail.checked)
+              }
+            />
+          </IonItem>
         </IonCardContent>
       </IonCard>
 

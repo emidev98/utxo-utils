@@ -32,6 +32,7 @@ import {
 import {
   detectParser,
   IExchangeCSVParser,
+  isBitcoinCurrency,
   ManualMappingParser,
   parseCSVText,
 } from "../../utils/csvParsers/index";
@@ -43,6 +44,8 @@ import "./ExchangeModal.scss";
 interface ExchangeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  exchangeId?: string;
+  exchangeName?: string;
 }
 
 /** Canonical field definitions shown in the manual mapping UI */
@@ -63,7 +66,12 @@ const CANONICAL_FIELDS: Array<{
   { key: "description", label: "Description", required: false },
 ];
 
-const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
+const ExchangeModal: React.FC<ExchangeModalProps> = ({
+  isOpen,
+  onClose,
+  exchangeId,
+  exchangeName: existingExchangeName,
+}) => {
   const { putExchange, appendTransactions } = useExchanges();
   const { setOpenToast } = useToastContext();
 
@@ -78,6 +86,7 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
   const [detectedParser, setDetectedParser] =
     useState<IExchangeCSVParser | null>(null);
   const [parsedTxs, setParsedTxs] = useState<ParsedExchangeTx[]>([]);
+  const [skippedNonBtcRows, setSkippedNonBtcRows] = useState(0);
 
   const [columnMapping, setColumnMapping] = useState<Partial<CSVColumnMapping>>(
     {},
@@ -91,6 +100,7 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
     setCsvRows([]);
     setDetectedParser(null);
     setParsedTxs([]);
+    setSkippedNonBtcRows(0);
     setColumnMapping({});
   };
 
@@ -125,30 +135,45 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const normalizeParsedTransactions = async (
+    transactions: ParsedExchangeTx[],
+  ): Promise<ParsedExchangeTx[]> => {
+    const btcTransactions = transactions.filter((tx) =>
+      isBitcoinCurrency(tx.currency),
+    );
+    setSkippedNonBtcRows(transactions.length - btcTransactions.length);
+    return addCommonFiatValues(btcTransactions);
+  };
+
   const onSave = async () => {
     setTouchedName(true);
-    if (!isNameValid) return;
+    if (!exchangeId && !isNameValid) return;
 
     setIsLoading(true);
 
     try {
-      const account: ExchangeAccount = {
-        id: crypto.randomUUID(),
-        name: exchangeName.trim(),
-        createdAt: Math.floor(Date.now() / 1000),
-        transactions: [],
-      };
+      const account: ExchangeAccount | undefined = exchangeId
+        ? undefined
+        : {
+            id: crypto.randomUUID(),
+            name: exchangeName.trim(),
+            createdAt: Math.floor(Date.now() / 1000),
+            lastModifiedAt: Math.floor(Date.now() / 1000),
+            transactions: [],
+          };
 
-      await putExchange(account);
+      if (account) {
+        await putExchange(account);
+      }
 
       if (parsedTxs.length > 0) {
         const { inserted, duplicates } = await appendTransactions(
-          account.id,
+          exchangeId ?? account!.id,
           parsedTxs,
         );
 
         setOpenToast({
-          message: `Saved exchange and imported ${inserted} transaction${inserted !== 1 ? "s" : ""}${duplicates > 0 ? `, skipped ${duplicates} duplicate${duplicates !== 1 ? "s" : ""}` : ""}.`,
+          message: `${exchangeId ? "Imported" : "Saved exchange and imported"} ${inserted} transaction${inserted !== 1 ? "s" : ""}${duplicates > 0 ? `, skipped ${duplicates} duplicate${duplicates !== 1 ? "s" : ""}` : ""}${skippedNonBtcRows > 0 ? `, skipped ${skippedNonBtcRows} non-BTC row${skippedNonBtcRows !== 1 ? "s" : ""}` : ""}.`,
           color: "success",
         });
       } else if (
@@ -163,7 +188,11 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
         });
       } else {
         setOpenToast({
-          message: `Exchange "${account.name}" created.`,
+          message: exchangeId
+            ? skippedNonBtcRows > 0
+              ? `No BTC transactions were imported. Skipped ${skippedNonBtcRows} non-BTC row${skippedNonBtcRows !== 1 ? "s" : ""}.`
+              : "No transactions were imported."
+            : `Exchange "${account!.name}" created.`,
           color: "success",
         });
       }
@@ -193,13 +222,16 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
       setColumnMapping({});
 
       if (parser) {
-        const parsed = await addCommonFiatValues(parser.parse(rows));
+        console.log("rows", rows);
+        const parsed = await normalizeParsedTransactions(parser.parse(rows));
+        console.log("parsed", parsed);
         setParsedTxs(parsed);
       } else {
         setParsedTxs([]);
+        setSkippedNonBtcRows(0);
       }
 
-      if (exchangeName.trim() === "") {
+      if (!exchangeId && exchangeName.trim() === "") {
         const nameFromFile = file.name.replace(/\.[^/.]+$/, "");
         setExchangeName(nameFromFile);
       }
@@ -232,7 +264,7 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
     try {
       const parser = new ManualMappingParser(next as CSVColumnMapping);
-      const parsed = await addCommonFiatValues(parser.parse(csvRows));
+      const parsed = await normalizeParsedTransactions(parser.parse(csvRows));
       setParsedTxs(parsed);
     } catch {
       setParsedTxs([]);
@@ -313,7 +345,11 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
     >
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Add exchange data</IonTitle>
+          <IonTitle>
+            {exchangeId
+              ? `Import ${existingExchangeName ?? "exchange"} CSV`
+              : "Add exchange data"}
+          </IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={handleClose}>
               <IonIcon icon={closeOutline} slot="icon-only" />
@@ -324,17 +360,19 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
 
       <Loader isOpen={isLoading} message="Importing transactions…" />
       <IonContent className="ion-padding">
-        <IonInput
-          className={`InputElement ${isNameValid ? "ion-valid" : ""} ${!isNameValid && isTouchedName ? "ion-invalid" : ""} ${isTouchedName ? "ion-touched" : ""}`}
-          label="Exchange name *"
-          labelPlacement="floating"
-          value={exchangeName}
-          placeholder="e.g. Binance, Crypto.com, Revolut"
-          helperText="A label to identify this exchange account"
-          errorText="Exchange name is required"
-          onIonInput={(e) => setExchangeName(e.detail.value ?? "")}
-          onIonBlur={() => setTouchedName(true)}
-        />
+        {!exchangeId && (
+          <IonInput
+            className={`InputElement ${isNameValid ? "ion-valid" : ""} ${!isNameValid && isTouchedName ? "ion-invalid" : ""} ${isTouchedName ? "ion-touched" : ""}`}
+            label="Exchange name *"
+            labelPlacement="floating"
+            value={exchangeName}
+            placeholder="e.g. Binance, Crypto.com, Revolut"
+            helperText="A label to identify this exchange account"
+            errorText="Exchange name is required"
+            onIonInput={(e) => setExchangeName(e.detail.value ?? "")}
+            onIonBlur={() => setTouchedName(true)}
+          />
+        )}
 
         <p className="StepHint">
           Upload a CSV export from your exchange. The format will be detected
@@ -365,6 +403,15 @@ const ExchangeModal: React.FC<ExchangeModalProps> = ({ isOpen, onClose }) => {
               <IonLabel>Unknown format — manual mapping required</IonLabel>
             </IonChip>
           ) : null}
+          {skippedNonBtcRows > 0 && (
+            <IonChip color="warning">
+              <IonIcon icon={warningOutline} />
+              <IonLabel>
+                Skipped {skippedNonBtcRows} non-BTC row
+                {skippedNonBtcRows !== 1 ? "s" : ""}
+              </IonLabel>
+            </IonChip>
+          )}
         </div>
 
         {!detectedParser && csvHeaders.length > 0 && (

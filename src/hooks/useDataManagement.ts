@@ -1,5 +1,6 @@
 import {
   ADDRESSES_STORE_KEY,
+  EXCHANGES_STORE_KEY,
   TXS_STORE_KEY,
   UTXOS_STORE_KEY,
   useStorage,
@@ -10,6 +11,7 @@ import {
   ImportSummary,
   ProgressiveConflictConfig,
 } from "../models/DataExport";
+import { ExchangeAccount, ExchangeStore } from "../models/ExchangeData";
 import { Transaction, UTXO } from "../models/MempoolAddressTxs";
 import { LocalUTXO } from "../models/UTXOs";
 import { AddressStateObject, useAddresses } from "./useAddresses";
@@ -26,6 +28,10 @@ const createEmptyImportSummary = (): ImportSummary => ({
   replacedTransactions: 0,
   insertedUtxos: 0,
   replacedUtxos: 0,
+  insertedExchanges: 0,
+  replacedExchanges: 0,
+  insertedExchangeTransactions: 0,
+  skippedExchangeTransactions: 0,
 });
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -77,6 +83,46 @@ const isValidLocalUtxo = (value: unknown): value is LocalUTXO => {
   return hasNumberProp(value, "lastUpdated") && Array.isArray(value.utxos);
 };
 
+const isValidExchangeTransaction = (value: unknown): boolean => {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    hasStringProp(value, "id") &&
+    hasStringProp(value, "fingerprint") &&
+    hasStringProp(value, "exchangeId") &&
+    hasNumberProp(value, "timestamp") &&
+    hasStringProp(value, "type") &&
+    hasNumberProp(value, "amount") &&
+    hasStringProp(value, "currency") &&
+    isRecord(value.rawData) &&
+    hasStringProp(value, "matchState")
+  );
+};
+
+const isValidExchangeAccount = (value: unknown): value is ExchangeAccount => {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    hasStringProp(value, "id") &&
+    hasStringProp(value, "name") &&
+    hasNumberProp(value, "createdAt") &&
+    Array.isArray(value.transactions) &&
+    value.transactions.every(isValidExchangeTransaction)
+  );
+};
+
+const isValidExchangeStore = (value: unknown): value is ExchangeStore => {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return Object.values(value).every(isValidExchangeAccount);
+};
+
 const isValidPayload = (value: unknown): value is DataExportPayload => {
   if (!isRecord(value)) {
     return false;
@@ -101,7 +147,8 @@ const isValidPayload = (value: unknown): value is DataExportPayload => {
   if (
     !isRecord(value.addresses) ||
     !isRecord(value.transactions) ||
-    !isRecord(value.utxos)
+    !isRecord(value.utxos) ||
+    (value.exchanges !== undefined && !isValidExchangeStore(value.exchanges))
   ) {
     return false;
   }
@@ -189,15 +236,17 @@ export const useDataManagement = () => {
   };
 
   const buildExportPayload = async (): Promise<DataExportPayload> => {
-    const [addresses, transactions, utxos] = await Promise.all([
+    const [addresses, transactions, utxos, exchanges] = await Promise.all([
       storage.get(ADDRESSES_STORE_KEY),
       storage.get(TXS_STORE_KEY),
       storage.get(UTXOS_STORE_KEY),
+      storage.get(EXCHANGES_STORE_KEY),
     ]);
 
     const safeAddresses = (addresses ?? {}) as AddressStateObject;
     const safeTransactions = (transactions ?? {}) as TransactionsStorage;
     const safeUtxos = (utxos ?? {}) as Record<string, LocalUTXO>;
+    const safeExchanges = (exchanges ?? {}) as ExchangeStore;
 
     const txCount = Object.values(safeTransactions).reduce(
       (acc, txList) => acc + txList.length,
@@ -205,6 +254,10 @@ export const useDataManagement = () => {
     );
     const utxoCount = Object.values(safeUtxos).reduce(
       (acc, local) => acc + local.utxos.length,
+      0,
+    );
+    const exchangeTxCount = Object.values(safeExchanges).reduce(
+      (acc, exchange) => acc + exchange.transactions.length,
       0,
     );
 
@@ -215,10 +268,13 @@ export const useDataManagement = () => {
         addressCount: Object.keys(safeAddresses).length,
         txCount,
         utxoCount,
+        exchangeCount: Object.keys(safeExchanges).length,
+        exchangeTxCount,
       },
       addresses: safeAddresses,
       transactions: safeTransactions,
       utxos: safeUtxos,
+      exchanges: safeExchanges,
     };
   };
 
@@ -252,7 +308,10 @@ export const useDataManagement = () => {
       );
     }
 
-    return parsed;
+    return {
+      ...parsed,
+      exchanges: parsed.exchanges ?? {},
+    };
   };
 
   const importDataFromJson = async (
@@ -266,6 +325,7 @@ export const useDataManagement = () => {
       await storage.set(ADDRESSES_STORE_KEY, payload.addresses);
       await storage.set(TXS_STORE_KEY, payload.transactions);
       await storage.set(UTXOS_STORE_KEY, payload.utxos);
+      await storage.set(EXCHANGES_STORE_KEY, payload.exchanges ?? {});
 
       return {
         insertedAddresses: Object.keys(payload.addresses).length,
@@ -280,6 +340,12 @@ export const useDataManagement = () => {
           0,
         ),
         replacedUtxos: 0,
+        insertedExchanges: Object.keys(payload.exchanges ?? {}).length,
+        replacedExchanges: 0,
+        insertedExchangeTransactions: Object.values(
+          payload.exchanges ?? {},
+        ).reduce((acc, exchange) => acc + exchange.transactions.length, 0),
+        skippedExchangeTransactions: 0,
       };
     }
 
@@ -288,17 +354,23 @@ export const useDataManagement = () => {
     }
 
     const summary = createEmptyImportSummary();
-    const [existingAddressesRaw, existingTxsRaw, existingUtxosRaw] =
-      await Promise.all([
-        storage.get(ADDRESSES_STORE_KEY),
-        storage.get(TXS_STORE_KEY),
-        storage.get(UTXOS_STORE_KEY),
-      ]);
+    const [
+      existingAddressesRaw,
+      existingTxsRaw,
+      existingUtxosRaw,
+      existingExchangesRaw,
+    ] = await Promise.all([
+      storage.get(ADDRESSES_STORE_KEY),
+      storage.get(TXS_STORE_KEY),
+      storage.get(UTXOS_STORE_KEY),
+      storage.get(EXCHANGES_STORE_KEY),
+    ]);
 
     const existingAddresses = (existingAddressesRaw ??
       {}) as AddressStateObject;
     const existingTxs = (existingTxsRaw ?? {}) as TransactionsStorage;
     const existingUtxos = (existingUtxosRaw ?? {}) as Record<string, LocalUTXO>;
+    const existingExchanges = (existingExchangesRaw ?? {}) as ExchangeStore;
 
     for (const [addr, incomingAddr] of Object.entries(payload.addresses)) {
       const alreadyExists = Boolean(existingAddresses[addr]);
@@ -362,9 +434,50 @@ export const useDataManagement = () => {
       };
     }
 
+    for (const [exchangeId, incomingExchange] of Object.entries(
+      payload.exchanges ?? {},
+    )) {
+      const currentExchange = existingExchanges[exchangeId];
+      if (!currentExchange) {
+        existingExchanges[exchangeId] = incomingExchange;
+        summary.insertedExchanges += 1;
+        summary.insertedExchangeTransactions +=
+          incomingExchange.transactions.length;
+        continue;
+      }
+
+      const txByFingerprint = new Map(
+        currentExchange.transactions.map((tx) => [tx.fingerprint, tx]),
+      );
+
+      for (const incomingTx of incomingExchange.transactions) {
+        if (txByFingerprint.has(incomingTx.fingerprint)) {
+          summary.skippedExchangeTransactions += 1;
+          continue;
+        }
+
+        txByFingerprint.set(incomingTx.fingerprint, incomingTx);
+        summary.insertedExchangeTransactions += 1;
+      }
+
+      existingExchanges[exchangeId] = {
+        ...currentExchange,
+        transactions: Array.from(txByFingerprint.values()),
+        lastImportedAt: Math.max(
+          currentExchange.lastImportedAt ?? 0,
+          incomingExchange.lastImportedAt ?? 0,
+        ),
+        lastModifiedAt: Math.max(
+          currentExchange.lastModifiedAt ?? 0,
+          incomingExchange.lastModifiedAt ?? 0,
+        ),
+      };
+    }
+
     await storage.set(ADDRESSES_STORE_KEY, existingAddresses);
     await storage.set(TXS_STORE_KEY, existingTxs);
     await storage.set(UTXOS_STORE_KEY, existingUtxos);
+    await storage.set(EXCHANGES_STORE_KEY, existingExchanges);
 
     return summary;
   };
